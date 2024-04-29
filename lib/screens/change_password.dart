@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/services/auth.dart';
 import 'package:flutter/material.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -157,6 +158,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             //
+                            AuthMethods().changePassword(_newPasswordEditingController.text);
                           }
                         },
                       ),)

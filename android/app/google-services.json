@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "991957758896",
+    "project_id": "final-quizlet-english",
+    "storage_bucket": "final-quizlet-english.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991957758896:android:e4dba378e10f5f5e6e9c75",
+        "android_client_info": {
+          "package_name": "com.example.final_quizlet_english"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991957758896-7u29mn39tg9j1hbqag9uaqpta80j40ne.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzHhjSVPOiaSYl9E4OakkV-THRY_Y5ZA4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991957758896-37pll2qir9hm7nnhrboks711ob560kcl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "991957758896-7bcjlbr5g6nc1a9gohvigtcq6is5k30n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.finalQuizletEnglish"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
