@@ -7,6 +7,9 @@ import 'package:final_quizlet_english/screens/update_profile.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/splash.dart';
+import 'package:final_quizlet_english/screens/createSet.dart';
+import 'package:final_quizlet_english/screens/settingSet.dart';
+import 'package:final_quizlet_english/screens/library.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +29,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SignInPage(),
+      home: LibraryPage(),
     );
   }
 }
