@@ -10,13 +10,13 @@ class UserDao {
       QuerySnapshot querySnapshot =
           await userCollection.where('email', isEqualTo: user.email).get();
       if (querySnapshot.docs.isNotEmpty) {
-        return {"status": false, "message": "User exists"};
+        return {"status": false, "message": "Người dùng đã tồn tại."};
       }
 
       Map<String, dynamic> userData = user.toJson();
 
       await userCollection.add(userData);
-      return {"status": true, "message": "User added successfully"};
+      return {"status": true, "message": "Đăng ký thành công."};
     } catch (e) {
       return {"status": false, "message": e.toString()};
     }
@@ -33,7 +33,7 @@ class UserDao {
         userData['id'] = querySnapshot.docs.first.id;
         return {"status": true, "data": userData};
       } else {
-        return {"status": false, "message": "User not found"};
+        return {"status": false, "message": "Không tìm thấy người dùng."};
       }
     } catch (e) {
       return {"status": false, "message": e.toString()};
@@ -44,7 +44,7 @@ class UserDao {
     try {
       await userCollection.doc(user.id).update(user.toJson());
 
-      return {"status": true, "message": "User updated successfully"};
+      return {"status": true, "message": "Cập nhật thông tin người dùng thành công."};
     } catch (e) {
       return {"status": false, "message": e.toString()};
     }

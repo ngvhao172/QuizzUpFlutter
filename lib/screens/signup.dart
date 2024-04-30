@@ -21,65 +21,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   var _formKey = GlobalKey<FormState>();
 
-  // register(
-  //     String displayName, String email, String password) async {
-  //   Map<String, dynamic> userInfoMap = {
-  //     "displayName": displayName,
-  //     "email": email,
-  //     "password": password,
-  //   };
-  //   try {
-  //     UserDao().addUser(UserModel.fromJson(userInfoMap)).then((result) async {
-  //       print(result);
-  //       if (result["status"]) {
-  //         await FirebaseAuth.instance
-  //             .createUserWithEmailAndPassword(email: email, password: password);
-  //         return {"status": true, "message": result["message"]};
-  //       } else {
-  //         return result;
-  //       }
-  //     });
-  //   } on FirebaseAuthException catch (e) {
-  //     return {"status": false, "message": e.message};
-  //   } catch (e) {
-  //     return {"status": false, "message": e};
-  //   }
-  // }
-  register(String displayName, String email, String password) async {
-    Map<String, dynamic> userInfoMap = {
-      "displayName": displayName,
-      "email": email,
-      "password": password,
-    };
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      await userCredential.user?.sendEmailVerification();
-
-      Map<String, dynamic> result =
-          await UserDao().addUser(UserModel.fromJson(userInfoMap));
-
-      if (result["status"]) {
-        // User? user = FirebaseAuth.instance.currentUser;
-        // user?.updateDisplayName(displayName);
-        return result;
-      } else {
-        await userCredential.user?.delete();
-        return result;
-      }
-    } on FirebaseAuthException catch (e) {
-      print(e);
-      return {
-        "status": false,
-        "message": e.toString().split("]")[1].toString()
-      };
-    } catch (e) {
-      return {"status": false, "message": e.toString()};
-    }
-  }
-
   var obscurePassword = true;
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -269,21 +213,24 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: MaterialButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                var result = await register(
+                                setState(() {
+                                      isLoading =
+                                          true;
+                                    });
+                                var result = await AuthMethods().register(
                                     _nameController.text,
                                     _emailController.text,
                                     _passwordController.text);
+                                   setState(() {
+                                      isLoading =
+                                          false;
+                                    });
                                 if (result["status"]) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfilePage()),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  Navigator.pop(context);
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text(result["message"])));
-                                }
                               }
                             },
                             height: 50,
@@ -294,8 +241,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             // decoration: BoxDecoration(
                             // ),
-                            child: const Center(
-                              child: Text(
+                            child: Center(
+                              child: isLoading ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) : const Text(
                                 "Sign Up",
                                 style: TextStyle(
                                     color: Colors.white,

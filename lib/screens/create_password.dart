@@ -2,28 +2,28 @@ import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:flutter/material.dart';
 
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key});
+class CreatePasswordPage extends StatefulWidget {
+  const CreatePasswordPage({super.key});
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+  State<CreatePasswordPage> createState() => _CreatePasswordPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _CreatePasswordPageState extends State<CreatePasswordPage> {
   final _formKey = GlobalKey<FormState>();
   var obscureOldPassword = true;
   var obscureNewPassword = true;
   var obscureConfirmPassword = true;
+  bool isLoading = false;
   TextEditingController _oldPasswordEditingController = TextEditingController();
   TextEditingController _newPasswordEditingController = TextEditingController();
-  TextEditingController _confirmNewPasswordEditingController =
-      TextEditingController();
+  TextEditingController _confirmNewPasswordEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Change Password"),
+          title: const Text("Create Password"),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -48,37 +48,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     children: [
-                      TextFormField(
-                        obscureText: obscureOldPassword,
-                        controller: _oldPasswordEditingController,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(100)),
-                            labelText: 'Old password',
-                            hintText: "Enter your old password",
-                            prefixIcon: Icon(Icons.password),
-                            suffixIcon: Padding(
-                                padding: EdgeInsets.only(right: 8.0),
-                                child: IconButton(
-                                    icon: (obscureOldPassword)
-                                        ? Icon(Icons.remove_red_eye)
-                                        : Icon(Icons.visibility_off),
-                                    onPressed: () {
-                                      setState(() {
-                                        obscureOldPassword =
-                                            !obscureOldPassword;
-                                      });
-                                    }))),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Old password is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
                       TextFormField(
                         obscureText: obscureNewPassword,
                         controller: _newPasswordEditingController,
@@ -152,24 +121,21 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                               borderRadius: BorderRadius.circular(32.0)),
                           minimumSize: Size(200, 50),
                         ),
-                        child: const Text(
+                        child: isLoading ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) :  const Text(
                           'Change',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
+                            //
                             if(_newPasswordEditingController.text == _confirmNewPasswordEditingController.text){
-                               var result = await AuthMethods().reAuthAccount(_oldPasswordEditingController.text);
-                               if(result["status"]){
-                                var result2 = await AuthMethods().creataNewPassword(_newPasswordEditingController.text);
-                                if(result2["status"]){
-                                   Navigator.pop(context);
-                                }
-                                showScaffoldMessage(context, result2["message"]);
-                               }
-                               else{
-                                 showScaffoldMessage(context, result["message"]);
-                               }
+                                                          setState(() {
+                              isLoading == true;
+                            });
+                              var result = await AuthMethods().creataNewPassword(_newPasswordEditingController.text);
+                                                          setState(() {
+                              isLoading == false;
+                            });
                             }
                             else{
                               showScaffoldMessage(context, "Mật khẩu không trùng khớp.");

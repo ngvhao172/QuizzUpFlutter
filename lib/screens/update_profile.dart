@@ -84,7 +84,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                       borderRadius: BorderRadius.circular(100),
                                       color: Colors.lightGreen),
                                   child: IconButton(
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.camera_alt,
                                       color: Colors.white,
                                     ),
@@ -256,7 +256,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   }
                 }
                 return const Center(
-                  child: const CircularProgressIndicator(),
+                  child:  CircularProgressIndicator(
+                    color: Colors.lightGreen,
+                  ),
                 );
               },
             ),

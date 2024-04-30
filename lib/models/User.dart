@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class UserModel {
 
   String? id;
@@ -5,6 +7,7 @@ class UserModel {
   String displayName;
   String? phoneNumber;
   String? photoURL;
+  List<UserInfo>? userInfos;
 
   UserModel({
     this.id,

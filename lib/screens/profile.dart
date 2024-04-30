@@ -1,7 +1,9 @@
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/change_password.dart';
+import 'package:final_quizlet_english/screens/create_password.dart';
 import 'package:final_quizlet_english/screens/update_profile.dart';
 import 'package:final_quizlet_english/services/auth.dart';
+import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -41,6 +43,8 @@ class _ProfilePageState extends State<ProfilePage> {
   // }
   late Future<UserModel?> _userDataFuture;
 
+  bool isPasswordProvider = false;
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +71,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     UserModel user = snapshot.data as UserModel;
+                    for (var userInfo in user.userInfos!) {
+                      if(userInfo.providerId == "password"){
+                        isPasswordProvider = true;
+                        break;
+                      }              
+                    }
                     return Container(
                       padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
                       child: Center(
@@ -110,14 +120,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             Text(
                               user.displayName.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Color.fromARGB(255, 65, 65, 65)),
                             ),
                             Text(
                               user.email.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Color.fromARGB(255, 65, 65, 65)),
                             ),
                             const SizedBox(
@@ -130,7 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 elevation: 3,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(32.0)),
-                                minimumSize: Size(200, 50),
+                                minimumSize: const Size(200, 50),
                               ),
                               child: const Text(
                                 'Edit Profile',
@@ -162,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(
                               height: 20,
                             ),
-                            getMenuItem(
+                            (isPasswordProvider==true) ? getMenuItem(
                               title: "Change password",
                               icon: Icons.settings,
                               endIcon: true,
@@ -173,7 +183,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                         builder: (context) =>
                                             ChangePasswordPage()));
                               },
+                            ) : getMenuItem(
+                              title: "Create password",
+                              icon: Icons.settings,
+                              endIcon: true,
+                              onPress: () async {
+                                var result = await AuthMethods().reAuthGoogle();
+                                if(result["status"]){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CreatePasswordPage()));
+                                }
+                                else{
+                                  showScaffoldMessage(context, result["message"]);
+                                }
+                              },
                             )
+                            
                           ],
                         ),
                       ),
@@ -187,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircularProgressIndicator(
-                        color: Colors.blue,
+                        color: Colors.lightGreen,
                       ),
                     ],
                   )),
