@@ -1,5 +1,6 @@
+import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/screens/settingSet.dart';
+import 'package:final_quizlet_english/screens/TopicSetting.dart';
 
 class CreateSet extends StatefulWidget {
   const CreateSet({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class _CreateSetState extends State<CreateSet> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Create Set",
+          "Create Topic",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -68,7 +69,13 @@ class _CreateSetState extends State<CreateSet> {
                           'You must add at least four terms to save your set'),
                       actions: <Widget>[
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LibraryPage()),
+                            );
+                          },
                           child: const Text('Delete',
                               style: TextStyle(color: Colors.orange)),
                         ),
@@ -94,7 +101,7 @@ class _CreateSetState extends State<CreateSet> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

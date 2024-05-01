@@ -1,11 +1,11 @@
 import 'package:final_quizlet_english/models/User.dart';
-import 'package:final_quizlet_english/screens/profile.dart';
+import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:final_quizlet_english/screens/signin.dart';
+import 'package:final_quizlet_english/screens/SignIn.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

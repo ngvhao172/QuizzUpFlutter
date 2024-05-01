@@ -17,7 +17,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
   bool isLoading = false;
   TextEditingController _oldPasswordEditingController = TextEditingController();
   TextEditingController _newPasswordEditingController = TextEditingController();
-  TextEditingController _confirmNewPasswordEditingController = TextEditingController();
+  TextEditingController _confirmNewPasswordEditingController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -111,38 +112,49 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
                       const SizedBox(
                         height: 20,
                       ),
-                      SizedBox(width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.lightGreen,
-                          foregroundColor: Colors.white,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32.0)),
-                          minimumSize: Size(200, 50),
-                        ),
-                        child: isLoading ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) :  const Text(
-                          'Change',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            //
-                            if(_newPasswordEditingController.text == _confirmNewPasswordEditingController.text){
-                                                          setState(() {
-                              isLoading == true;
-                            });
-                              var result = await AuthMethods().creataNewPassword(_newPasswordEditingController.text);
-                                                          setState(() {
-                              isLoading == false;
-                            });
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.lightGreen,
+                            foregroundColor: Colors.white,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32.0)),
+                            minimumSize: Size(200, 50),
+                          ),
+                          child: isLoading
+                              ? CircularProgressIndicator(
+                                  backgroundColor: Colors.lightGreen[700],
+                                  strokeWidth: 2.0,
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  'Change',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              //
+                              if (_newPasswordEditingController.text ==
+                                  _confirmNewPasswordEditingController.text) {
+                                setState(() {
+                                  isLoading == true;
+                                });
+                                var result = await AuthMethods()
+                                    .creataNewPassword(
+                                        _newPasswordEditingController.text);
+                                setState(() {
+                                  isLoading == false;
+                                });
+                              } else {
+                                showScaffoldMessage(
+                                    context, "Mật khẩu không trùng khớp.");
+                              }
                             }
-                            else{
-                              showScaffoldMessage(context, "Mật khẩu không trùng khớp.");
-                            }
-                          }
-                        },
-                      ),)
+                          },
+                        ),
+                      )
                     ],
                   ),
                 )

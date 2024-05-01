@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/screens/signin.dart';
+import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:flutter/services.dart';
 
 class SplashScreen extends StatefulWidget {

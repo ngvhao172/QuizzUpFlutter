@@ -1,15 +1,16 @@
 import 'package:final_quizlet_english/firebase_options.dart';
-import 'package:final_quizlet_english/screens/change_password.dart';
-import 'package:final_quizlet_english/screens/profile.dart';
-import 'package:final_quizlet_english/screens/signin.dart';
+import 'package:final_quizlet_english/screens/PasswordChange.dart';
+import 'package:final_quizlet_english/screens/Profile.dart';
+import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/screens/signup.dart';
-import 'package:final_quizlet_english/screens/update_profile.dart';
+import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/splash.dart';
-import 'package:final_quizlet_english/screens/createSet.dart';
-import 'package:final_quizlet_english/screens/settingSet.dart';
-import 'package:final_quizlet_english/screens/library.dart';
+import 'package:final_quizlet_english/Splash.dart';
+import 'package:final_quizlet_english/screens/TopicCreate.dart';
+import 'package:final_quizlet_english/screens/TopicSetting.dart';
+import 'package:final_quizlet_english/screens/Library.dart';
+import 'package:final_quizlet_english/screens/TopicDetail.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SignInPage(),
+      home: TDetailPage(),
     );
   }
 }

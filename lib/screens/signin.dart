@@ -1,4 +1,4 @@
-import 'package:final_quizlet_english/screens/profile.dart';
+import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';

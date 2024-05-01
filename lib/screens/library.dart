@@ -1,4 +1,4 @@
-import 'package:final_quizlet_english/screens/createSet.dart';
+import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 
 import 'package:flutter/material.dart';
@@ -59,16 +59,16 @@ class _LibraryPageState extends State<LibraryPage>
           AnimatedContainer(
             width:
                 isSearchExpanded ? MediaQuery.of(context).size.width - 22 : 170,
-            height: 30,
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
               color: Colors.orange[50],
-              borderRadius: BorderRadius.circular(25.0),
+              borderRadius: BorderRadius.circular(20.0),
             ),
             child: isSearchExpanded
                 ? Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: TextField(
@@ -97,6 +97,7 @@ class _LibraryPageState extends State<LibraryPage>
                 : Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
                           child: TextField(
@@ -151,6 +152,7 @@ class _LibraryPageState extends State<LibraryPage>
                 ),
                 child: TabBar(
                   controller: _tabController,
+                  indicatorSize: TabBarIndicatorSize.tab,
                   indicator: ShapeDecoration(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25.0),
@@ -164,7 +166,7 @@ class _LibraryPageState extends State<LibraryPage>
                       text: 'Topics',
                     ),
                     Tab(
-                      text: 'Folders',
+                      text: 'Colections',
                     ),
                   ],
                 ),
@@ -217,7 +219,7 @@ class _LibraryPageState extends State<LibraryPage>
                                     ListTile(
                                       leading:
                                           const Icon(Icons.create_new_folder),
-                                      title: const Text('Create new set'),
+                                      title: const Text('Create Topic'),
                                       onTap: () {
                                         Navigator.push(
                                           context,
@@ -271,14 +273,15 @@ class _LibraryPageState extends State<LibraryPage>
                                   builder: (context) => TDetailPage()),
                             );
                           },
-                          child: const Card(
-                            child: Column(
+                          child: Card(
+                            color: Colors.orange[50],
+                            child: const Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
                                   leading: Image(
                                     image: AssetImage(
-                                        'assets/images/google_icon.png'), //để nào design logo theo filter
+                                        'assets/images/QLogo.png'), //để nào design logo theo filter
                                   ),
                                   title: Text('Color'), //tên Topics
                                   subtitle: Column(
@@ -326,14 +329,15 @@ class _LibraryPageState extends State<LibraryPage>
                                   builder: (context) => TDetailPage()),
                             );
                           },
-                          child: const Card(
-                            child: Column(
+                          child: Card(
+                            color: Colors.orange[50],
+                            child: const Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
                                   leading: Image(
                                     image: AssetImage(
-                                        'assets/images/google_icon.png'), //để nào design logo theo filter
+                                        'assets/images/QLogo.png'), //để nào design logo theo filter
                                   ),
                                   title: Text('Color'), //tên Topics
                                   subtitle: Column(
