@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '991957758896',
     projectId: 'final-quizlet-english',
     storageBucket: 'final-quizlet-english.appspot.com',
+    androidClientId: '991957758896-8l47hauusrjsc62mid8ar8rh3301jgbm.apps.googleusercontent.com',
     iosClientId: '991957758896-7bcjlbr5g6nc1a9gohvigtcq6is5k30n.apps.googleusercontent.com',
     iosBundleId: 'com.example.finalQuizletEnglish',
   );
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '991957758896',
     projectId: 'final-quizlet-english',
     storageBucket: 'final-quizlet-english.appspot.com',
+    androidClientId: '991957758896-8l47hauusrjsc62mid8ar8rh3301jgbm.apps.googleusercontent.com',
     iosClientId: '991957758896-7bcjlbr5g6nc1a9gohvigtcq6is5k30n.apps.googleusercontent.com',
     iosBundleId: 'com.example.finalQuizletEnglish',
   );
