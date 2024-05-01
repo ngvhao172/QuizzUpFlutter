@@ -1,6 +1,6 @@
 import 'package:final_quizlet_english/screens/profile.dart';
-import 'package:final_quizlet_english/services/auth.dart';
-import 'package:final_quizlet_english/widgets/notifications.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -9,6 +9,8 @@ import 'package:flutter/widgets.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
+
+  static const String routeName = '/login';
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -22,9 +24,10 @@ class _SignInPageState extends State<SignInPage> {
 
   var _formKey = GlobalKey<FormState>();
   var _formKeyForgot = GlobalKey<FormState>();
-  var _formKeyResendEmailVerified = GlobalKey<FormState>();
 
   bool isLoading = false;
+
+  bool isLoadingResend = false;
 
   var obscurePassword = true;
 
@@ -198,7 +201,7 @@ class _SignInPageState extends State<SignInPage> {
                                       isLoading =
                                           true;
                                     });
-                                    var result = await AuthMethods().login(
+                                    var result = await AuthService().login(
                                         _emailController.text,
                                         _passwordController.text);
                                     setState(() {
@@ -317,7 +320,7 @@ class _SignInPageState extends State<SignInPage> {
                                 duration: const Duration(milliseconds: 1900),
                                 child: MaterialButton(
                                   onPressed: () {
-                                    AuthMethods()
+                                    AuthService()
                                         .signInWithGoogle()
                                         .then((result) {
                                       if (result["status"]) {
@@ -420,7 +423,7 @@ class _SignInPageState extends State<SignInPage> {
             TextButton(
               onPressed: () async {
                 if (_formKeyForgot.currentState!.validate()) {
-                  var result = await AuthMethods()
+                  var result = await AuthService()
                       .forgotPassword(_forgotEmailController.text);
                   showScaffoldMessage(context, result["message"]);
                   Navigator.pop(context);
@@ -458,7 +461,9 @@ class _SignInPageState extends State<SignInPage> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              getResendEmailVerifiedDialog();
+              getResendEmailVerifiedDialog().then((_)=>{
+                Navigator.pop(context)
+              });
             },
             child: const Text('Gửi lại email xác minh',
                 style: TextStyle(color: Colors.lightGreen)),
@@ -481,23 +486,9 @@ class _SignInPageState extends State<SignInPage> {
             "Gửi lại email xác minh",
             textAlign: TextAlign.center,
           ),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(
+          content: const Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(
                 "Đừng lo lắng, chúng tôi sẽ gửi lại email xác minh cho bạn."),
-            Form(
-                key: _formKeyResendEmailVerified,
-                child: TextFormField(
-                  controller: _resendEmailController,
-                  decoration: InputDecoration(hintText: 'youremail@gmail.com'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Email không được để trống.";
-                    }
-                    if (!value.contains("@")) {
-                      return "Email không hợp lệ.";
-                    }
-                  },
-                ))
           ]),
           actions: <Widget>[
             TextButton(
@@ -508,10 +499,18 @@ class _SignInPageState extends State<SignInPage> {
                   const Text('Hủy', style: TextStyle(color: Colors.lightGreen)),
             ),
             TextButton(
-              onPressed: () {
-                if (_formKeyResendEmailVerified.currentState!.validate()) {}
-              },
-              child: const Text('Gửi lại email xác minh',
+              onPressed: () async {
+                  setState(() {
+                    isLoadingResend = true;
+                  });
+                  var result = await AuthService().resendEmailVerification();
+                  setState(() {
+                    isLoadingResend = false;
+                  });
+                  showScaffoldMessage(context, result["message"]);
+                  Navigator.pop(context);
+                },
+              child: isLoadingResend ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) : const Text('Gửi lại email xác minh',
                   style: TextStyle(color: Colors.lightGreen)),
             ),
           ],

@@ -1,6 +1,6 @@
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/profile.dart';
-import 'package:final_quizlet_english/services/auth.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -217,7 +217,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       isLoading =
                                           true;
                                     });
-                                var result = await AuthMethods().register(
+                                var result = await AuthService().register(
                                     _nameController.text,
                                     _emailController.text,
                                     _passwordController.text);
@@ -330,7 +330,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               duration: const Duration(milliseconds: 1900),
                               child: MaterialButton(
                                 onPressed: () {
-                                  AuthMethods().signInWithGoogle();
+                                  AuthService().signInWithGoogle();
                                 },
                                 height: 50,
                                 shape: RoundedRectangleBorder(

@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthMethods {
+class AuthService {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   // Future<User?> getCurrenUser() async {
@@ -15,9 +15,20 @@ class AuthMethods {
   //   userLoggedIn?.updatePhotoURL(user["photoUrl"]);
   //   return userLoggedIn;
   // }
+
+  Stream<User?>? get onAuthStateChanged => auth.authStateChanges();
+
+  Future<String?> getCurrentUID() async {
+    return auth.currentUser?.uid;
+  }
+
+  Future signOut() async{
+    auth.signOut();
+  }
   Future<UserModel?> getCurrentUser() async {
     try {
       User? userLoggedIn = auth.currentUser;
+      print(userLoggedIn);
       print(userLoggedIn?.providerData[0].providerId);
       if (userLoggedIn != null) {
         Map<String, dynamic> userMap =
@@ -37,14 +48,22 @@ class AuthMethods {
     return null;
   }
 
-  Future<Map<String, dynamic>> updateEmail(String newEmail) async {
+  Future<Map<String, dynamic>> updateUser(UserModel userUpdate) async {
     try {
       User? user = auth.currentUser;
 
-      Map<String, dynamic> result = await UserDao().getUserByEmail(newEmail);
+      Map<String, dynamic> result =
+          await UserDao().getUserByEmail(userUpdate.email);
 
       if (result["status"] == false) {
-        await user?.verifyBeforeUpdateEmail(newEmail);
+        await user?.updateEmail(userUpdate.email).then((_) async {
+          return await UserDao().updateUser(userUpdate);
+        }).catchError((error) {
+          return {
+            "status": false,
+            "message": "Lỗi xảy ra khi cập nhật người dùng: " + error.toString()
+          };
+        });
         return {
           "status": true,
           "message": "Một email đã được gửi đến email mới để xác nhận."
@@ -102,100 +121,143 @@ class AuthMethods {
       };
     }
   }
-
   
+
   reAuthAccount(String oldPassword) async {
     try {
       User? user = auth.currentUser;
 
-      if (user != null && user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!.trim().toString(),
-        password: oldPassword.trim(),
-      );
-      UserCredential userReAuth = await user.reauthenticateWithCredential(credential);
+      if (user != null &&
+          user.providerData
+              .any((userInfo) => userInfo.providerId == 'google.com')) {
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user.email!.trim().toString(),
+          password: oldPassword.trim(),
+        );
+        UserCredential userReAuth =
+            await user.reauthenticateWithCredential(credential);
 
-      if(userReAuth.user!.email == user.email){
-        return {"status": true, "message": "Re-authenticated thành công."};
-      }
-    }
-   else {
-    return {"status": false, "message": "Người dùng chưa đăng nhập."};
+        if (userReAuth.user!.email == user.email) {
+          return {"status": true, "message": "Re-authenticated thành công."};
+        }
+      } else {
+        return {"status": false, "message": "Người dùng chưa đăng nhập."};
       }
     } on FirebaseAuthException catch (e) {
       print(e.message.toString());
-       return {"status": false, "message": "Lỗi khi xác thực người dùng: ${e.message.toString()}."};
+      return {
+        "status": false,
+        "message": "Lỗi khi xác thực người dùng: ${e.message.toString()}."
+      };
     }
   }
 
-  creataNewPassword(String newPassword) async {
+  createNewPassword(String newPassword) async {
     try {
       User? user = auth.currentUser;
       if (user != null) {
         await user.updatePassword(newPassword);
-        return {"status": true, "message": "Mật khẩu đã được thay đổi thành công!"};
+        return {
+          "status": true,
+          "message": "Mật khẩu đã được thay đổi thành công!"
+        };
       } else {
         return {"status": false, "message": "Người dùng chưa đăng nhập."};
       }
-    }  on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       print(e.message.toString());
-       return {"status": false, "message": "Lỗi khi thay đổi mật khẩu: $e."};
+      return {"status": false, "message": "Lỗi khi thay đổi mật khẩu: $e."};
     }
   }
-
 
   reAuthGoogle() async {
     try {
       User? user = auth.currentUser;
 
-      if (user != null && user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
+      if (user != null) {
+        GoogleSignIn googleSignIn = GoogleSignIn();
+          GoogleSignInAccount? googleSignInAccount =
+              await googleSignIn.signIn();
 
-      GoogleSignIn googleSignIn = GoogleSignIn();
-      GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+          if (googleSignInAccount != null) {
+            GoogleSignInAuthentication googleSignInAuthentication =
+                await googleSignInAccount.authentication;
 
-      if (googleSignInAccount != null) {
-        GoogleSignInAuthentication googleSignInAuthentication =
-            await googleSignInAccount.authentication;
+            AuthCredential credential = GoogleAuthProvider.credential(
+              idToken: googleSignInAuthentication.idToken,
+              accessToken: googleSignInAuthentication.accessToken,
+            );
+        if (user.providerData
+            .any((userInfo) => userInfo.providerId == 'google.com')) {
+          
+            UserCredential userReAuth =
+                await user.reauthenticateWithCredential(credential);
 
-        AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken,
-        );
-        UserCredential userReAuth = await user.reauthenticateWithCredential(credential);
+            if (userReAuth.user!.email == user.email) {
+              return {
+                "status": true,
+                "message": "Re-authenticated thành công."
+              };
+            }
+            else{
+               return {
+                "status": false,
+                "message": "Người dùng không trùng khớp."
+              };
+            }
+          } else {
+             UserCredential userReAuth =
+                await auth.signInWithCredential(credential);
 
-        if(userReAuth.user!.email == user.email){
-          return {"status": true, "message": "Re-authenticated thành công."};
+            if (userReAuth.user!.email == user.email) {
+              return {
+                "status": true,
+                "message": "Re-authenticated thành công."
+              };
+            }
+            else{
+               return {
+                "status": false,
+                "message": "Người dùng không trùng khớp."
+              };
+            }
+          }
         }
-      }
-    }
-   else {
-    return {"status": false, "message": "Người dùng chưa đăng nhập."};
+      } else {
+        return {"status": false, "message": "Người dùng chưa đăng nhập."};
       }
     } on FirebaseAuthException catch (e) {
       print(e.message.toString());
-       return {"status": false, "message": "Lỗi khi xác thực người dùng: ${e.message}."};
+      return {
+        "status": false,
+        "message": "Lỗi khi xác thực người dùng: ${e.message}."
+      };
     }
   }
 
   login(String email, String password) async {
     try {
-      UserCredential userCredential = await auth
-          .signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
 
-      if(userCredential.user!.emailVerified){
+      if (userCredential.user!.emailVerified) {
         return {"status": true, "message": "Đăng nhập thành công."};
       }
-      return {"status": "not-verified", "message": "Vui lòng xác minh tài khoản trước khi đăng nhập."};
-      
+      return {
+        "status": "not-verified",
+        "message": "Vui lòng xác minh tài khoản trước khi đăng nhập."
+      };
     } on FirebaseAuthException catch (e) {
-      if(e.code == "invalid-credential"){
-          return {"status": false, "message": "Tài khoản không tồn tại hoặc mật khẩu không chính xác."};
+      if (e.code == "invalid-credential") {
+        return {
+          "status": false,
+          "message": "Tài khoản không tồn tại hoặc mật khẩu không chính xác."
+        };
       }
-      if(e.code == "invalid-email"){
+      if (e.code == "invalid-email") {
         return {"status": false, "message": "Email không hợp lệ."};
       }
       return {"status": false, "message": e.message.toString()};
-      
     }
   }
 
@@ -206,8 +268,8 @@ class AuthMethods {
       "password": password,
     };
     try {
-      UserCredential userCredential = await auth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
 
       await userCredential.user?.sendEmailVerification();
 
@@ -224,10 +286,13 @@ class AuthMethods {
       }
     } on FirebaseAuthException catch (e) {
       print(e);
-      if(e.code == "weak-password"){
-        return {"status": false, "message": "Mật khẩu phải chứa ít nhất 6 kí tự."};
+      if (e.code == "weak-password") {
+        return {
+          "status": false,
+          "message": "Mật khẩu phải chứa ít nhất 6 kí tự."
+        };
       }
-      if(e.code == "email-already-in-use"){
+      if (e.code == "email-already-in-use") {
         return {"status": false, "message": "Tài khoản đã tồn tại."};
       }
       return {"status": false, "message": e.message.toString()};
@@ -245,7 +310,7 @@ class AuthMethods {
       };
     } on FirebaseAuthException catch (e) {
       print(e);
-      if(e.code == "invalid-email"){
+      if (e.code == "invalid-email") {
         return {"status": false, "message": "Email không hợp lệ."};
       }
       return {
@@ -255,43 +320,20 @@ class AuthMethods {
     }
   }
 
-  // signInWithGoogle() async {
-  //   try {
-  //     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  //     final GoogleSignIn googleSignIn = GoogleSignIn();
-
-  //     final GoogleSignInAccount? googleSignInAccount =
-  //         await googleSignIn.signIn();
-
-  //     final GoogleSignInAuthentication? googleSignInAuthentication =
-  //         await googleSignInAccount?.authentication;
-
-  //     final AuthCredential credential = GoogleAuthProvider.credential(
-  //         idToken: googleSignInAuthentication?.idToken,
-  //         accessToken: googleSignInAuthentication?.accessToken);
-
-  //     UserCredential result =
-  //         await firebaseAuth.signInWithCredential(credential);
-
-  //     User? userDetails = result.user;
-
-  //     if (result != null) {
-  //       Map<String, dynamic> userInfoMap = {
-  //         "email": userDetails!.email,
-  //         "name": userDetails.displayName,
-  //         "imgUrl": userDetails.photoURL,
-  //         "id": userDetails.uid
-  //       };
-  //       // await UserDao().addUser(UserModel.fromJson(userInfoMap));
-  //       return {"status": true, "message": "Login successful"};
-  //     } else {
-  //       return {"status": false, "message": "User cancelled the login"};
-  //     }
-  //   } catch (e) {
-  //     return {
-  //       "status": false,
-  //       "message": "Error signing in with Google: $e",
-  //     };
-  //   }
-  // }
+  Future resendEmailVerification() async {
+    try {
+      User? userLoggedIn = auth.currentUser;
+      await userLoggedIn?.sendEmailVerification();
+      return {
+        "status": true,
+        "message": "Một email xác nhận đã được gửi đến email của bạn.",
+      };
+    } on FirebaseAuthException catch (e) {
+      return {
+        "status": false,
+        "message": e.message.toString(),
+      };
+    }
+  }
+  
 }
