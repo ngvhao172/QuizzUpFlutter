@@ -1,6 +1,7 @@
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/TopicSetting.dart';
+import 'package:flutter/widgets.dart';
 
 class CreateSet extends StatefulWidget {
   const CreateSet({Key? key}) : super(key: key);
@@ -16,6 +17,10 @@ class _CreateSetState extends State<CreateSet> {
     {'term': '', 'definition': ''},
     {'term': '', 'definition': ''},
   ];
+
+  TextEditingController _titleEditingController = new TextEditingController();
+  TextEditingController _descriptionEditingController =
+      new TextEditingController();
 
   bool checkTerms() {
     int filledCount = 0;
@@ -34,12 +39,15 @@ class _CreateSetState extends State<CreateSet> {
   int selectedTermIndex = -1;
   int selectedDefinitionIndex = -1;
 
+  String? termLanguage;
+  String? defiLanguage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Create Topic",
+          "Tạo học phần",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -60,6 +68,7 @@ class _CreateSetState extends State<CreateSet> {
             onPressed: () {
               if (checkTerms()) {
                 // Hao code bla bla o day ne
+                print(terms);
               } else {
                 showDialog(
                   context: context,
@@ -93,7 +102,7 @@ class _CreateSetState extends State<CreateSet> {
               }
             },
             child: const Text(
-              "Done",
+              "Hoàn tất",
               style: TextStyle(color: Colors.lightGreen),
             ),
           ),
@@ -101,179 +110,180 @@ class _CreateSetState extends State<CreateSet> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  labelText: "Title",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  hintText: 'Subject, chapter, unit',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.lightGreen),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              const TextField(
-                decoration: InputDecoration(
-                  labelText: "Description",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  hintText: 'What is your set about?',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  hintStyle: TextStyle(color: Colors.grey),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.lightGreen),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.document_scanner_outlined,
-                      color: Colors.lightGreen,
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _titleEditingController,
+                  decoration: const InputDecoration(
+                    labelText: "Tiêu đề",
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    hintText: 'Chủ đề, chương, bài học',
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    hintStyle: TextStyle(color: Colors.grey),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.lightGreen),
                     ),
-                    Text(
-                      "Scan document",
-                      style: TextStyle(color: Colors.lightGreen),
-                    )
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Column(
-                children: terms.asMap().entries.map(
-                  (entry) {
-                    final int index = entry.key;
-                    final Map<String, String> term = entry.value;
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.orange[50],
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _descriptionEditingController,
+                  decoration: const InputDecoration(
+                    labelText: "Mô tả",
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    hintText: 'Học phần của bạn về chủ đề gì?',
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    hintStyle: TextStyle(color: Colors.grey),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.lightGreen),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.document_scanner_outlined,
+                        color: Colors.lightGreen,
                       ),
-                      child: Column(
-                        children: [
-                          TextField(
-                            onChanged: (value) {
-                              term['term'] = value;
-                            },
-                            onTap: () {
-                              setState(() {
-                                selectedTermIndex = index;
-                                selectedDefinitionIndex = -1;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Term",
-                              hintText: 'Enter term',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: index == selectedTermIndex
-                                      ? Colors.lightGreen
-                                      : Colors.grey,
+                      Text(
+                        "Quét tài liệu",
+                        style: TextStyle(color: Colors.lightGreen),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  children: terms.asMap().entries.map(
+                    (entry) {
+                      final int index = entry.key;
+                      final Map<String, String> term = entry.value;
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.orange[50],
+                        ),
+                        child: Column(
+                          children: [
+                            TextField(
+                              onChanged: (value) {
+                                term['term'] = value;
+                              },
+                              onTap: () {
+                                setState(() {
+                                  selectedTermIndex = index;
+                                  selectedDefinitionIndex = -1;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                labelText: "Term",
+                                hintText: 'Enter term',
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: index == selectedTermIndex
+                                        ? Colors.lightGreen
+                                        : Colors.grey,
+                                  ),
                                 ),
-                              ),
-                              suffixIcon: index == selectedTermIndex
-                                  ? TextButton(
-                                      onPressed: () {
-                                        //Chon ngon ngu gi o day ne
-                                        _setTermLanguageOptionsDialog(
-                                            context, index);
-                                      },
-                                      child: Text(
-                                        terms[index]['termLanguage'] ??
-                                            'Select Language',
-                                        style: const TextStyle(
-                                          color: Colors.lightGreen,
+                                suffixIcon: (selectedTermIndex == index)
+                                    ? TextButton(
+                                        onPressed: () {
+                                          //Chon ngon ngu gi o day ne
+                                          _setTermLanguageOptionsDialog(
+                                              context);
+                                        },
+                                        child: Text(
+                                          termLanguage ?? "Chọn ngôn ngữ",
+                                          style: const TextStyle(
+                                            color: Colors.lightGreen,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          TextField(
-                            onChanged: (value) {
-                              term['definition'] = value;
-                            },
-                            onTap: () {
-                              setState(() {
-                                selectedDefinitionIndex = index;
-                                selectedTermIndex = -1;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Definition",
-                              hintText: 'Enter definition',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: index == selectedDefinitionIndex
-                                      ? Colors.lightGreen
-                                      : Colors.grey,
-                                ),
+                                      )
+                                    : null,
                               ),
-                              suffixIcon: index == selectedDefinitionIndex
-                                  ? TextButton(
-                                      onPressed: () {
-                                        // Lam y cai tren chu hong biet
-                                        _setDefiLanguageOptionsDialog(
-                                            context, index);
-                                      },
-                                      child: Text(
-                                        terms[index]['defiLanguage'] ??
-                                            'Select Language',
-                                        style: const TextStyle(
-                                          color: Colors.lightGreen,
-                                        ),
-                                      ),
-                                    )
-                                  : null,
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                            const SizedBox(width: 10),
+                            TextField(
+                              onChanged: (value) {
+                                term['definition'] = value;
+                              },
+                              onTap: () {
+                                setState(() {
+                                  selectedDefinitionIndex = index;
+                                  selectedTermIndex = -1;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                  labelText: "Definition",
+                                  hintText: 'Enter definition',
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: index == selectedDefinitionIndex
+                                          ? Colors.lightGreen
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                  suffixIcon: (selectedDefinitionIndex == index)
+                                      ? TextButton(
+                                          onPressed: () {
+                                            // Lam y cai tren chu hong biet
+                                            _setDefiLanguageOptionsDialog(
+                                                context);
+                                          },
+                                          child: Text(
+                                            defiLanguage ?? "Chọn ngôn ngữ",
+                                            style: const TextStyle(
+                                              color: Colors.lightGreen,
+                                            ),
+                                          ),
+                                        )
+                                      : null),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ).toList(),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      terms.add({'term': '', 'definition': ''});
+                    });
                   },
-                ).toList(),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    terms.add({'term': '', 'definition': ''});
-                  });
-                },
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.add,
-                      color: Colors.lightGreen,
-                    ),
-                    Text(
-                      "Add Term and Definition",
-                      style: TextStyle(color: Colors.lightGreen),
-                    ),
-                  ],
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: Colors.lightGreen,
+                      ),
+                      Text(
+                        "Add Term and Definition",
+                        style: TextStyle(color: Colors.lightGreen),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _setDefiLanguageOptionsDialog(BuildContext context, int index) {
+  void _setDefiLanguageOptionsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -286,7 +296,7 @@ class _CreateSetState extends State<CreateSet> {
                 title: const Text('English'),
                 onTap: () {
                   setState(() {
-                    terms[index]['defiLanguage'] = 'English';
+                    defiLanguage = 'English';
                   });
                   Navigator.pop(context);
                 },
@@ -295,7 +305,7 @@ class _CreateSetState extends State<CreateSet> {
                 title: const Text('Vietnamese'),
                 onTap: () {
                   setState(() {
-                    terms[index]['defiLanguage'] = 'Vietnamese';
+                    termLanguage = 'Vietnamese';
                   });
                   Navigator.pop(context);
                 },
@@ -307,7 +317,7 @@ class _CreateSetState extends State<CreateSet> {
     );
   }
 
-  void _setTermLanguageOptionsDialog(BuildContext context, int index) {
+  void _setTermLanguageOptionsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -320,7 +330,7 @@ class _CreateSetState extends State<CreateSet> {
                 title: const Text('English'),
                 onTap: () {
                   setState(() {
-                    terms[index]['termLanguage'] = 'English';
+                    termLanguage = 'English';
                   });
                   Navigator.pop(context);
                 },
@@ -329,7 +339,7 @@ class _CreateSetState extends State<CreateSet> {
                 title: const Text('Vietnamese'),
                 onTap: () {
                   setState(() {
-                    terms[index]['termLanguage'] = 'Vietnamese';
+                    defiLanguage = 'Vietnamese';
                   });
                   Navigator.pop(context);
                 },

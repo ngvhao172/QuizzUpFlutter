@@ -1,6 +1,6 @@
 import 'package:final_quizlet_english/screens/Profile.dart';
-import 'package:final_quizlet_english/services/auth.dart';
-import 'package:final_quizlet_english/widgets/notifications.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -9,6 +9,8 @@ import 'package:flutter/widgets.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
+
+  static const String routeName = '/login';
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -22,9 +24,10 @@ class _SignInPageState extends State<SignInPage> {
 
   var _formKey = GlobalKey<FormState>();
   var _formKeyForgot = GlobalKey<FormState>();
-  var _formKeyResendEmailVerified = GlobalKey<FormState>();
 
   bool isLoading = false;
+
+  bool isLoadingResend = false;
 
   var obscurePassword = true;
 
@@ -190,53 +193,55 @@ class _SignInPageState extends State<SignInPage> {
                           height: 20,
                         ),
                         FadeInUp(
-                              duration: const Duration(milliseconds: 1600),
-                              child: MaterialButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      isLoading =
-                                          true;
-                                    });
-                                    var result = await AuthMethods().login(
-                                        _emailController.text,
-                                        _passwordController.text);
-                                    setState(() {
-                                      isLoading =
-                                          false;
-                                    });
-                                    if (result["status"] == true) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePage()),
-                                      );
-                                    }
-                                    if (result["status"] == "not-verified") {
-                                      getNotVerifiedDialog();
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content:
-                                                  Text(result["message"])));
-                                    }
-                                  }
-                                },
-                                height: 50,
-                                color: Colors.lightGreen,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                                child: Center(
-                                  child: isLoading ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) :  Text(
-                                    "Sign in",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
+                          duration: const Duration(milliseconds: 1600),
+                          child: MaterialButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                var result = await AuthService().login(
+                                    _emailController.text,
+                                    _passwordController.text);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                if (result["status"] == true) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ProfilePage()),
+                                  );
+                                }
+                                if (result["status"] == "not-verified") {
+                                  getNotVerifiedDialog();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(result["message"])));
+                                }
+                              }
+                            },
+                            height: 50,
+                            color: Colors.lightGreen,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Center(
+                              child: isLoading
+                                  ? CircularProgressIndicator(
+                                      backgroundColor: Colors.lightGreen[700],
+                                      strokeWidth: 2.0,
+                                      color: Colors.white,
+                                    )
+                                  : Text(
+                                      "Sign in",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                            ),
+                          ),
                         ),
                         FadeInUp(
                           duration: const Duration(milliseconds: 1500),
@@ -317,7 +322,7 @@ class _SignInPageState extends State<SignInPage> {
                                 duration: const Duration(milliseconds: 1900),
                                 child: MaterialButton(
                                   onPressed: () {
-                                    AuthMethods()
+                                    AuthService()
                                         .signInWithGoogle()
                                         .then((result) {
                                       if (result["status"]) {
@@ -375,65 +380,64 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future openDialogFP() => showGeneralDialog(
-        context: context,
-        transitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (context, animation1, animation2) {
-          return Container();
-        },
-        transitionBuilder: (context, animation1, animation2, widget){
-          return ScaleTransition(
-            scale: Tween<double> (begin: 0.5, end: 1).animate(animation1),
+      context: context,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation1, animation2) {
+        return Container();
+      },
+      transitionBuilder: (context, animation1, animation2, widget) {
+        return ScaleTransition(
+            scale: Tween<double>(begin: 0.5, end: 1).animate(animation1),
             child: FadeTransition(
-              opacity: Tween<double> (begin: 0.5, end: 1).animate(animation1),
+              opacity: Tween<double>(begin: 0.5, end: 1).animate(animation1),
               child: AlertDialog(
-          title: const Text(
-            'Forgot your password?',
-            textAlign: TextAlign.center,
-          ),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(
-                'Đừng lo lắng, chúng tôi sẽ gửi đến email của bạn đường link để có thể đổi mật khẩu mới.'),
-            Form(
-                key: _formKeyForgot,
-                child: TextFormField(
-                  controller: _forgotEmailController,
-                  decoration:
-                      const InputDecoration(hintText: 'youremail@gmail.com'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Email không được để trống.";
-                    }
-                    if (!value.contains("@")) {
-                      return "Email không hợp lệ.";
-                    }
-                  },
-                ))
-          ]),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel',
-                  style: TextStyle(color: Colors.lightGreen)),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (_formKeyForgot.currentState!.validate()) {
-                  var result = await AuthMethods()
-                      .forgotPassword(_forgotEmailController.text);
-                  showScaffoldMessage(context, result["message"]);
-                  Navigator.pop(context);
-                }
-              },
-              child:
-                  const Text('OK', style: TextStyle(color: Colors.lightGreen)),
-            ),
-          ],
-        ),)
-          );
-        }
-      );
+                title: const Text(
+                  'Forgot your password?',
+                  textAlign: TextAlign.center,
+                ),
+                content: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Text(
+                      'Đừng lo lắng, chúng tôi sẽ gửi đến email của bạn đường link để có thể đổi mật khẩu mới.'),
+                  Form(
+                      key: _formKeyForgot,
+                      child: TextFormField(
+                        controller: _forgotEmailController,
+                        decoration: const InputDecoration(
+                            hintText: 'youremail@gmail.com'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Email không được để trống.";
+                          }
+                          if (!value.contains("@")) {
+                            return "Email không hợp lệ.";
+                          }
+                        },
+                      ))
+                ]),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel',
+                        style: TextStyle(color: Colors.lightGreen)),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      if (_formKeyForgot.currentState!.validate()) {
+                        var result = await AuthService()
+                            .forgotPassword(_forgotEmailController.text);
+                        showScaffoldMessage(context, result["message"]);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('OK',
+                        style: TextStyle(color: Colors.lightGreen)),
+                  ),
+                ],
+              ),
+            ));
+      });
 
   getNotVerifiedDialog() {
     return showGeneralDialog(
@@ -442,36 +446,40 @@ class _SignInPageState extends State<SignInPage> {
         pageBuilder: (context, animation1, animation2) {
           return Container();
         },
-        transitionBuilder: (context, animation1, animation2, widget){
+        transitionBuilder: (context, animation1, animation2, widget) {
           return ScaleTransition(
-            scale: Tween<double> (begin: 0.5, end: 1).animate(animation1),
-            child: FadeTransition(
-              opacity: Tween<double> (begin: 0.5, end: 1).animate(animation1),
-              child: AlertDialog(
-        title: const Text(
-          "Tài khoản chưa xác minh.",
-          textAlign: TextAlign.center,
-        ),
-        content: const Column(mainAxisSize: MainAxisSize.min, children: [
-          Text("Vui lòng xác minh tài khoản trước khi đăng nhập."),
-        ]),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              getResendEmailVerifiedDialog();
-            },
-            child: const Text('Gửi lại email xác minh',
-                style: TextStyle(color: Colors.lightGreen)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('OK', style: TextStyle(color: Colors.lightGreen)),
-          ),
-        ],
-      ),));
-      });
+              scale: Tween<double>(begin: 0.5, end: 1).animate(animation1),
+              child: FadeTransition(
+                opacity: Tween<double>(begin: 0.5, end: 1).animate(animation1),
+                child: AlertDialog(
+                  title: const Text(
+                    "Tài khoản chưa xác minh.",
+                    textAlign: TextAlign.center,
+                  ),
+                  content:
+                      const Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text("Vui lòng xác minh tài khoản trước khi đăng nhập."),
+                  ]),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        getResendEmailVerifiedDialog()
+                            .then((_) => {Navigator.pop(context)});
+                      },
+                      child: const Text('Gửi lại email xác minh',
+                          style: TextStyle(color: Colors.lightGreen)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK',
+                          style: TextStyle(color: Colors.lightGreen)),
+                    ),
+                  ],
+                ),
+              ));
+        });
   }
 
   getResendEmailVerifiedDialog() => showDialog(
@@ -481,23 +489,8 @@ class _SignInPageState extends State<SignInPage> {
             "Gửi lại email xác minh",
             textAlign: TextAlign.center,
           ),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(
-                "Đừng lo lắng, chúng tôi sẽ gửi lại email xác minh cho bạn."),
-            Form(
-                key: _formKeyResendEmailVerified,
-                child: TextFormField(
-                  controller: _resendEmailController,
-                  decoration: InputDecoration(hintText: 'youremail@gmail.com'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Email không được để trống.";
-                    }
-                    if (!value.contains("@")) {
-                      return "Email không hợp lệ.";
-                    }
-                  },
-                ))
+          content: const Column(mainAxisSize: MainAxisSize.min, children: [
+            Text("Đừng lo lắng, chúng tôi sẽ gửi lại email xác minh cho bạn."),
           ]),
           actions: <Widget>[
             TextButton(
@@ -508,11 +501,25 @@ class _SignInPageState extends State<SignInPage> {
                   const Text('Hủy', style: TextStyle(color: Colors.lightGreen)),
             ),
             TextButton(
-              onPressed: () {
-                if (_formKeyResendEmailVerified.currentState!.validate()) {}
+              onPressed: () async {
+                setState(() {
+                  isLoadingResend = true;
+                });
+                var result = await AuthService().resendEmailVerification();
+                setState(() {
+                  isLoadingResend = false;
+                });
+                showScaffoldMessage(context, result["message"]);
+                Navigator.pop(context);
               },
-              child: const Text('Gửi lại email xác minh',
-                  style: TextStyle(color: Colors.lightGreen)),
+              child: isLoadingResend
+                  ? CircularProgressIndicator(
+                      backgroundColor: Colors.lightGreen[700],
+                      strokeWidth: 2.0,
+                      color: Colors.white,
+                    )
+                  : const Text('Gửi lại email xác minh',
+                      style: TextStyle(color: Colors.lightGreen)),
             ),
           ],
         ),

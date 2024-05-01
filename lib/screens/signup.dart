@@ -1,6 +1,6 @@
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
-import 'package:final_quizlet_english/services/auth.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -214,23 +214,20 @@ class _SignUpPageState extends State<SignUpPage> {
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 setState(() {
-                                      isLoading =
-                                          true;
-                                    });
-                                var result = await AuthMethods().register(
+                                  isLoading = true;
+                                });
+                                var result = await AuthService().register(
                                     _nameController.text,
                                     _emailController.text,
                                     _passwordController.text);
-                                   setState(() {
-                                      isLoading =
-                                          false;
-                                    });
+                                setState(() {
+                                  isLoading = false;
+                                });
                                 if (result["status"]) {
                                   Navigator.pop(context);
                                 }
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(result["message"])));
+                                    SnackBar(content: Text(result["message"])));
                               }
                             },
                             height: 50,
@@ -242,12 +239,18 @@ class _SignUpPageState extends State<SignUpPage> {
                             // decoration: BoxDecoration(
                             // ),
                             child: Center(
-                              child: isLoading ? CircularProgressIndicator(backgroundColor: Colors.lightGreen[700], strokeWidth: 2.0, color: Colors.white,) : const Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                              child: isLoading
+                                  ? CircularProgressIndicator(
+                                      backgroundColor: Colors.lightGreen[700],
+                                      strokeWidth: 2.0,
+                                      color: Colors.white,
+                                    )
+                                  : const Text(
+                                      "Sign Up",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                             ),
                           ),
                         ),
@@ -330,7 +333,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               duration: const Duration(milliseconds: 1900),
                               child: MaterialButton(
                                 onPressed: () {
-                                  AuthMethods().signInWithGoogle();
+                                  AuthService().signInWithGoogle();
                                 },
                                 height: 50,
                                 shape: RoundedRectangleBorder(

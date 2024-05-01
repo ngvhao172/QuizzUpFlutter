@@ -16,31 +16,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // UserModel? currentUser;
-
-  // bool isLoading = true;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getCurrentUserData();
-  // }
-
-  // Future<void> getCurrentUserData() async {
-  //   try {
-  //     UserModel? user = await AuthMethods().getCurrentUser();
-  //     print(user!.photoURL);
-  //     setState(() {
-  //       currentUser = user;
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print("Error: $e");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
@@ -48,12 +23,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _userDataFuture = AuthMethods().getCurrentUser();
+    _userDataFuture = AuthService().getCurrentUser();
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _userDataFuture = AuthMethods().getCurrentUser();
+      _userDataFuture = AuthService().getCurrentUser();
     });
   }
 
@@ -173,38 +148,36 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(
                               height: 20,
                             ),
-                            (isPasswordProvider == true)
-                                ? getMenuItem(
-                                    title: "Change password",
-                                    icon: Icons.settings,
-                                    endIcon: true,
-                                    onPress: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChangePasswordPage()));
-                                    },
-                                  )
-                                : getMenuItem(
-                                    title: "Create password",
-                                    icon: Icons.settings,
-                                    endIcon: true,
-                                    onPress: () async {
-                                      var result =
-                                          await AuthMethods().reAuthGoogle();
-                                      if (result["status"]) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CreatePasswordPage()));
-                                      } else {
-                                        showScaffoldMessage(
-                                            context, result["message"]);
-                                      }
-                                    },
-                                  )
+                            (isPasswordProvider==true) ? getMenuItem(
+                              title: "Change password",
+                              icon: Icons.settings,
+                              endIcon: true,
+                              onPress: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChangePasswordPage()));
+                              },
+                            ) : getMenuItem(
+                              title: "Create password",
+                              icon: Icons.settings,
+                              endIcon: true,
+                              onPress: () async {
+                                var result = await AuthService().reAuthGoogle();
+                                if(result["status"]){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CreatePasswordPage()));
+                                }
+                                else{
+                                  showScaffoldMessage(context, result["message"]);
+                                }
+                              },
+                            )
+                            
                           ],
                         ),
                       ),

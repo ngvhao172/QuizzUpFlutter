@@ -1,5 +1,5 @@
-import 'package:final_quizlet_english/services/auth.dart';
-import 'package:final_quizlet_english/widgets/notifications.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -159,9 +159,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             if(_newPasswordEditingController.text == _confirmNewPasswordEditingController.text){
-                               var result = await AuthMethods().reAuthAccount(_oldPasswordEditingController.text);
+                               var result = await AuthService().reAuthAccount(_oldPasswordEditingController.text);
                                if(result["status"]){
-                                var result2 = await AuthMethods().creataNewPassword(_newPasswordEditingController.text);
+                                var result2 = await AuthService().createNewPassword(_newPasswordEditingController.text);
                                 if(result2["status"]){
                                    Navigator.pop(context);
                                 }

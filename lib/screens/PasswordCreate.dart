@@ -1,5 +1,5 @@
-import 'package:final_quizlet_english/services/auth.dart';
-import 'package:final_quizlet_english/widgets/notifications.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 
 class CreatePasswordPage extends StatefulWidget {
@@ -141,8 +141,8 @@ class _CreatePasswordPageState extends State<CreatePasswordPage> {
                                 setState(() {
                                   isLoading == true;
                                 });
-                                var result = await AuthMethods()
-                                    .creataNewPassword(
+                                var result = await AuthService()
+                                    .createNewPassword(
                                         _newPasswordEditingController.text);
                                 setState(() {
                                   isLoading == false;

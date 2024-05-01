@@ -1,8 +1,10 @@
 import 'package:final_quizlet_english/models/User.dart';
-import 'package:final_quizlet_english/services/auth.dart';
-import 'package:final_quizlet_english/services/userDao.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/services/UserDao.dart';
+import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:flutter/material.dart';
+
+import 'SignIn.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -17,6 +19,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   TextEditingController _fullnameEditingController = TextEditingController();
   TextEditingController _emailEditingController = TextEditingController();
   TextEditingController _phoneNumberEditingController = TextEditingController();
+
+  bool isEmailTextEnabled = false;
 
   // bool isLoading = true;
 
@@ -53,7 +57,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
             child: FutureBuilder(
-              future: AuthMethods().getCurrentUser(),
+              future: AuthService().getCurrentUser(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
@@ -121,23 +125,55 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                               const SizedBox(
                                 height: 20,
                               ),
-                              TextFormField(
-                                controller: _emailEditingController,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100)),
-                                  labelText: 'Email',
-                                  hintText: "Enter your email",
-                                  prefixIcon: Icon(Icons.email),
-                                ),
-                                validator: (value) {
-                                  if (value == null ||
-                                      value.isEmpty ||
-                                      !value.contains('@')) {
-                                    return 'This is not a valid email address';
-                                  }
-                                  return null;
-                                },
+                              Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  TextFormField(
+                                    enabled: isEmailTextEnabled,
+                                    controller: _emailEditingController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                      labelText: 'Email',
+                                      hintText: "Enter your email",
+                                      prefixIcon: Icon(Icons.email),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.isEmpty ||
+                                          !value.contains('@')) {
+                                        return 'This is not a valid email address';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Positioned(
+                                    right: 8.0,
+                                    child: IconButton(
+                                      icon: isEmailTextEnabled
+                                          ? Icon(Icons.lock_open_outlined)
+                                          : Icon(Icons.lock_outline),
+                                      onPressed: () async {
+                                        if (!isEmailTextEnabled) {
+                                          var result = await AuthService()
+                                              .reAuthGoogle();
+                                          if (result["status"]) {
+                                            setState(() {
+                                              isEmailTextEnabled = true;
+                                            });
+                                          }
+                                          showScaffoldMessage(context, result["message"]);
+                                        } else {
+                                          setState(() {
+                                            isEmailTextEnabled = false;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(
                                 height: 20,
@@ -180,16 +216,18 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       //
                                       UserModel userUpdate = UserModel(
-                                        id: user.id,
-                                        displayName: _fullnameEditingController.text,
-                                        email: _emailEditingController.text,
-                                        phoneNumber: _phoneNumberEditingController.text,
-                                        photoURL: user.photoURL
-                                      );
+                                          id: user.id,
+                                          displayName:
+                                              _fullnameEditingController.text,
+                                          email: _emailEditingController.text,
+                                          phoneNumber:
+                                              _phoneNumberEditingController
+                                                  .text,
+                                          photoURL: user.photoURL);
 
                                       userUpdate.displayName =
                                           _fullnameEditingController.text;
@@ -212,36 +250,18 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                                       Text(error["message"])));
                                         });
                                       } else {
-                                        AuthMethods()
-                                            .updateEmail(userUpdate.email)
-                                            .then((result) {
-                                          if (result["status"]) {
-                                            UserDao()
-                                                .updateUser(userUpdate)
-                                                .then((result) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          result["message"])));
-                                            }).catchError((error) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          error["message"])));
-                                            });
-                                          }
-                                          else{
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content:
-                                                      Text(result["message"])));
-                                          }
-                                        }).catchError((error) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content:
-                                                      Text(error["message"])));
-                                        });
+                                        // var result = await AuthService()
+                                        //     .updateUser(userUpdate);
+                                        //  ScaffoldMessenger.of(context)
+                                        //       .showSnackBar(SnackBar(
+                                        //           content:
+                                        //               Text(result["message"])));
+                                        // if(result["status"]){
+                                        //   await AuthService().signOut();
+                                        //   Navigator.push(context, MaterialPageRoute(
+                                        //       builder: (context) =>
+                                        //           SignInPage()));
+                                        // }
                                       }
                                       Navigator.pop(context);
                                     }
@@ -256,7 +276,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   }
                 }
                 return const Center(
-                  child:  CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     color: Colors.lightGreen,
                   ),
                 );
