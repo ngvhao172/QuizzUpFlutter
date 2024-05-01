@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "991957758896-cskkurh6kpi579pgbbg1r7agflbgsdtn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.final_quizlet_english",
+            "certificate_hash": "f8fae157e57b61a89156bdcc97675f429f280037"
+          }
+        },
+        {
           "client_id": "991957758896-7u29mn39tg9j1hbqag9uaqpta80j40ne.apps.googleusercontent.com",
           "client_type": 3
         }
