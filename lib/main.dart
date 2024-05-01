@@ -32,11 +32,15 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Provider(
-        auth: AuthService(),
-        child: const MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: SplashScreen(),
-        ));
+      auth: AuthService(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.grey[50],
+        ),
+        home: TDetailPage(),
+      ),
+    );
   }
 }
 
@@ -58,7 +62,7 @@ class _HomeState extends State<Home> {
           final bool signedIn = snapshot.hasData;
           print("Status: " + signedIn.toString());
           // auth.signOut();
-          return signedIn ? CreateSet() : const SignInPage();
+          return signedIn ? TCreatePage() : const SignInPage();
         }
         return Container(
           color: Colors.black,

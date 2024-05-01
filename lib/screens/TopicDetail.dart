@@ -2,9 +2,16 @@ import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 
-class TDetailPage extends StatelessWidget {
+class TDetailPage extends StatefulWidget {
   const TDetailPage({super.key});
 
+  @override
+  State<TDetailPage> createState() => _TDetailPageState();
+}
+
+class _TDetailPageState extends State<TDetailPage> {
+  bool showContent = false;
+  int? selectedCardIndex;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +40,7 @@ class TDetailPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CreateSet()),
+                                builder: (context) => TCreatePage()),
                           );
                         },
                       ),
@@ -66,6 +73,7 @@ class TDetailPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -76,7 +84,7 @@ class TDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Image.asset(
-                      'assets/images/google_icon.png',
+                      'assets/images/QLogo.png',
                     ),
                   ),
                   const SizedBox(
@@ -86,7 +94,7 @@ class TDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Color',
                           style: TextStyle(
                             fontSize: 24,
@@ -109,7 +117,7 @@ class TDetailPage extends StatelessWidget {
                                       color: Colors.red[100],
                                     ),
                                     //Privacy
-                                    child: Text(
+                                    child: const Text(
                                       'Private',
                                       style: TextStyle(
                                         color: Colors.red,
@@ -135,8 +143,7 @@ class TDetailPage extends StatelessWidget {
                     width: 10,
                   ),
                   CircleAvatar(
-                    backgroundImage: AssetImage(
-                        'assets/images/user.png'), //để nào design logo theo filter
+                    backgroundImage: AssetImage('assets/images/user.png'),
                     radius: 10,
                   ),
                   SizedBox(
@@ -151,15 +158,202 @@ class TDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Icon(Icons.people),
+                        SizedBox(
+                          width: 10,
+                        ),
                         Text('Played by 0 users'),
                       ],
                     ),
                   ),
                 ],
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  //
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[50],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                child: Container(
+                  width: double.infinity, // Chiếm toàn bộ chiều ngang
+                  height: 50, // Chiều cao mong muốn của nút
+                  alignment: Alignment.center, // Căn giữa nội dung
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.my_library_books,
+                        color: Colors.lightGreen,
+                      ),
+                      const SizedBox(
+                          width: 10), // Khoảng cách giữa biểu tượng và nội dung
+                      Text(
+                        'Flashcard',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  //
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[50],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                child: Container(
+                  width: double.infinity, // Chiếm toàn bộ chiều ngang
+                  height: 50, // Chiều cao mong muốn của nút
+                  alignment: Alignment.center, // Căn giữa nội dung
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.menu_book,
+                        color: Colors.lightGreen,
+                      ), // Biểu tượng ở bên trái
+                      const SizedBox(
+                          width: 10), // Khoảng cách giữa biểu tượng và nội dung
+                      Text(
+                        'Learn',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                "Terms",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+              ),
+              buildCard(1, 'Quỳnh', 'Xinh gái'),
+              buildCard(2, 'Hào', 'Xấu'),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildCard(int cardIndex, String title, String definition) {
+    bool isOpen = selectedCardIndex == cardIndex; // Check if the card is open
+
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: ListTile(
+                  leading: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.lightGreen,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        cardIndex.toString(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  // Add your action here
+                },
+                icon: const Icon(Icons.volume_up),
+              ),
+              IconButton(
+                onPressed: () {
+                  // Add your action here
+                },
+                icon: const Icon(Icons.star_border_outlined),
+              ),
+            ],
+          ),
+          if (isOpen) // Show definition if the card is open
+            Column(
+              children: [
+                const Divider(
+                  color: Colors.grey,
+                  indent: 10,
+                  endIndent: 10,
+                ),
+                // Definition
+                Text(
+                  definition,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          const Divider(
+            color: Colors.grey,
+            indent: 10,
+            endIndent: 10,
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                selectedCardIndex =
+                    isOpen ? null : cardIndex; // Toggle card state
+              });
+            },
+            child: Row(
+              children: [
+                Text(
+                  isOpen ? 'Hide definition' : 'Show definition',
+                  style: const TextStyle(color: Colors.lightGreen),
+                ),
+                Icon(
+                  isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.lightGreen,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

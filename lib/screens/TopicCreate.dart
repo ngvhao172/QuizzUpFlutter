@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/TopicSetting.dart';
 import 'package:flutter/widgets.dart';
 
-class CreateSet extends StatefulWidget {
-  const CreateSet({Key? key}) : super(key: key);
+class TCreatePage extends StatefulWidget {
+  const TCreatePage({Key? key}) : super(key: key);
 
   @override
-  State<CreateSet> createState() => _CreateSetState();
+  State<TCreatePage> createState() => _TCreatePageState();
 }
 
-class _CreateSetState extends State<CreateSet> {
+class _TCreatePageState extends State<TCreatePage> {
   final List<Map<String, String>> terms = [
     {'term': '', 'definition': ''},
     {'term': '', 'definition': ''},
@@ -47,7 +47,7 @@ class _CreateSetState extends State<CreateSet> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Tạo học phần",
+          "Create Topic",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -102,7 +102,7 @@ class _CreateSetState extends State<CreateSet> {
               }
             },
             child: const Text(
-              "Hoàn tất",
+              "Done",
               style: TextStyle(color: Colors.lightGreen),
             ),
           ),
@@ -119,9 +119,9 @@ class _CreateSetState extends State<CreateSet> {
                 TextFormField(
                   controller: _titleEditingController,
                   decoration: const InputDecoration(
-                    labelText: "Tiêu đề",
+                    labelText: "Title",
                     labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                    hintText: 'Chủ đề, chương, bài học',
+                    hintText: 'Subject, chapter, unit',
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     hintStyle: TextStyle(color: Colors.grey),
                     focusedBorder: UnderlineInputBorder(
@@ -133,9 +133,9 @@ class _CreateSetState extends State<CreateSet> {
                 TextFormField(
                   controller: _descriptionEditingController,
                   decoration: const InputDecoration(
-                    labelText: "Mô tả",
+                    labelText: "Description",
                     labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                    hintText: 'Học phần của bạn về chủ đề gì?',
+                    hintText: 'What is your topic about?',
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     hintStyle: TextStyle(color: Colors.grey),
                     focusedBorder: UnderlineInputBorder(
@@ -155,7 +155,7 @@ class _CreateSetState extends State<CreateSet> {
                         color: Colors.lightGreen,
                       ),
                       Text(
-                        "Quét tài liệu",
+                        "Scan document",
                         style: TextStyle(color: Colors.lightGreen),
                       )
                     ],
@@ -202,7 +202,7 @@ class _CreateSetState extends State<CreateSet> {
                                               context);
                                         },
                                         child: Text(
-                                          termLanguage ?? "Chọn ngôn ngữ",
+                                          termLanguage ?? "Select language",
                                           style: const TextStyle(
                                             color: Colors.lightGreen,
                                           ),
@@ -240,7 +240,7 @@ class _CreateSetState extends State<CreateSet> {
                                                 context);
                                           },
                                           child: Text(
-                                            defiLanguage ?? "Chọn ngôn ngữ",
+                                            defiLanguage ?? "Select language",
                                             style: const TextStyle(
                                               color: Colors.lightGreen,
                                             ),
