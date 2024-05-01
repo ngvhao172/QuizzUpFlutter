@@ -219,17 +219,16 @@ class _TDetailPageState extends State<TDetailPage> {
                   ),
                 ),
                 child: Container(
-                  width: double.infinity, // Chiếm toàn bộ chiều ngang
-                  height: 50, // Chiều cao mong muốn của nút
-                  alignment: Alignment.center, // Căn giữa nội dung
+                  width: double.infinity,
+                  height: 50,
+                  alignment: Alignment.center,
                   child: Row(
                     children: [
                       const Icon(
                         Icons.menu_book,
                         color: Colors.lightGreen,
-                      ), // Biểu tượng ở bên trái
-                      const SizedBox(
-                          width: 10), // Khoảng cách giữa biểu tượng và nội dung
+                      ),
+                      const SizedBox(width: 10),
                       Text(
                         'Learn',
                         style: TextStyle(
@@ -261,7 +260,7 @@ class _TDetailPageState extends State<TDetailPage> {
   }
 
   Widget buildCard(int cardIndex, String title, String definition) {
-    bool isOpen = selectedCardIndex == cardIndex; // Check if the card is open
+    bool isOpen = selectedCardIndex == cardIndex;
 
     return Card(
       child: Column(
@@ -313,7 +312,7 @@ class _TDetailPageState extends State<TDetailPage> {
               ),
             ],
           ),
-          if (isOpen) // Show definition if the card is open
+          if (isOpen)
             Column(
               children: [
                 const Divider(
@@ -336,8 +335,7 @@ class _TDetailPageState extends State<TDetailPage> {
           TextButton(
             onPressed: () {
               setState(() {
-                selectedCardIndex =
-                    isOpen ? null : cardIndex; // Toggle card state
+                selectedCardIndex = isOpen ? null : cardIndex;
               });
             },
             child: Row(
