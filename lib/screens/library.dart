@@ -1,6 +1,6 @@
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
-
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:flutter/material.dart';
 
 class LibraryPage extends StatefulWidget {
@@ -16,6 +16,8 @@ class _LibraryPageState extends State<LibraryPage>
   bool isSearchExpanded = false;
   FocusNode focusNode = FocusNode();
   String dropdownvalue = 'All';
+  int percentage = 40;
+
   var items = [
     'All',
     'Created',
@@ -266,31 +268,73 @@ class _LibraryPageState extends State<LibraryPage>
                         ),
                         GestureDetector(
                           onTap: () {
-                            //chuyển trang học tập mà mệt quá chưa làm tới
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => TDetailPage()),
+                                builder: (context) => TDetailPage(),
+                              ),
                             );
                           },
                           child: Card(
                             color: Colors.orange[50],
-                            child: const Column(
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
-                                  leading: Image(
-                                    image: AssetImage(
-                                        'assets/images/QLogo.png'), //để nào design logo theo filter
+                                  leading: SizedBox(
+                                    width: 70,
+                                    height: 70,
+                                    child: SfRadialGauge(
+                                      axes: <RadialAxis>[
+                                        RadialAxis(
+                                          minimum: 0,
+                                          maximum: 100,
+                                          showLabels: false,
+                                          showTicks: false,
+                                          startAngle: 270,
+                                          endAngle: 270,
+                                          axisLineStyle: const AxisLineStyle(
+                                            thickness: 0.2,
+                                            cornerStyle: CornerStyle.bothCurve,
+                                            color:
+                                                Color.fromARGB(30, 0, 169, 181),
+                                            thicknessUnit: GaugeSizeUnit.factor,
+                                          ),
+                                          pointers: const <GaugePointer>[
+                                            RangePointer(
+                                              value: 40,
+                                              cornerStyle:
+                                                  CornerStyle.bothCurve,
+                                              width: 0.2,
+                                              sizeUnit: GaugeSizeUnit.factor,
+                                              color: Colors.lightGreen,
+                                            )
+                                          ],
+                                          annotations: <GaugeAnnotation>[
+                                            GaugeAnnotation(
+                                              positionFactor: 0.1,
+                                              angle: 90,
+                                              widget: Text(
+                                                percentage.toStringAsFixed(0) +
+                                                    '%',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.orange),
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  title: Text('Color'), //tên Topics
-                                  subtitle: Column(
+                                  title: const Text('Color'), // Tên chủ đề
+                                  subtitle: const Column(
                                     children: [
                                       Row(
                                         children: [
-                                          Text('3 terms'), // size topics
+                                          Text('3 terms'), // Số thuật ngữ
                                           Icon(Icons.play_arrow_outlined),
-                                          Text('2 players'), // size players],)
+                                          Text('2 players'), // Số người chơi
                                         ],
                                       ),
                                       Divider(),
@@ -298,7 +342,7 @@ class _LibraryPageState extends State<LibraryPage>
                                         children: [
                                           CircleAvatar(
                                             backgroundImage: AssetImage(
-                                                'assets/images/user.png'), //để nào design logo theo filter
+                                                'assets/images/user.png'),
                                             radius: 10,
                                           ),
                                           SizedBox(
@@ -314,7 +358,6 @@ class _LibraryPageState extends State<LibraryPage>
                                       ),
                                     ],
                                   ),
-                                  // size topic á //có mấy người học này
                                 ),
                               ],
                             ),
@@ -322,31 +365,73 @@ class _LibraryPageState extends State<LibraryPage>
                         ),
                         GestureDetector(
                           onTap: () {
-                            //chuyển trang học tập mà mệt quá chưa làm tới
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => TDetailPage()),
+                                builder: (context) => TDetailPage(),
+                              ),
                             );
                           },
                           child: Card(
                             color: Colors.orange[50],
-                            child: const Column(
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
+                              children: [ 
                                 ListTile(
-                                  leading: Image(
-                                    image: AssetImage(
-                                        'assets/images/QLogo.png'), //để nào design logo theo filter
+                                  leading: SizedBox(
+                                    width: 70,
+                                    height: 70,
+                                    child: SfRadialGauge(
+                                      axes: <RadialAxis>[
+                                        RadialAxis(
+                                          minimum: 0,
+                                          maximum: 100,
+                                          showLabels: false,
+                                          showTicks: false,
+                                          startAngle: 270,
+                                          endAngle: 270,
+                                          axisLineStyle: const AxisLineStyle(
+                                            thickness: 0.2,
+                                            cornerStyle: CornerStyle.bothCurve,
+                                            color:
+                                                Color.fromARGB(30, 0, 169, 181),
+                                            thicknessUnit: GaugeSizeUnit.factor,
+                                          ),
+                                          pointers: const <GaugePointer>[
+                                            RangePointer(
+                                              value: 40,
+                                              cornerStyle:
+                                                  CornerStyle.bothCurve,
+                                              width: 0.2,
+                                              sizeUnit: GaugeSizeUnit.factor,
+                                              color: Colors.lightGreen,
+                                            )
+                                          ],
+                                          annotations: <GaugeAnnotation>[
+                                            GaugeAnnotation(
+                                              positionFactor: 0.1,
+                                              angle: 90,
+                                              widget: Text(
+                                                percentage.toStringAsFixed(0) +
+                                                    '%',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.orange),
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  title: Text('Color'), //tên Topics
-                                  subtitle: Column(
+                                  title: const Text('Color'), // Tên chủ đề
+                                  subtitle: const Column(
                                     children: [
                                       Row(
                                         children: [
-                                          Text('3 terms'), // size topics
+                                          Text('3 terms'), // Số thuật ngữ
                                           Icon(Icons.play_arrow_outlined),
-                                          Text('2 players'), // size players],)
+                                          Text('2 players'), // Số người chơi
                                         ],
                                       ),
                                       Divider(),
@@ -354,7 +439,7 @@ class _LibraryPageState extends State<LibraryPage>
                                         children: [
                                           CircleAvatar(
                                             backgroundImage: AssetImage(
-                                                'assets/images/user.png'), //để nào design logo theo filter
+                                                'assets/images/user.png'),
                                             radius: 10,
                                           ),
                                           SizedBox(
@@ -369,7 +454,7 @@ class _LibraryPageState extends State<LibraryPage>
                                         ],
                                       ),
                                     ],
-                                  ), // size topic á //có mấy người học này
+                                  ),
                                 ),
                               ],
                             ),

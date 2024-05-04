@@ -14,6 +14,7 @@ import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicSetting.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
+import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

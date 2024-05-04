@@ -39,7 +39,8 @@ dependencies:
   flutterfire_cli: ^1.0.0
   google_sign_in: ^6.2.1
   cloud_firestore: ^4.15.8
-
+  syncfusion_flutter_gauges: ^25.1.42
+  flip_card: ^0.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
