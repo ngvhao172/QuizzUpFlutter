@@ -1,19 +1,17 @@
+import 'package:final_quizlet_english/screens/Splash.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
+import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
 import 'package:final_quizlet_english/firebase_options.dart';
-import 'package:final_quizlet_english/screens/PasswordChange.dart';
-import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
-import 'package:final_quizlet_english/screens/signup.dart';
-import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
+import 'package:final_quizlet_english/services/TopicDao.dart';
+import 'package:final_quizlet_english/services/VocabFavDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/Splash.dart';
-import 'package:final_quizlet_english/screens/TopicCreate.dart';
-import 'package:final_quizlet_english/screens/TopicSetting.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
-import 'package:final_quizlet_english/screens/TopicDetail.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,38 +29,47 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return Provider(
+    return AuthenticateProvider(
       auth: AuthService(),
-      child: MaterialApp(
+      child: MultiBlocProvider(providers: [
+        BlocProvider<TopicBloc> ( 
+        create: (context) => TopicBloc(TopicDao())
+        ),
+        BlocProvider<TopicDetailBloc> (
+        create: (context) => TopicDetailBloc(TopicDao(), VocabularyFavDao())
+        ),
+      ],child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.grey[50],
         ),
-        home: TDetailPage(),
-      ),
+        home: const HomeController(),
+      ),)
     );
   }
 }
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomeController extends StatefulWidget {
+  const HomeController({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeController> createState() => _HomeControllerState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeControllerState extends State<HomeController> {
   @override
   Widget build(BuildContext context) {
-    final AuthService auth = Provider.of(context)!.auth;
+    final AuthService auth = AuthenticateProvider.of(context)!.auth;
     return StreamBuilder(
       stream: auth.onAuthStateChanged,
       builder: (context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final bool signedIn = snapshot.hasData;
+          
           print("Status: " + signedIn.toString());
           // auth.signOut();
-          return signedIn ? TCreatePage() : const SignInPage();
+          
+          return SplashScreen(signedIn: (signedIn && snapshot.data!.emailVerified));
         }
         return Container(
           color: Colors.black,

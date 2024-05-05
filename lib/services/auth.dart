@@ -1,8 +1,7 @@
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -36,6 +35,7 @@ class AuthService {
         if (userMap["status"]) {
           UserModel user = UserModel.fromJson(userMap["data"]);
           user.photoURL ??= userLoggedIn.photoURL.toString();
+          UserDao().updateUser(user);
           user.userInfos = userLoggedIn.providerData;
           return user;
         }

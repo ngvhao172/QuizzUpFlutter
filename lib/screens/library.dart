@@ -1,7 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:final_quizlet_english/blocs/topic/Topic.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
+import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/screens/FolderDetail.dart';
+import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({Key? key}) : super(key: key);
@@ -22,10 +33,20 @@ class _LibraryPageState extends State<LibraryPage>
     'Studied',
     'Liked',
   ];
+
+  late UserModel _user;
+
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
+
+    AuthService().getCurrentUser().then((user) {
+      print(user?.id);
+      _user = user!;
+
+      context.read<TopicBloc>().add(LoadTopics(_user.id!));
+    });
   }
 
   @override
@@ -56,6 +77,17 @@ class _LibraryPageState extends State<LibraryPage>
                 'Library',
               ),
         actions: [
+          IconButton(
+              onPressed: () {
+                AuthService().signOut();
+              },
+              icon: Icon(Icons.logout)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()));
+              },
+              icon: Icon(Icons.person)),
           AnimatedContainer(
             width:
                 isSearchExpanded ? MediaQuery.of(context).size.width - 22 : 170,
@@ -152,6 +184,7 @@ class _LibraryPageState extends State<LibraryPage>
                 ),
                 child: TabBar(
                   controller: _tabController,
+                  splashBorderRadius: BorderRadius.circular(25.0),
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: ShapeDecoration(
                     shape: RoundedRectangleBorder(
@@ -166,7 +199,7 @@ class _LibraryPageState extends State<LibraryPage>
                       text: 'Topics',
                     ),
                     Tab(
-                      text: 'Colections',
+                      text: 'Collections',
                     ),
                   ],
                 ),
@@ -198,7 +231,16 @@ class _LibraryPageState extends State<LibraryPage>
                               icon: Icon(Icons.keyboard_arrow_down),
                               items: items.map((String items) {
                                 return DropdownMenuItem(
-                                    value: items, child: Text(items));
+                                    value: items,
+                                    child: Text(items),
+                                    onTap: () {
+                                      print(items);
+                                      if (items.compareTo("Created") == 0) {
+                                        print("created load");
+                                        context.read<TopicBloc>().add(
+                                            LoadTopicsByCreatedDay(_user.id!));
+                                      }
+                                    });
                               }).toList(),
                               onChanged: (String? newValue) {
                                 setState(() {
@@ -207,6 +249,9 @@ class _LibraryPageState extends State<LibraryPage>
                               },
                             ),
                           ),
+                        ),
+                        const SizedBox(
+                          height: 10,
                         ),
                         TextButton(
                           onPressed: () {
@@ -221,11 +266,12 @@ class _LibraryPageState extends State<LibraryPage>
                                           const Icon(Icons.create_new_folder),
                                       title: const Text('Create Topic'),
                                       onTap: () {
+                                        Navigator.pop(context);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  TCreatePage()),
+                                                  const TCreatePage()),
                                         );
                                       },
                                     ),
@@ -264,135 +310,308 @@ class _LibraryPageState extends State<LibraryPage>
                               fontWeight: FontWeight.bold,
                               color: Colors.grey[700]),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            //chuyển trang học tập mà mệt quá chưa làm tới
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TDetailPage()),
-                            );
-                          },
-                          child: Card(
-                            color: Colors.orange[50],
-                            child: const Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ListTile(
-                                  leading: Image(
-                                    image: AssetImage(
-                                        'assets/images/QLogo.png'), //để nào design logo theo filter
+                        Expanded(
+                          child: BlocBuilder<TopicBloc, TopicState>(
+                            builder: (context, state) {
+                              print(state);
+                              if (state is TopicLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.lightGreen,
                                   ),
-                                  title: Text('Color'), //tên Topics
-                                  subtitle: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text('3 terms'), // size topics
-                                          Icon(Icons.play_arrow_outlined),
-                                          Text('2 players'), // size players],)
-                                        ],
-                                      ),
-                                      Divider(),
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                'assets/images/user.png'), //để nào design logo theo filter
-                                            radius: 10,
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "Phạm Nhật Quỳnh",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 10),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  // size topic á //có mấy người học này
+                                );
+                              } else if (state is TopicLoaded) {
+                                List<TopicInfoDTO> data = state.topics;
+                                if (data.isEmpty) {
+                                  return const Center(
+                                    child: Text("Chưa có topic nào được thêm"),
+                                  );
+                                } else {
+                                  return ListView.builder(
+                                    itemCount: data.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return TopicInfo(
+                                        topicId: data[index].topic.id!,
+                                        title: data[index].topic.name,
+                                        termNumbers: data[index].termNumbers,
+                                        authorName: data[index].authorName,
+                                        playersCount: data[index].playersCount,
+                                        userAvatar: data[index].userAvatar,
+                                        userId: _user.id!,
+                                      );
+                                    },
+                                  );
+                                }
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.lightGreen,
                                 ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            //chuyển trang học tập mà mệt quá chưa làm tới
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TDetailPage()),
-                            );
-                          },
-                          child: Card(
-                            color: Colors.orange[50],
-                            child: const Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ListTile(
-                                  leading: Image(
-                                    image: AssetImage(
-                                        'assets/images/QLogo.png'), //để nào design logo theo filter
-                                  ),
-                                  title: Text('Color'), //tên Topics
-                                  subtitle: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text('3 terms'), // size topics
-                                          Icon(Icons.play_arrow_outlined),
-                                          Text('2 players'), // size players],)
-                                        ],
-                                      ),
-                                      Divider(),
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                'assets/images/user.png'), //để nào design logo theo filter
-                                            radius: 10,
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "Phạm Nhật Quỳnh",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 10),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ), // size topic á //có mấy người học này
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        )
                       ],
                     ),
-
-//folder
-                    const Center(
-                      child: Text(
-                        'Để làm sauuuuu',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600,
+                    //folder
+                    // const Center(
+                    //   child: Text(
+                    //     'Để làm sauuuuu',
+                    //     style: TextStyle(
+                    //       fontSize: 25,
+                    //       fontWeight: FontWeight.w600,
+                    //     ),
+                    //   ),
+                    // ),
+                    SingleChildScrollView(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 40,
+                          padding: const EdgeInsets.all(5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(
+                                color: Colors.grey,
+                                style: BorderStyle.solid,
+                                width: 0.80),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              elevation: 0,
+                              value: dropdownvalue,
+                              icon: Icon(Icons.keyboard_arrow_down),
+                              items: items.map((String items) {
+                                return DropdownMenuItem(
+                                    value: items,
+                                    child: Text(items),
+                                    onTap: () {
+                                      print(items);
+                                      if (items.compareTo("Created") == 0) {
+                                        print("created load");
+                                        context.read<TopicBloc>().add(
+                                            LoadTopicsByCreatedDay(_user.id!));
+                                      }
+                                    });
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  dropdownvalue = newValue!;
+                                });
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    ListTile(
+                                      leading:
+                                          const Icon(Icons.create_new_folder),
+                                      title: const Text('Create Folder'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.file_present),
+                                      title: const Text('Upload file CSV'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add_circle,
+                                color: Colors.lightGreen,
+                              ),
+                              Text(
+                                ' Creation new',
+                                style: TextStyle(color: Colors.lightGreen),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Today",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700]),
+                        ),
+                        Column(
+                          children: [
+                            FolderInfo(),
+                            FolderInfo(),
+                            FolderInfo(),
+                            FolderInfo()
+                          ],
+                        ),
+                      ],
+                    )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FolderInfo extends StatelessWidget {
+  const FolderInfo({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const FolderDetail()));
+      },
+      child: const Card(
+        child: Padding(
+          padding: EdgeInsets.only(top: 10, left: 20, bottom: 10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.folder_open_outlined),
+                  SizedBox(width: 40,),
+                  Text("Thức ăn và nước uống")
+                ],
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                height: 20,
+                child: Row(
+                  children: [
+                    Text("0 topics"),
+                    VerticalDivider(
+                    thickness: 1,
+                  ),
+                    CircleAvatar(
+                      backgroundImage: const AssetImage(
+                              'assets/images/user.png')
+                          as ImageProvider<Object>,
+                      radius: 10,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Nguyễn Văn Hào",
+                      style: TextStyle(
+                          color: Colors.grey, fontSize: 10),
                     ),
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class TopicInfo extends StatelessWidget {
+  const TopicInfo({
+    super.key,
+    required this.topicId,
+    required this.title,
+    required this.termNumbers,
+    required this.authorName,
+    required this.playersCount,
+    required this.userId,
+    this.userAvatar,
+  });
+
+  final String topicId;
+  final String title;
+  final int termNumbers;
+  final String authorName;
+  final int playersCount;
+  final String userId;
+  final String? userAvatar;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  TDetailPage(topicId: topicId, userId: userId)),
+        );
+      },
+      child: Card(
+        color: Colors.orange[50],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Image(
+                image: AssetImage(
+                    'assets/images/QLogo.png'), //để nào design logo theo filter
+              ),
+              title: Text(title), //tên Topics
+              subtitle: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text('$termNumbers terms'), // size topics
+                      Icon(Icons.play_arrow_outlined),
+                      Text('$playersCount players'), // size players],)
+                    ],
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: (userAvatar) != null
+                            ? CachedNetworkImageProvider(userAvatar!)
+                            : const AssetImage('assets/images/user.png')
+                                as ImageProvider<Object>,
+                        radius: 10,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        authorName,
+                        style: TextStyle(color: Colors.grey, fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

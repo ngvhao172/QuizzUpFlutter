@@ -14,7 +14,7 @@ class UserDao {
       }
 
       Map<String, dynamic> userData = user.toJson();
-
+      
       await userCollection.add(userData);
       return {"status": true, "message": "Đăng ký thành công."};
     } catch (e) {
@@ -26,6 +26,25 @@ class UserDao {
     try {
       QuerySnapshot querySnapshot =
           await userCollection.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        Map<String, dynamic> userData =
+            querySnapshot.docs.first.data() as Map<String, dynamic>;
+        userData['id'] = querySnapshot.docs.first.id;
+        //cập nhật userId
+        updateUser(UserModel.fromJson(userData));
+        return {"status": true, "data": userData};
+      } else {
+        return {"status": false, "message": "Không tìm thấy người dùng."};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+  Future<Map<String, dynamic>> getUserById(String userId) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await userCollection.where('id', isEqualTo: userId).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         Map<String, dynamic> userData =

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
@@ -20,31 +21,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   TextEditingController _emailEditingController = TextEditingController();
   TextEditingController _phoneNumberEditingController = TextEditingController();
 
+  
+
   bool isEmailTextEnabled = false;
-
-  // bool isLoading = true;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getCurrentUserData();
-  // }
-
-  // Future<void> getCurrentUserData() async {
-  //   try {
-  //     UserApp? user = await AuthMethods().getCurrentUser();
-  //     print(user!.photoURL);
-  //     setState(() {
-  //       currentUser = user;
-  //       // isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print("Error: $e");
-  //     setState(() {
-  //       // isLoading = false;
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +52,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                       children: [
                         Stack(
                           children: [
-                            const CircleAvatar(
+                            CircleAvatar(
                               backgroundImage:
-                                  AssetImage('assets/images/user.png'),
+                                 (user.photoURL != null &&
+                                          user.photoURL != "null")
+                                      ? CachedNetworkImageProvider(user.photoURL!)
+                                      : const AssetImage(
+                                              "assets/images/user.png")
+                                          as ImageProvider<Object>?,
                               radius: 50,
                             ),
                             Positioned(

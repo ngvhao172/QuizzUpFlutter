@@ -1,19 +1,19 @@
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:flutter/material.dart';
 
-class Provider extends InheritedWidget {
+class AuthenticateProvider extends InheritedWidget {
   final AuthService auth;
-  Provider({
+  AuthenticateProvider({
     Key? key,
     required this.auth,
     required Widget child,
   }) : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWiddget) {
-    return true;
+  bool updateShouldNotify(AuthenticateProvider oldWidget) {
+    return (auth != oldWidget.auth);
   }
 
-  static Provider? of(BuildContext context) =>
-      (context.dependOnInheritedWidgetOfExactType<Provider>());
+  static AuthenticateProvider? of(BuildContext context) =>
+      (context.dependOnInheritedWidgetOfExactType<AuthenticateProvider>());
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/PasswordChange.dart';
 import 'package:final_quizlet_english/screens/PasswordCreate.dart';
@@ -38,6 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           title: const Text("Profile"),
           centerTitle: true,
+          actions: [IconButton(onPressed: (){
+            AuthService().signOut();
+          }, icon: Icon(Icons.logout))],
         ),
         body: SingleChildScrollView(
           child: FutureBuilder(
@@ -46,6 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     UserModel user = snapshot.data as UserModel;
+                    print(user);
                     for (var userInfo in user.userInfos!) {
                       if (userInfo.providerId == "password") {
                         isPasswordProvider = true;
@@ -63,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 CircleAvatar(
                                   backgroundImage: (user.photoURL != null &&
                                           user.photoURL != "null")
-                                      ? NetworkImage(user.photoURL!)
+                                      ? CachedNetworkImageProvider(user.photoURL!)
                                       : const AssetImage(
                                               "assets/images/user.png")
                                           as ImageProvider<Object>?,
@@ -126,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                UpdateProfilePage()))
+                                                const UpdateProfilePage()))
                                     .then((value) async {
                                   await _refreshData();
                                 });
@@ -175,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 else{
                                   showScaffoldMessage(context, result["message"]);
                                 }
-                              },
+                              }
                             )
                             
                           ],
