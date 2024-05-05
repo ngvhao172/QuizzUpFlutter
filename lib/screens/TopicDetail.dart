@@ -57,7 +57,7 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.speak(text);
   }
 
-   void textToSpeechVi(String text) async {
+  void textToSpeechVi(String text) async {
     await flutterTts.setLanguage("vi-VN");
     await flutterTts.setSpeechRate(1.0);
     await flutterTts.setVolume(1.0);
@@ -75,9 +75,10 @@ class _TDetailPageState extends State<TDetailPage>
     //   print(user?.id);
     //   _user = user!;
 
-      
     // });
-    context.read<TopicDetailBloc>().add(LoadTopic(widget.topicId, widget.userId));
+    context
+        .read<TopicDetailBloc>()
+        .add(LoadTopic(widget.topicId, widget.userId));
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -347,41 +348,43 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
-                      (_vocabsFav.length > 0) ?
-                      Container(
-                        height: 25,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(
-                            15.0,
-                          ),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          splashBorderRadius: BorderRadius.circular(
-                            15.0,
-                          ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicator: ShapeDecoration(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                15.0,
+                      (_vocabsFav.length > 0)
+                          ? Container(
+                              height: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(
+                                  15.0,
+                                ),
                               ),
-                            ),
-                            color: Colors.lightGreen,
-                          ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.black,
-                          tabs: [
-                            const Tab(
-                              text: 'All Vocabs',
-                            ),
-                            Tab(
-                              text: 'Only Favorites (${_vocabsFav.length})',
-                            ),
-                          ],
-                        ),
-                      ) : Container(),
+                              child: TabBar(
+                                controller: _tabController,
+                                splashBorderRadius: BorderRadius.circular(
+                                  15.0,
+                                ),
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: ShapeDecoration(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      15.0,
+                                    ),
+                                  ),
+                                  color: Colors.lightGreen,
+                                ),
+                                labelColor: Colors.white,
+                                unselectedLabelColor: Colors.black,
+                                tabs: [
+                                  const Tab(
+                                    text: 'All Vocabs',
+                                  ),
+                                  Tab(
+                                    text:
+                                        'Only Favorites (${_vocabsFav.length})',
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(),
                       const SizedBox(
                         height: 20,
                       ),
@@ -420,73 +423,89 @@ class _TDetailPageState extends State<TDetailPage>
                       // )
                       // buildCard("1", 'Quỳnh', 'Xinh gái'),
                       // buildCard("2", 'Hào', 'Xấu'),
-                      (_vocabsFav.length > 0) ?
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            SingleChildScrollView(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Column(
+                      (_vocabsFav.length > 0)
+                          ? Expanded(
+                              child: TabBarView(
+                                controller: _tabController,
                                 children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: _topicInfoDTO.vocabs!.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var vocab = _topicInfoDTO.vocabs![index];
-                                      var isFav = _vocabsFav.contains(vocab);
-                                      return buildCard(
-                                          index + 1,
-                                          vocab.term,
-                                          vocab.definition,
-                                          widget.userId,
-                                          vocab.id!, isFav, _topicInfoDTO.topic.termLanguage, _topicInfoDTO.topic.definitionLanguage);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SingleChildScrollView(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: Column(
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: _vocabsFav.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var vocab = _vocabsFav[index];
-                                      return buildCard(
-                                          index + 1,
-                                          vocab.term,
-                                          vocab.definition,
-                                          widget.userId,
-                                          vocab.id!, true, _topicInfoDTO.topic.termLanguage, _topicInfoDTO.topic.definitionLanguage);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                  ): Expanded(
-                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: _topicInfoDTO.vocabs!.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var vocab = _topicInfoDTO.vocabs![index];
-                                        var isFav = _vocabsFav.contains(vocab);
-                                        return buildCard(
-                                            index + 1,
-                                            vocab.term,
-                                            vocab.definition,
-                                            widget.userId,
-                                            vocab.id!, isFav, _topicInfoDTO.topic.termLanguage, _topicInfoDTO.topic.definitionLanguage);
-                                      },
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.only(bottom: 20),
+                                    child: Column(
+                                      children: [
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount:
+                                              _topicInfoDTO.vocabs!.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            var vocab =
+                                                _topicInfoDTO.vocabs![index];
+                                            var isFav =
+                                                _vocabsFav.contains(vocab);
+                                            return buildCard(
+                                                index + 1,
+                                                vocab.term,
+                                                vocab.definition,
+                                                widget.userId,
+                                                vocab.id!,
+                                                isFav,
+                                                _topicInfoDTO
+                                                    .topic.termLanguage,
+                                                _topicInfoDTO
+                                                    .topic.definitionLanguage);
+                                          },
+                                        ),
+                                      ],
                                     ),
-                  ),
+                                  ),
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.only(bottom: 20),
+                                    child: Column(
+                                      children: [
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: _vocabsFav.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            var vocab = _vocabsFav[index];
+                                            return buildCard(
+                                                index + 1,
+                                                vocab.term,
+                                                vocab.definition,
+                                                widget.userId,
+                                                vocab.id!,
+                                                true,
+                                                _topicInfoDTO
+                                                    .topic.termLanguage,
+                                                _topicInfoDTO
+                                                    .topic.definitionLanguage);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Expanded(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _topicInfoDTO.vocabs!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var vocab = _topicInfoDTO.vocabs![index];
+                                  var isFav = _vocabsFav.contains(vocab);
+                                  return buildCard(
+                                      index + 1,
+                                      vocab.term,
+                                      vocab.definition,
+                                      widget.userId,
+                                      vocab.id!,
+                                      isFav,
+                                      _topicInfoDTO.topic.termLanguage,
+                                      _topicInfoDTO.topic.definitionLanguage);
+                                },
+                              ),
+                            ),
                     ],
                   );
                 } else {
@@ -500,8 +519,15 @@ class _TDetailPageState extends State<TDetailPage>
             )));
   }
 
-  Widget buildCard(int cardIndex, String term, String definition, String userId,
-      String vocabId, bool isFav, String termLanguage, String definitionLanguage){
+  Widget buildCard(
+      int cardIndex,
+      String term,
+      String definition,
+      String userId,
+      String vocabId,
+      bool isFav,
+      String termLanguage,
+      String definitionLanguage) {
     bool isOpen = selectedCardIndex == cardIndex;
 
     return Card(
@@ -542,35 +568,35 @@ class _TDetailPageState extends State<TDetailPage>
               ),
               IconButton(
                 onPressed: () {
-                  if(termLanguage == "English"){
+                  if (termLanguage == "English") {
                     textToSpeechEn(term);
-                  }
-                  else{
+                  } else {
                     textToSpeechVi(term);
                   }
-
                 },
                 icon: const Icon(Icons.volume_up),
               ),
               IconButton(
                 onPressed: () {
                   //Thêm vào danh sách fav
-                  if(isFav){
-                    context.read<TopicDetailBloc>().add(RemoveVocabFav(vocabId, userId));
-                  }
-                  else{
+                  if (isFav) {
+                    context
+                        .read<TopicDetailBloc>()
+                        .add(RemoveVocabFav(vocabId, userId));
+                  } else {
                     VocabFavouriteModel fav = VocabFavouriteModel(
-                      topicId: widget.topicId,
-                      userId: userId,
-                      vocabularyId: vocabId);
+                        topicId: widget.topicId,
+                        userId: userId,
+                        vocabularyId: vocabId);
                     context.read<TopicDetailBloc>().add(AddVocabFav(fav));
                   }
                   setState(() {
                     isFav = !isFav;
                   });
-                  
                 },
-                icon: (isFav==false)? const Icon(Icons.star_border_outlined) : const Icon(Icons.star),
+                icon: (isFav == false)
+                    ? const Icon(Icons.star_border_outlined)
+                    : const Icon(Icons.star),
               ),
             ],
           ),
