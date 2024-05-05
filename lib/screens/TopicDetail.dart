@@ -15,6 +15,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
 
 class TDetailPage extends StatefulWidget {
   TDetailPage({super.key, required this.topicId, required this.userId});
@@ -274,9 +275,13 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
+                      //Flashcard
                       ElevatedButton(
                         onPressed: () {
-                          //
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TFlashcardPage()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],
@@ -286,18 +291,16 @@ class _TDetailPageState extends State<TDetailPage>
                           ),
                         ),
                         child: Container(
-                          width: double.infinity, // Chiếm toàn bộ chiều ngang
-                          height: 50, // Chiều cao mong muốn của nút
-                          alignment: Alignment.center, // Căn giữa nội dung
+                          width: double.infinity,
+                          height: 50,
+                          alignment: Alignment.center,
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.my_library_books,
                                 color: Colors.lightGreen,
                               ),
-                              const SizedBox(
-                                  width:
-                                      10), // Khoảng cách giữa biểu tượng và nội dung
+                              const SizedBox(width: 10),
                               Text(
                                 'Flashcard',
                                 style: TextStyle(
@@ -312,6 +315,7 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 10,
                       ),
+                      //Điền từ
                       ElevatedButton(
                         onPressed: () {
                           //
@@ -330,12 +334,49 @@ class _TDetailPageState extends State<TDetailPage>
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.menu_book,
+                                Icons.quiz,
                                 color: Colors.lightGreen,
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                'Learn',
+                                'Quiz',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      //Làm trắc nghiệm
+                      ElevatedButton(
+                        onPressed: () {
+                          //
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange[50],
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.edit,
+                                color: Colors.lightGreen,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Type',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey[800],
@@ -398,31 +439,6 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
-                      // Expanded(
-                      //   child: TabBarView(
-                      //           controller: _tabController,
-                      //           children: [
-                      //             Column(children: [buildCard(1, 'Quỳnh', 'Xinh gái', "2", "1"),
-                      //         buildCard(1, 'Quỳnh', 'Xinh gái', "2", "1"),],),
-                      //         Column(children: [buildCard(1, 'Quỳnh', 'Xinh gái', "2", "1"),
-                      //         buildCard(1, 'Quỳnh', 'Xinh gái', "2", "1"),],)
-
-                      //         // buildCard("1", 'Quỳnh', 'Xinh gái'),
-                      //         // buildCard("2", 'Hào', 'Xấu'),
-                      //         // ListView.builder(
-                      //         //   shrinkWrap: true,
-                      //         //   itemCount: _topicInfoDTO.vocabs!.length,
-                      //         //   itemBuilder:
-                      //         //       (BuildContext context, int index) {
-                      //         //     var vocab = _topicInfoDTO.vocabs![index];
-                      //         //     return buildCard(index + 1, vocab.term,
-                      //         //         vocab.definition, _user.id!, vocab.id!);
-                      //         //   },
-                      //         // ),
-                      //       ]),
-                      // )
-                      // buildCard("1", 'Quỳnh', 'Xinh gái'),
-                      // buildCard("2", 'Hào', 'Xấu'),
                       (_vocabsFav.length > 0)
                           ? Expanded(
                               child: TabBarView(

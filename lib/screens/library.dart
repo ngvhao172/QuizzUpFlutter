@@ -9,7 +9,7 @@ import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,6 +27,8 @@ class _LibraryPageState extends State<LibraryPage>
   bool isSearchExpanded = false;
   FocusNode focusNode = FocusNode();
   String dropdownvalue = 'All';
+  int percentage = 40;
+
   var items = [
     'All',
     'Created',
@@ -488,7 +490,8 @@ class FolderInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const FolderDetail()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const FolderDetail()));
       },
       child: const Card(
         child: Padding(
@@ -498,7 +501,9 @@ class FolderInfo extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.folder_open_outlined),
-                  SizedBox(width: 40,),
+                  SizedBox(
+                    width: 40,
+                  ),
                   Text("Thức ăn và nước uống")
                 ],
               ),
@@ -511,12 +516,12 @@ class FolderInfo extends StatelessWidget {
                   children: [
                     Text("0 topics"),
                     VerticalDivider(
-                    thickness: 1,
-                  ),
+                      thickness: 1,
+                    ),
                     CircleAvatar(
-                      backgroundImage: const AssetImage(
-                              'assets/images/user.png')
-                          as ImageProvider<Object>,
+                      backgroundImage:
+                          const AssetImage('assets/images/user.png')
+                              as ImageProvider<Object>,
                       radius: 10,
                     ),
                     SizedBox(
@@ -524,8 +529,7 @@ class FolderInfo extends StatelessWidget {
                     ),
                     Text(
                       "Nguyễn Văn Hào",
-                      style: TextStyle(
-                          color: Colors.grey, fontSize: 10),
+                      style: TextStyle(color: Colors.grey, fontSize: 10),
                     ),
                   ],
                 ),
@@ -560,6 +564,7 @@ class TopicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int percentage = 40;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -575,9 +580,47 @@ class TopicInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Image(
-                image: AssetImage(
-                    'assets/images/QLogo.png'), //để nào design logo theo filter
+              leading: SizedBox(
+                width: 70,
+                height: 70,
+                child: SfRadialGauge(
+                  axes: <RadialAxis>[
+                    RadialAxis(
+                      minimum: 0,
+                      maximum: 100,
+                      showLabels: false,
+                      showTicks: false,
+                      startAngle: 270,
+                      endAngle: 270,
+                      axisLineStyle: const AxisLineStyle(
+                        thickness: 0.2,
+                        cornerStyle: CornerStyle.bothCurve,
+                        color: Color.fromARGB(30, 0, 169, 181),
+                        thicknessUnit: GaugeSizeUnit.factor,
+                      ),
+                      pointers: const <GaugePointer>[
+                        RangePointer(
+                          value: 40,
+                          cornerStyle: CornerStyle.bothCurve,
+                          width: 0.2,
+                          sizeUnit: GaugeSizeUnit.factor,
+                          color: Colors.lightGreen,
+                        )
+                      ],
+                      annotations: <GaugeAnnotation>[
+                        GaugeAnnotation(
+                          positionFactor: 0.1,
+                          angle: 90,
+                          widget: Text(
+                            percentage.toStringAsFixed(0) + '%',
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.orange),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
               title: Text(title), //tên Topics
               subtitle: Column(
