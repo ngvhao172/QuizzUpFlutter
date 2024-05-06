@@ -21,8 +21,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   TextEditingController _emailEditingController = TextEditingController();
   TextEditingController _phoneNumberEditingController = TextEditingController();
 
-  
-
   bool isEmailTextEnabled = false;
 
   @override
@@ -53,13 +51,11 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         Stack(
                           children: [
                             CircleAvatar(
-                              backgroundImage:
-                                 (user.photoURL != null &&
-                                          user.photoURL != "null")
-                                      ? CachedNetworkImageProvider(user.photoURL!)
-                                      : const AssetImage(
-                                              "assets/images/user.png")
-                                          as ImageProvider<Object>?,
+                              backgroundImage: (user.photoURL != null &&
+                                      user.photoURL != "null")
+                                  ? CachedNetworkImageProvider(user.photoURL!)
+                                  : const AssetImage("assets/images/user.png")
+                                      as ImageProvider<Object>?,
                               radius: 50,
                             ),
                             Positioned(
@@ -148,7 +144,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                               isEmailTextEnabled = true;
                                             });
                                           }
-                                          showScaffoldMessage(context, result["message"]);
+                                          showScaffoldMessage(
+                                              context, result["message"]);
                                         } else {
                                           setState(() {
                                             isEmailTextEnabled = false;

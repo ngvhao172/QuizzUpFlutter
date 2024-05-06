@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
@@ -62,16 +60,22 @@ class _TUpdatePageState extends State<TUpdatePage> {
   void initState() {
     super.initState();
     _userFuture = AuthService().getCurrentUser();
-    _titleEditingController = TextEditingController(text: widget.topicInfoDTO.topic.name);
-    _descriptionEditingController = TextEditingController(text: widget.topicInfoDTO.topic.description);
+    _titleEditingController =
+        TextEditingController(text: widget.topicInfoDTO.topic.name);
+    _descriptionEditingController =
+        TextEditingController(text: widget.topicInfoDTO.topic.description);
     terms.clear();
     for (var vocab in widget.topicInfoDTO.vocabs!) {
       print(vocab);
-      OriTerms.add({'term': vocab.term, 'definition': vocab.definition, 'id': vocab.id!});
+      OriTerms.add({
+        'term': vocab.term,
+        'definition': vocab.definition,
+        'id': vocab.id!
+      });
       terms.add({'term': vocab.term, 'definition': vocab.definition});
     }
-    termLanguage =  widget.topicInfoDTO.topic.termLanguage!;
-    defiLanguage =  widget.topicInfoDTO.topic.definitionLanguage!;
+    termLanguage = widget.topicInfoDTO.topic.termLanguage!;
+    defiLanguage = widget.topicInfoDTO.topic.definitionLanguage!;
     visible = widget.topicInfoDTO.topic.private!;
   }
 
@@ -79,7 +83,8 @@ class _TUpdatePageState extends State<TUpdatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Update Topic",
+        title: const Text(
+          "Update Topic",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -91,7 +96,11 @@ class _TUpdatePageState extends State<TUpdatePage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SettingPage(selectedTermLanguage: termLanguage, selectedDefiLanguage: defiLanguage, selectedVisible: visible)),
+              MaterialPageRoute(
+                  builder: (context) => SettingPage(
+                      selectedTermLanguage: termLanguage,
+                      selectedDefiLanguage: defiLanguage,
+                      selectedVisible: visible)),
             ).then((value) => {
                   termLanguage = value["selectedTermLanguage"],
                   defiLanguage = value["selectedDefiLanguage"],
@@ -116,7 +125,7 @@ class _TUpdatePageState extends State<TUpdatePage> {
                       context: context,
                       builder: (context) {
                         return Center(child: CircularProgressIndicator());
-                  });
+                      });
 
                   /// Update topic
                   TopicModel updateTopic = TopicModel(
@@ -137,39 +146,51 @@ class _TUpdatePageState extends State<TUpdatePage> {
                       print(i);
                       String term = terms[i]["term"].toString();
                       String definition = terms[i]["definition"].toString();
-                      if(i < OriTerms.length){
-                          //Từ trống => xóa từ
-                          if(term.isEmpty && definition.isEmpty){
-                            var res = await VocabularyDao().deleteVocabulary(OriTerms[i]["id"].toString());
-                            if(!res["status"]){
-                              allVocabulariesAddedSuccessfully = false;
-                            }
+                      if (i < OriTerms.length) {
+                        //Từ trống => xóa từ
+                        if (term.isEmpty && definition.isEmpty) {
+                          var res = await VocabularyDao()
+                              .deleteVocabulary(OriTerms[i]["id"].toString());
+                          if (!res["status"]) {
+                            allVocabulariesAddedSuccessfully = false;
                           }
+                        }
                       }
-                      if(term.length >= OriTerms.length) {
-                        if(i < OriTerms.length){
-                          if(term != OriTerms[i]["term"].toString() && term.isNotEmpty || definition != OriTerms[i]["definition"].toString() && definition.isNotEmpty){
-                          //Cập nhật các từ có sự thay đổi
-                          VocabularyModel newVocab = VocabularyModel(
-                            topicId: widget.topicInfoDTO.topic.id!, term: term, definition: definition, id: OriTerms[i]["id"].toString(),
-                            updatedAt: DateTime.now()
-                            );
-                            var res = await VocabularyDao().updateVocabulary(newVocab);
+                      if (term.length >= OriTerms.length) {
+                        if (i < OriTerms.length) {
+                          if (term != OriTerms[i]["term"].toString() &&
+                                  term.isNotEmpty ||
+                              definition !=
+                                      OriTerms[i]["definition"].toString() &&
+                                  definition.isNotEmpty) {
+                            //Cập nhật các từ có sự thay đổi
+                            VocabularyModel newVocab = VocabularyModel(
+                                topicId: widget.topicInfoDTO.topic.id!,
+                                term: term,
+                                definition: definition,
+                                id: OriTerms[i]["id"].toString(),
+                                updatedAt: DateTime.now());
+                            var res = await VocabularyDao()
+                                .updateVocabulary(newVocab);
                             if (!res["status"]) {
                               allVocabulariesAddedSuccessfully = false;
                               print(res["message"]);
-                              print('Failed to add vocabulary $term to the topic');
+                              print(
+                                  'Failed to add vocabulary $term to the topic');
+                            }
+                            // Trường hợp các từ còn lại giữ nguyên
                           }
-                          // Trường hợp các từ còn lại giữ nguyên
-                        } 
                         }
                         //Thêm từ mới
-                        else{
+                        else {
                           String term = terms[i]["term"].toString();
                           String definition = terms[i]["definition"].toString();
                           VocabularyModel newVocab = VocabularyModel(
-                              topicId: widget.topicInfoDTO.topic.id!, term: term, definition: definition);
-                          var res = await VocabularyDao().addVocabulary(newVocab);
+                              topicId: widget.topicInfoDTO.topic.id!,
+                              term: term,
+                              definition: definition);
+                          var res =
+                              await VocabularyDao().addVocabulary(newVocab);
                           print(res["status"]);
                         }
                       }
@@ -177,8 +198,10 @@ class _TUpdatePageState extends State<TUpdatePage> {
                     if (allVocabulariesAddedSuccessfully) {
                       //update Topic
                       context.read<TopicBloc>().add(updateTopicEvent);
-                      
-                      context.read<TopicDetailBloc>().add(LoadTopic(updateTopic.id!, user.id!));
+
+                      context
+                          .read<TopicDetailBloc>()
+                          .add(LoadTopic(updateTopic.id!, user.id!));
                       print('All vocabularies added successfully to the topic');
                       showScaffoldMessage(context,
                           "All vocabularies added successfully to the topic");

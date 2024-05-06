@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/screens/Home.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
@@ -28,26 +29,35 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+// class _MyAppState extends State<MyApp> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return const MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: HomePage(),
+//     );
+//   }
+// }
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return AuthenticateProvider(
-      auth: AuthService(),
-      child: MultiBlocProvider(providers: [
-        BlocProvider<TopicBloc> ( 
-        create: (context) => TopicBloc(TopicDao())
-        ),
-        BlocProvider<TopicDetailBloc> (
-        create: (context) => TopicDetailBloc(TopicDao(), VocabularyFavDao())
-        ),
-      ],child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          scaffoldBackgroundColor: Colors.grey[50],
-        ),
-        home: const HomeController(),
-      ),)
-    );
+        auth: AuthService(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<TopicBloc>(create: (context) => TopicBloc(TopicDao())),
+            BlocProvider<TopicDetailBloc>(
+                create: (context) =>
+                    TopicDetailBloc(TopicDao(), VocabularyFavDao())),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              scaffoldBackgroundColor: Colors.grey[50],
+            ),
+            home: const HomeController(),
+          ),
+        ));
   }
 }
 
@@ -67,11 +77,12 @@ class _HomeControllerState extends State<HomeController> {
       builder: (context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           final bool signedIn = snapshot.hasData;
-          
+
           print("Status: " + signedIn.toString());
           // auth.signOut();
-          
-          return SplashScreen(signedIn: (signedIn && snapshot.data!.emailVerified));
+
+          return SplashScreen(
+              signedIn: (signedIn && snapshot.data!.emailVerified));
         }
         return Container(
           color: Colors.black,

@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/screens/Home.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
@@ -21,8 +22,6 @@ class _SignInPageState extends State<SignInPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _forgotEmailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-
-  
 
   var _formKey = GlobalKey<FormState>();
   var _formKeyForgot = GlobalKey<FormState>();
@@ -221,7 +220,7 @@ class _SignInPageState extends State<SignInPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => LibraryPage()),
+                                        builder: (context) => HomePage()),
                                   );
                                 }
                                 if (result["status"] == "not-verified") {
@@ -342,8 +341,7 @@ class _SignInPageState extends State<SignInPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LibraryPage()),
+                                              builder: (context) => HomePage()),
                                         );
                                       } else {
                                         showScaffoldMessage(
