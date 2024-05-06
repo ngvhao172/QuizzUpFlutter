@@ -1,4 +1,5 @@
-import 'package:final_quizlet_english/screens/Home.dart';
+import 'package:final_quizlet_english/screens/HomePage.dart';
+import 'package:final_quizlet_english/screens/MainPage.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
@@ -220,7 +221,7 @@ class _SignInPageState extends State<SignInPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => HomePage()),
+                                        builder: (context) => MainPage()),
                                   );
                                 }
                                 if (result["status"] == "not-verified") {

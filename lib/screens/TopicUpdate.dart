@@ -239,7 +239,7 @@ class _TUpdatePageState extends State<TUpdatePage> {
                   if (snapshot.hasData) {
                     user = snapshot.data as UserModel;
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Form(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,

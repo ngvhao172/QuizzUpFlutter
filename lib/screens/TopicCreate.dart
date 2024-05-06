@@ -15,7 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TCreatePage extends StatefulWidget {
   const TCreatePage({Key? key}) : super(key: key);
 
-
   @override
   State<TCreatePage> createState() => _TCreatePageState();
 }
@@ -67,7 +66,8 @@ class _TCreatePageState extends State<TCreatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create Topic",
+        title: const Text(
+          "Create Topic",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -171,7 +171,7 @@ class _TCreatePageState extends State<TCreatePage> {
                   if (snapshot.hasData) {
                     user = snapshot.data as UserModel;
                     return Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Form(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,

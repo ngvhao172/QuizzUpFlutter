@@ -1,4 +1,4 @@
-import 'package:final_quizlet_english/screens/Home.dart';
+import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';

@@ -39,6 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           title: const Text("Profile"),
           centerTitle: true,
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
                 onPressed: () {

@@ -78,6 +78,7 @@ class _LibraryPageState extends State<LibraryPage>
             : const Text(
                 'Library',
               ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
               onPressed: () {
@@ -173,7 +174,7 @@ class _LibraryPageState extends State<LibraryPage>
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
               Container(
