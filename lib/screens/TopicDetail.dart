@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class TDetailPage extends StatefulWidget {
   TDetailPage({super.key, required this.topicId, required this.userId});
@@ -521,10 +522,255 @@ class _TDetailPageState extends State<TDetailPage>
                             ),
                     ],
                   );
+                  //KHONG CHINH SUA CODE TRONG NAY
+                  //HIEN THI SKELETON TRONG LUC LOAD DATA
                 } else {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.lightGreen[700],
+                  return 
+                  Skeletonizer(
+                    enabled: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: Colors.orange[50],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Image.asset(
+                                'assets/images/QLogo.png',
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "123",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const Text('123'),
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                color: Colors.red[100],
+                                              ),
+                                              //Privacy
+                                              child: const Text(
+                                                "123",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            CircleAvatar(
+                              backgroundImage: null,
+                              radius: 10,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(Icons.people),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                      ""),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        //Flashcard
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TFlashcardPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange[50],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.my_library_books,
+                                  color: Colors.lightGreen,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Flashcard',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        //Điền từ
+                        ElevatedButton(
+                          onPressed: () {
+                            //
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange[50],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.quiz,
+                                  color: Colors.lightGreen,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Quiz',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        //Làm trắc nghiệm
+                        ElevatedButton(
+                          onPressed: () {
+                            //
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange[50],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 50,
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.edit,
+                                  color: Colors.lightGreen,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Type',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Terms",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 5,
+                              itemBuilder: (BuildContext context, int index) {
+                                return buildCard(
+                                    index + 1,
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    false,
+                                    "",
+                                    "");
+                              },
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 }

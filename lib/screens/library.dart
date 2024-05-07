@@ -1,17 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
+import 'package:final_quizlet_english/blocs/folder/Folder.dart';
+import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/Folder.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/screens/FolderCreate.dart';
 import 'package:final_quizlet_english/screens/FolderDetail.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LibraryPage extends StatefulWidget {
@@ -48,6 +51,8 @@ class _LibraryPageState extends State<LibraryPage>
       _user = user!;
 
       context.read<TopicBloc>().add(LoadTopics(_user.id!));
+
+      context.read<FolderBloc>().add(LoadFolders(_user.id!));
     });
   }
 
@@ -317,10 +322,28 @@ class _LibraryPageState extends State<LibraryPage>
                             builder: (context, state) {
                               print(state);
                               if (state is TopicLoading) {
-                                return const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.lightGreen,
-                                  ),
+                                // return const Center(
+                                //   child: CircularProgressIndicator(
+                                //     color: Colors.lightGreen,
+                                //   ),
+                                // );
+                                return Skeletonizer(
+                                  enabled: true,
+                                  child: ListView.builder(
+                                      itemCount: 7,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return TopicInfo(
+                                          topicId: "",
+                                          title: "",
+                                          termNumbers: 0,
+                                          authorName: "",
+                                          playersCount: 0,
+                                          userAvatar: null,
+                                          userId: "",
+                                        );
+                                      },
+                                    ),
                                 );
                               } else if (state is TopicLoaded) {
                                 List<TopicInfoDTO> data = state.topics;
@@ -366,8 +389,7 @@ class _LibraryPageState extends State<LibraryPage>
                     //     ),
                     //   ),
                     // ),
-                    SingleChildScrollView(
-                        child: Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
@@ -423,6 +445,7 @@ class _LibraryPageState extends State<LibraryPage>
                                       title: const Text('Create Folder'),
                                       onTap: () {
                                         Navigator.pop(context);
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const FolderCreatePage()));
                                       },
                                     ),
                                     ListTile(
@@ -460,16 +483,52 @@ class _LibraryPageState extends State<LibraryPage>
                               fontWeight: FontWeight.bold,
                               color: Colors.grey[700]),
                         ),
-                        Column(
-                          children: [
-                            FolderInfo(),
-                            FolderInfo(),
-                            FolderInfo(),
-                            FolderInfo()
-                          ],
-                        ),
+                        Expanded(
+                          child: BlocBuilder<FolderBloc, FolderState>(
+                            builder: (context, state) {
+                              print(state);
+                              if (state is FolderLoading) {
+                                // return const Center(
+                                //   child: CircularProgressIndicator(
+                                //     color: Colors.lightGreen,
+                                //   ),
+                                // );
+                                return Skeletonizer(
+                                  enabled: true,
+                                  child: ListView.builder(
+                                      itemCount: 7,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return FolderInfo(folder: FolderModel(name: "", userId: ""), userName: "123", userAvatar: null);
+                                      },
+                                    ),
+                                );
+                              } else if (state is FolderLoaded) {
+                                List<FolderModel> data = state.folders;
+                                if (data.isEmpty) {
+                                  return const Center(
+                                    child: Text("Chưa có folder nào được thêm"),
+                                  );
+                                } else {
+                                  return ListView.builder(
+                                    itemCount: data.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return FolderInfo(folder: data[index], userName: _user.displayName, userAvatar: _user.photoURL);
+                                    },
+                                  );
+                                }
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.lightGreen,
+                                ),
+                              );
+                            },
+                          ),
+                        )
                       ],
-                    )),
+                    )
                   ],
                 ),
               ),
@@ -483,52 +542,59 @@ class _LibraryPageState extends State<LibraryPage>
 
 class FolderInfo extends StatelessWidget {
   const FolderInfo({
-    super.key,
+    super.key, required this.folder, this.userAvatar, required this.userName
   });
+  final FolderModel folder;
+
+  final String? userAvatar;
+
+  final String userName;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const FolderDetail()));
+            MaterialPageRoute(builder: (context) => FolderDetail(folderId: folder.id!)));
       },
-      child: const Card(
+      child: Card(
         child: Padding(
-          padding: EdgeInsets.only(top: 10, left: 20, bottom: 10),
+          padding: const EdgeInsets.only(top: 10, left: 20, bottom: 10),
           child: Column(
             children: [
               Row(
                 children: [
-                  Icon(Icons.folder_open_outlined),
-                  SizedBox(
+                  const Icon(Icons.folder_open_outlined),
+                  const SizedBox(
                     width: 40,
                   ),
-                  Text("Thức ăn và nước uống")
+                  Text(folder.name)
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               SizedBox(
                 height: 20,
                 child: Row(
                   children: [
-                    Text("0 topics"),
+                    (folder.topicId!=null)? Text("${folder.topicId!.length} topics") : const Text("0 topics"),
                     VerticalDivider(
                       thickness: 1,
                     ),
                     CircleAvatar(
-                      backgroundImage:
-                          const AssetImage('assets/images/user.png')
-                              as ImageProvider<Object>,
+                      backgroundImage: 
+                         (userAvatar) != null
+                            ? CachedNetworkImageProvider(userAvatar!)
+                            : const AssetImage('assets/images/user.png')
+                                as ImageProvider<Object>,
                       radius: 10,
                     ),
                     SizedBox(
                       width: 10,
                     ),
                     Text(
-                      "Nguyễn Văn Hào",
+                      userName,
                       style: TextStyle(color: Colors.grey, fontSize: 10),
                     ),
                   ],
@@ -564,7 +630,7 @@ class TopicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int percentage = 40;
+    double percentage = 0;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -580,7 +646,7 @@ class TopicInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: SizedBox(
+              leading: Skeleton.ignore(child: SizedBox(
                 width: 70,
                 height: 70,
                 child: SfRadialGauge(
@@ -598,9 +664,9 @@ class TopicInfo extends StatelessWidget {
                         color: Color.fromARGB(30, 0, 169, 181),
                         thicknessUnit: GaugeSizeUnit.factor,
                       ),
-                      pointers: const <GaugePointer>[
+                      pointers: <GaugePointer>[
                         RangePointer(
-                          value: 40,
+                          value: percentage,
                           cornerStyle: CornerStyle.bothCurve,
                           width: 0.2,
                           sizeUnit: GaugeSizeUnit.factor,
@@ -612,7 +678,7 @@ class TopicInfo extends StatelessWidget {
                           positionFactor: 0.1,
                           angle: 90,
                           widget: Text(
-                            percentage.toStringAsFixed(0) + '%',
+                            '${percentage.toStringAsFixed(0)}%',
                             style: const TextStyle(
                                 fontSize: 14, color: Colors.orange),
                           ),
@@ -621,14 +687,14 @@ class TopicInfo extends StatelessWidget {
                     )
                   ],
                 ),
-              ),
+              ),),
               title: Text(title), //tên Topics
               subtitle: Column(
                 children: [
                   Row(
                     children: [
                       Text('$termNumbers terms'), // size topics
-                      Icon(Icons.play_arrow_outlined),
+                      const Icon(Icons.play_arrow_outlined),
                       Text('$playersCount players'), // size players],)
                     ],
                   ),

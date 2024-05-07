@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/screens/Home.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
@@ -6,6 +7,7 @@ import 'package:final_quizlet_english/firebase_options.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
+import 'package:final_quizlet_english/services/FolderDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabFavDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,6 +51,9 @@ class _MyAppState extends State<MyApp> {
             BlocProvider<TopicDetailBloc>(
                 create: (context) =>
                     TopicDetailBloc(TopicDao(), VocabularyFavDao())),
+            BlocProvider<FolderBloc>(
+                create: (context) =>
+                    FolderBloc(FolderDao())),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

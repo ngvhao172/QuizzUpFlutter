@@ -1,17 +1,28 @@
+
+import 'package:final_quizlet_english/blocs/folder/Folder.dart';
+import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
+import 'package:final_quizlet_english/models/Folder.dart';
+import 'package:final_quizlet_english/screens/FolderUpdate.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FolderDetail extends StatefulWidget {
-  const FolderDetail({super.key});
+  const FolderDetail({super.key, required this.folderId});
+
+  final String folderId;
 
   @override
   State<FolderDetail> createState() => _FolderDetailState();
 }
 
 class _FolderDetailState extends State<FolderDetail> {
+
+
+  late FolderModel folder;
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +41,7 @@ class _FolderDetailState extends State<FolderDetail> {
                           title: const Text('Edit Folder'),
                           onTap: () {
                             Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => FolderUpdatePage(folder: folder)));
                           },
                         ),
                         ListTile(
@@ -46,8 +58,16 @@ class _FolderDetailState extends State<FolderDetail> {
                             showDialogMessage(
                                 context, "Are you sure you want to continue?",
                                 () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
+                              try {
+                                context
+                                    .read<FolderBloc>()
+                                    .add(RemoveFolder(folder.id!));
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              } catch (e) {
+                                showScaffoldMessage(context, e.toString());
+                              }
                             }, () {
                               Navigator.pop(context);
                               Navigator.pop(context);
