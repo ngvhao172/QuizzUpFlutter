@@ -1,5 +1,6 @@
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
+import 'package:final_quizlet_english/screens/FolderDetail.dart';
 import 'package:final_quizlet_english/services/FolderDao.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,14 +31,15 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
       var result = await FolderDao().addFolder(event.Folder);
       if (result["status"]) {
         print(result);
-        String docId = result["data"];
-        event.completer.complete(docId); // Trả về id
+        String folderId = result["data"];
+        event.completer.complete(folderId); // Trả về id
         // final Folders = await FolderDao.getFolderInfoDTOByUserId(event.Folder.userId);
-        final newFolderAdded = await FolderDao().getFolderByDocId(docId);
+        final newFolderAdded = await FolderDao().getFolderById(folderId);
         if(newFolderAdded["status"]) {
-          currentFolders.add(newFolderAdded["data"]);
+          currentFolders.add(FolderModel.fromJson(newFolderAdded["data"]));
         }
         emit(FolderLoaded(currentFolders));
+        print(newFolderAdded);
       } else {
         event.completer.completeError('Failed to add the Folder');
       }

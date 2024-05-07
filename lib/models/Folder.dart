@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FolderModel {
   String? id;
-  List<String>? topicId;
+  List<String>? topicId = [];
   String name;
   String? description;
   String userId;
@@ -23,7 +23,7 @@ class FolderModel {
   factory FolderModel.fromJson(Map<String, dynamic> json) {
     return FolderModel(
         id: json['id'],
-        topicId: json['topicId'],
+        topicId: List<String>.from(json['topicId']),
         name: json['name'],
         description: json['description'],
         userId: json['userId'],

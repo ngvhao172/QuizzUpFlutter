@@ -1,27 +1,40 @@
+import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
 
 class FolderInfoDTO {
 
-  int topicNumbers;
-  FolderModel Folder;
+  FolderModel folder;
+  List<TopicInfoDTO> topics;
+  String userName;
+  String userId;
+  String? userAvatar;
 
   FolderInfoDTO({
-    required this.topicNumbers,
-    required this.Folder,
+    required this.folder,
+    required this.topics,
+    required this.userName,
+    required this.userId,
+    this.userAvatar,
   }
   );
 
   factory FolderInfoDTO.fromJson(Map<String, dynamic> json) {
     return FolderInfoDTO(
-        Folder: json['Folder'],
-        topicNumbers: json['topicNumbers']
+        folder: json['folder'],
+        topics: json['topics'],
+        userName: json['userName'],
+        userId: json['userId'],
+        userAvatar: json['userAvatar']
         );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'Folder': Folder,
-      'topicNumbers': topicNumbers,
+      'folder': folder,
+      'topics': topics,
+      'userName': userName,
+      'userId': userId,
+      'userAvatar': userAvatar,
     };
   }
 }

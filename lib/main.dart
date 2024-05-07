@@ -1,5 +1,6 @@
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
-import 'package:final_quizlet_english/screens/Home.dart';
+import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
+import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
@@ -54,6 +55,9 @@ class _MyAppState extends State<MyApp> {
             BlocProvider<FolderBloc>(
                 create: (context) =>
                     FolderBloc(FolderDao())),
+            BlocProvider<FolderDetailBloc>(
+                create: (context) =>
+                    FolderDetailBloc(FolderDao())),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

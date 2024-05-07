@@ -1,5 +1,6 @@
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
+import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/FolderDetail.dart';
@@ -55,8 +56,10 @@ class _FolderUpdatePageState extends State<FolderUpdatePage> {
                 try {
                     UpdateFolder updateFolder = UpdateFolder(update);
                     context.read<FolderBloc>().add(updateFolder);
+                    context.read<FolderBloc>().add(LoadFolders(user.id!));
+                    context.read<FolderDetailBloc>().add(LoadFolder(update.id!));
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FolderDetail(folderId: update.id!)));
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => FolderDetail(folderId: update.id!)));
                 }
                 catch(e){
                   showScaffoldMessage(context, e.toString());

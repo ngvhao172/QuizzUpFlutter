@@ -1,4 +1,6 @@
+import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
+import 'package:final_quizlet_english/screens/MainPage.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
         MaterialPageRoute(
           builder: (_) {
             if(widget.signedIn){
-              return const LibraryPage();
+              return const MainPage();
             }
             return const SignInPage();
           } 

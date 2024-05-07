@@ -16,15 +16,24 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClientMixin {
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     _userDataFuture = AuthService().getCurrentUser();
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    
   }
 
   Future<void> _refreshData() async {
@@ -39,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           title: const Text("Profile"),
           centerTitle: true,
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
                 onPressed: () {

@@ -21,9 +21,8 @@ class LoadFoldersByCreatedDay extends FolderEvent {
 
 class LoadFolder extends FolderEvent {
   final String folderId;
-  final String userId;
 
-  LoadFolder(this.folderId, this.userId);
+  LoadFolder(this.folderId);
 }
 
 class AddFolder extends FolderEvent {
@@ -46,20 +45,6 @@ class RemoveFolder extends FolderEvent {
   RemoveFolder(this.FolderId);
 }
 
-
-class RemoveVocabFav extends FolderEvent {
-  final String vocabId;
-
-  final String userId;
-
-  RemoveVocabFav(this.vocabId, this.userId);
-}
-class AddVocabFav extends FolderEvent {
-  final VocabFavouriteModel favVocab;
-
-  AddVocabFav(this.favVocab);
-}
-
 abstract class FolderState {}
 
 class FolderLoading extends FolderState {}
@@ -71,9 +56,7 @@ class FolderLoaded extends FolderState {
 }
 
 class FolderDetailLoaded extends FolderState {
-  final FolderInfoDTO Folder;
+  final FolderInfoDTO folderInfoDTO;
 
-  final List<VocabularyModel> vocabsFav;
-
-  FolderDetailLoaded(this.Folder, this.vocabsFav);
+  FolderDetailLoaded(this.folderInfoDTO);
 }

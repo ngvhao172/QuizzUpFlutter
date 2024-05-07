@@ -44,7 +44,7 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
                 
                 //Tạo folder
                 FolderModel newFolder = FolderModel(userId: user.id!
-                , name: _titleEditingController.text, description: _descriptionEditingController.text);
+                , name: _titleEditingController.text, description: _descriptionEditingController.text, topicId: []);
                 // var result = await FolderDao().addFolder(newFolder);
                 
                 try {

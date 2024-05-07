@@ -25,7 +25,7 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   bool isSearchExpanded = false;
   FocusNode focusNode = FocusNode();
@@ -38,6 +38,9 @@ class _LibraryPageState extends State<LibraryPage>
     'Studied',
     'Liked',
   ];
+
+  @override
+  bool get wantKeepAlive => true;
 
   late UserModel _user;
 
@@ -83,6 +86,7 @@ class _LibraryPageState extends State<LibraryPage>
             : const Text(
                 'Library',
               ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
               onPressed: () {
@@ -178,7 +182,7 @@ class _LibraryPageState extends State<LibraryPage>
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
               Container(
@@ -235,7 +239,7 @@ class _LibraryPageState extends State<LibraryPage>
                             child: DropdownButton(
                               elevation: 0,
                               value: dropdownvalue,
-                              icon: Icon(Icons.keyboard_arrow_down),
+                              icon: const Icon(Icons.keyboard_arrow_down),
                               items: items.map((String items) {
                                 return DropdownMenuItem(
                                     value: items,
@@ -333,7 +337,7 @@ class _LibraryPageState extends State<LibraryPage>
                                       itemCount: 7,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        return TopicInfo(
+                                        return const TopicInfo(
                                           topicId: "",
                                           title: "",
                                           termNumbers: 0,
@@ -549,6 +553,7 @@ class FolderInfo extends StatelessWidget {
   final String? userAvatar;
 
   final String userName;
+
 
   @override
   Widget build(BuildContext context) {

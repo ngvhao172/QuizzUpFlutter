@@ -1,21 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_quizlet_english/dtos/FolderInfo.dart';
+import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
+import 'package:final_quizlet_english/models/Topic.dart';
+import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/screens/library.dart';
+import 'package:final_quizlet_english/services/TopicDao.dart';
+import 'package:final_quizlet_english/services/UserDao.dart';
 
 class FolderDao {
   final CollectionReference folderCollection =
       FirebaseFirestore.instance.collection('Folder');
 
   Future<Map<String, dynamic>> addFolder(FolderModel folder) async {
-    try {
-      Map<String, dynamic> folderData = folder.toJson();
+  try {
+        Map<String, dynamic> folderData = folder.toJson();
 
-      var folderAdded = await folderCollection.add(folderData);
+        var folderAdded = await folderCollection.add(folderData);
+        String folderId = folderAdded.id;
 
-      return {"status": true, "message": "Thêm folder thành công.", "data": folderAdded.id.toString()};
-    } catch (e) {
-      return {"status": false, "message": e.toString()};
+        if (folderData['id'] == null) {
+          folderData['id'] = folderId;
+          await folderAdded.update({'id': folderId});
+        }
+
+        return {"status": true, "message": "Thêm folder thành công.", "data": folderId};
+      } catch (e) {
+        return {"status": false, "message": e.toString()};
+      }
     }
-  }
+
 
   Future<Map<String, dynamic>> getFolderByDocId(String folderId) async {
     try {
@@ -73,6 +87,42 @@ class FolderDao {
   //     return {"status": false, "message": e.toString()};
   //   }
   // }
+
+  Future<Map<String, dynamic>> getFolderInfoDTOByFolderId(String folderId) async {
+    try {
+      var resultFolder = await getFolderById(folderId);
+      if (resultFolder["status"]) {
+        FolderModel folder = FolderModel.fromJson(resultFolder["data"]);
+        List<TopicInfoDTO> topics = [];
+        if(folder.topicId != null){
+          for (var i = 0; i < folder.topicId!.length; i++) {
+            var resultTopic =  await TopicDao().getTopicInfoDTOByTopicId(folder.topicId![i]);
+            if(resultTopic["status"]){
+              TopicInfoDTO topic = resultTopic["data"];
+              topics.add(topic);
+            }
+            else{
+              print(resultTopic["message"]);
+            }
+          }
+        }
+        FolderInfoDTO folderInfoDTO  = FolderInfoDTO(folder: folder, topics: topics, userName: "",userId: "", userAvatar: null);
+        var resultUser = await UserDao().getUserById(folder.userId);
+        
+        if(resultUser["status"]){
+          UserModel user = UserModel.fromJson(resultUser["data"]);
+          folderInfoDTO.userName = user.displayName;
+          folderInfoDTO.userAvatar = user.photoURL;
+          folderInfoDTO.userId = user.id!;
+        }
+        return {"status": true, "data": folderInfoDTO}; 
+      } else {
+        return {"status": false, "message": "Không tìm thấy folder."};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
 
   Future<Map<String, dynamic>> updateFolder(FolderModel folder) async {
     try {

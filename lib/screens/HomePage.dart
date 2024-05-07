@@ -1,9 +1,7 @@
+import 'package:final_quizlet_english/screens/Report.dart';
 import 'package:flutter/material.dart';
-import 'Home.dart' as _homeTab;
-import 'TopicUpdate.dart' as _topicTab;
-import 'Library.dart' as _libraryTab;
-import 'Profile.dart' as _profileTab;
-import 'Alert.dart' as _alert;
+import 'package:final_quizlet_english/screens/Profile.dart';
+import 'package:final_quizlet_english/screens/Library.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -45,7 +43,7 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               children: [
                 Row(
@@ -94,58 +92,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        child: Container(
-          height: 60.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              IconButton(
-                  iconSize: 25,
-                  //padding: EdgeInsets.only(left: 28.0),
-                  icon: Icon(Icons.home, color: Colors.lightGreen),
-                  onPressed: () {
-                    setState(() {});
-                  }),
-              IconButton(
-                  iconSize: 25,
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {});
-                  }),
-              IconButton(
-                  iconSize: 25,
-                  icon: Icon(Icons.bookmark),
-                  onPressed: () {
-                    setState(() {});
-                  }),
-              IconButton(
-                iconSize: 25,
-                //padding: EdgeInsets.only(right: 28.0),
-                icon: Icon(Icons.settings),
-                onPressed: () {
-                  setState(() {});
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.lightGreen,
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return _alert.Alert();
-            },
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
