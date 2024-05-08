@@ -21,7 +21,7 @@ class AuthService {
     return auth.currentUser?.uid;
   }
 
-  Future signOut() async{
+  signOut() {
     auth.signOut();
   }
   Future<UserModel?> getCurrentUser() async {

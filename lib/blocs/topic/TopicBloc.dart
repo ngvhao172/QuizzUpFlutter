@@ -32,8 +32,9 @@ class TopicBloc extends Bloc<TopicEvent, TopicState> {
         event.completer.complete(topicId); // Trả về id
         // final topics = await topicDao.getTopicInfoDTOByUserId(event.topic.userId);
         final newTopicAdded = await topicDao.getTopicInfoDTOByTopicId(topicId);
-        if(newTopicAdded["status"])
+        if(newTopicAdded["status"]) {
           currentTopics.add(newTopicAdded["data"]);
+        }
         emit(TopicLoaded(currentTopics));
       } else {
         event.completer.completeError('Failed to add the topic');

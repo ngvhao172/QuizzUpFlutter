@@ -53,11 +53,9 @@ class _MyAppState extends State<MyApp> {
                 create: (context) =>
                     TopicDetailBloc(TopicDao(), VocabularyFavDao())),
             BlocProvider<FolderBloc>(
-                create: (context) =>
-                    FolderBloc(FolderDao())),
+                create: (context) => FolderBloc(FolderDao())),
             BlocProvider<FolderDetailBloc>(
-                create: (context) =>
-                    FolderDetailBloc(FolderDao())),
+                create: (context) => FolderDetailBloc(FolderDao())),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -83,19 +81,19 @@ class _HomeControllerState extends State<HomeController> {
     final AuthService auth = AuthenticateProvider.of(context)!.auth;
     return StreamBuilder(
       stream: auth.onAuthStateChanged,
-      builder: (context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final bool signedIn = snapshot.hasData;
-
-          print("Status: " + signedIn.toString());
-          // auth.signOut();
-
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.active) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          final user = snapshot.data;
           return SplashScreen(
-              signedIn: (signedIn && snapshot.data!.emailVerified));
+            signedIn: user!.emailVerified,
+          );
+        } else {
+          return const SignInPage();
         }
-        return Container(
-          color: Colors.black,
-        );
       },
     );
   }
