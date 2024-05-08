@@ -11,7 +11,7 @@ class AuthenticateProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AuthenticateProvider oldWidget) {
-    return (auth != oldWidget.auth);
+    return true;
   }
 
   static AuthenticateProvider? of(BuildContext context) =>

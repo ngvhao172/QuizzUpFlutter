@@ -3,6 +3,8 @@ import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/PasswordChange.dart';
 import 'package:final_quizlet_english/screens/PasswordCreate.dart';
 import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
+import 'package:final_quizlet_english/screens/SignIn.dart';
+import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,15 +18,24 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage>  {
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
+
+  // @override
+  // bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     _userDataFuture = AuthService().getCurrentUser();
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    
   }
 
   Future<void> _refreshData() async {
@@ -35,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = AuthenticateProvider.of(context)!;
     return Scaffold(
         appBar: AppBar(
           title: const Text("Profile"),
@@ -43,7 +55,8 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             IconButton(
                 onPressed: () {
-                  AuthService().signOut();
+                  authProvider.auth.signOut();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInPage()));
                 },
                 icon: Icon(Icons.logout))
           ],

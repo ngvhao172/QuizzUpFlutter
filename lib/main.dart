@@ -1,3 +1,5 @@
+import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
+import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
 import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
@@ -6,6 +8,7 @@ import 'package:final_quizlet_english/firebase_options.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
+import 'package:final_quizlet_english/services/FolderDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabFavDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,6 +52,10 @@ class _MyAppState extends State<MyApp> {
             BlocProvider<TopicDetailBloc>(
                 create: (context) =>
                     TopicDetailBloc(TopicDao(), VocabularyFavDao())),
+            BlocProvider<FolderBloc>(
+                create: (context) => FolderBloc(FolderDao())),
+            BlocProvider<FolderDetailBloc>(
+                create: (context) => FolderDetailBloc(FolderDao())),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -74,19 +81,19 @@ class _HomeControllerState extends State<HomeController> {
     final AuthService auth = AuthenticateProvider.of(context)!.auth;
     return StreamBuilder(
       stream: auth.onAuthStateChanged,
-      builder: (context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final bool signedIn = snapshot.hasData;
-
-          print("Status: " + signedIn.toString());
-          // auth.signOut();
-
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.active) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          final user = snapshot.data;
           return SplashScreen(
-              signedIn: (signedIn && snapshot.data!.emailVerified));
+            signedIn: user!.emailVerified,
+          );
+        } else {
+          return const SignInPage();
         }
-        return Container(
-          color: Colors.black,
-        );
       },
     );
   }

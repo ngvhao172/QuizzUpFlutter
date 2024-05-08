@@ -44,6 +44,7 @@ dependencies:
   flutter_tts: ^4.0.2
   syncfusion_flutter_gauges: ^25.1.42
   flip_card: ^0.7.0
+  skeletonizer: ^1.1.2+1
 
 dev_dependencies:
   flutter_test:
