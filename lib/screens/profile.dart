@@ -36,8 +36,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Profile"),
+          title:  Text("Profile"),
           centerTitle: true,
+          actions: [IconButton(onPressed: (){AuthService().signOut();}, icon: Icon(Icons.logout))],
         ),
         body: SingleChildScrollView(
           child: FutureBuilder(

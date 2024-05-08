@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "991957758896-8l47hauusrjsc62mid8ar8rh3301jgbm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.final_quizlet_english",
-            "certificate_hash": "d360c461694b6a1d3701880ac6bd7fcd578003f2"
-          }
-        },
-        {
           "client_id": "991957758896-cskkurh6kpi579pgbbg1r7agflbgsdtn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

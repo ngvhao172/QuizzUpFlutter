@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.grey[50],
         ),
-        home: TDetailPage(),
+        home: Home(),
       ),
     );
   }
@@ -62,7 +62,7 @@ class _HomeState extends State<Home> {
           final bool signedIn = snapshot.hasData;
           print("Status: " + signedIn.toString());
           // auth.signOut();
-          return signedIn ? TCreatePage() : const SignInPage();
+          return signedIn ? ProfilePage() : const SignInPage();
         }
         return Container(
           color: Colors.black,
