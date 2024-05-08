@@ -1,3 +1,6 @@
+import 'package:final_quizlet_english/screens/HomePage.dart';
+import 'package:final_quizlet_english/screens/MainPage.dart';
+import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
@@ -20,7 +23,6 @@ class _SignInPageState extends State<SignInPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _forgotEmailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  TextEditingController _resendEmailController = TextEditingController();
 
   var _formKey = GlobalKey<FormState>();
   var _formKeyForgot = GlobalKey<FormState>();
@@ -30,6 +32,15 @@ class _SignInPageState extends State<SignInPage> {
   bool isLoadingResend = false;
 
   var obscurePassword = true;
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _emailController.dispose();
+    _forgotEmailController.dispose();
+    _passwordController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +221,7 @@ class _SignInPageState extends State<SignInPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => ProfilePage()),
+                                        builder: (context) => MainPage()),
                                   );
                                 }
                                 if (result["status"] == "not-verified") {
@@ -331,8 +342,7 @@ class _SignInPageState extends State<SignInPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProfilePage()),
+                                              builder: (context) => const MainPage()),
                                         );
                                       } else {
                                         showScaffoldMessage(

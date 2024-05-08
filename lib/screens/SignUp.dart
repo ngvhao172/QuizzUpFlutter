@@ -18,10 +18,12 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _cfpasswordController = TextEditingController();
 
   var _formKey = GlobalKey<FormState>();
 
   var obscurePassword = true;
+  var obscureCfPassword = true;
 
   bool isLoading = false;
 
@@ -184,6 +186,44 @@ class _SignUpPageState extends State<SignUpPage> {
                                         },
                                       ),
                                     ),
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                              color: Colors.grey.shade200),
+                                        ),
+                                      ),
+                                      child: TextFormField(
+                                        controller: _cfpasswordController,
+                                        obscureText: obscureCfPassword,
+                                        decoration: InputDecoration(
+                                            hintText: "Comfirm Password",
+                                            hintStyle:
+                                                TextStyle(color: Colors.grey),
+                                            border: InputBorder.none,
+                                            suffixIcon: Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 8.0),
+                                                child: IconButton(
+                                                    icon: (obscureCfPassword)
+                                                        ? Icon(Icons
+                                                            .remove_red_eye)
+                                                        : Icon(Icons
+                                                            .visibility_off),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        obscureCfPassword =
+                                                            !obscureCfPassword;
+                                                      });
+                                                    }))),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Password is required";
+                                          }
+                                        },
+                                      ),
+                                    ),
                                     // Container(
                                     //   padding: const EdgeInsets.all(10),
                                     //   decoration: BoxDecoration(
@@ -216,7 +256,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                 setState(() {
                                   isLoading = true;
                                 });
-                                var result = await AuthService().register(
+                                if(_passwordController.text == _cfpasswordController.text){
+                                    var result = await AuthService().register(
                                     _nameController.text,
                                     _emailController.text,
                                     _passwordController.text);
@@ -228,6 +269,15 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text(result["message"])));
+                                }
+                                else{
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Mật khẩu không trùng khớp")));
+                                }
+                              
                               }
                             },
                             height: 50,

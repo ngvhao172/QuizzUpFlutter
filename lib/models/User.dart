@@ -9,6 +9,9 @@ class UserModel {
   String? photoURL;
   List<UserInfo>? userInfos;
 
+  DateTime? createdAt = DateTime.now();
+  DateTime? updatedAt = DateTime.now();
+
   UserModel({
     this.id,
     required this.email,

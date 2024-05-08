@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
-import 'package:final_quizlet_english/services/UserDao.dart';
+import 'package:final_quizlet_english/services/userDao.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'SignIn.dart';
 
@@ -22,29 +25,11 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   bool isEmailTextEnabled = false;
 
-  // bool isLoading = true;
+  final ImagePicker _imagePicker = ImagePicker();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getCurrentUserData();
-  // }
+  Uint8List? _imageUrl;
 
-  // Future<void> getCurrentUserData() async {
-  //   try {
-  //     UserApp? user = await AuthMethods().getCurrentUser();
-  //     print(user!.photoURL);
-  //     setState(() {
-  //       currentUser = user;
-  //       // isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print("Error: $e");
-  //     setState(() {
-  //       // isLoading = false;
-  //     });
-  //   }
-  // }
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +58,16 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                       children: [
                         Stack(
                           children: [
-                            const CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/images/user.png'),
+                            CircleAvatar(
+                              backgroundImage: (_imageUrl != null)
+                                  ? MemoryImage(_imageUrl!)
+                                  : (user.photoURL != null &&
+                                          user.photoURL != "null")
+                                      ? CachedNetworkImageProvider(
+                                          user.photoURL!)
+                                      : const AssetImage(
+                                              "assets/images/user.png")
+                                          as ImageProvider<Object>?,
                               radius: 50,
                             ),
                             Positioned(
@@ -92,7 +84,37 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                       Icons.camera_alt,
                                       color: Colors.white,
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              ListTile(
+                                                leading: const Icon(Icons.edit),
+                                                title: const Text('Camera'),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  await _pickImage(
+                                                      ImageSource.camera);
+                                                },
+                                              ),
+                                              ListTile(
+                                                leading:
+                                                    const Icon(Icons.delete),
+                                                title: const Text('Galery'),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  await _pickImage(
+                                                      ImageSource.gallery);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
                                     iconSize: 15,
                                   ),
                                 )),
@@ -164,7 +186,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                               isEmailTextEnabled = true;
                                             });
                                           }
-                                          showScaffoldMessage(context, result["message"]);
+                                          showScaffoldMessage(
+                                              context, result["message"]);
                                         } else {
                                           setState(() {
                                             isEmailTextEnabled = false;
@@ -211,13 +234,17 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                             BorderRadius.circular(32.0)),
                                     minimumSize: Size(200, 50),
                                   ),
-                                  child: const Text(
+                                  child: (isLoading)? const Center(child: CircularProgressIndicator(),) : const Text(
                                     'Update',
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
+
+                                      setState(() {
+                                        isLoading = true;
+                                      });
                                       //
                                       UserModel userUpdate = UserModel(
                                           id: user.id,
@@ -236,6 +263,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                       userUpdate.phoneNumber =
                                           _phoneNumberEditingController.text;
                                       if (userUpdate.email == user.email) {
+                                        //Cập nhật ảnh
+                                        if(_imageUrl!=null){
+                                          var result =  await UserDao().uploadImageToStorage("useravatar", _imageUrl!);
+                                          if(result["status"]){
+                                            userUpdate.photoURL = result["data"];
+                                          }
+                                          print(result["message"]);
+                                        }
                                         UserDao()
                                             .updateUser(userUpdate)
                                             .then((result) {
@@ -248,6 +283,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                               .showSnackBar(SnackBar(
                                                   content:
                                                       Text(error["message"])));
+                                        setState(() {
+                                          isLoading = false;
+                                        });
                                         });
                                       } else {
                                         // var result = await AuthService()
@@ -284,5 +322,18 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             ),
           ),
         ));
+  }
+
+  _pickImage(ImageSource source) async {
+    var pickedFile =
+        await _imagePicker.pickImage(source: source, imageQuality: 50);
+    if (pickedFile == null) {
+      return;
+    }
+
+    var image = await pickedFile.readAsBytes();
+    setState(() {
+      _imageUrl = image;
+    });
   }
 }

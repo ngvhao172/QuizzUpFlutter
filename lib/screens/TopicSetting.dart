@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({super.key, this.selectedTermLanguage, this.selectedDefiLanguage, this.selectedVisible});
+
+  final String? selectedTermLanguage;
+  final String? selectedDefiLanguage;
+  final bool? selectedVisible;
 
   @override
   State<SettingPage> createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<SettingPage> {
-  String selectedTermLanguage = 'Select Language';
-  String selectedDefiLanguage = 'Select Language';
-  String selectedVisible = 'Everyone';
+  late String selectedTermLanguage;
+  late String selectedDefiLanguage;
+  late String selectedVisible;
+  late bool private;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print(widget.selectedTermLanguage);
+    print(widget.selectedDefiLanguage);
+    print(widget.selectedVisible);
+    super.initState();
+    selectedTermLanguage = (widget.selectedTermLanguage != null) ? widget.selectedTermLanguage! : 'Select Language';
+    selectedDefiLanguage = (widget.selectedDefiLanguage != null) ? widget.selectedDefiLanguage! : 'Select Language';
+    selectedVisible = (widget.selectedVisible != null && widget.selectedVisible == false) ? "Everyone" : "Just me";
+    private = (widget.selectedVisible != null) ? widget.selectedVisible! : true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +36,15 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: const Text("Settings"),
         centerTitle: true,
-        leading: const BackButton(
+        leading: BackButton(
           color: Colors.grey,
+          onPressed: (){
+             Navigator.pop(context, {
+                'selectedTermLanguage': selectedTermLanguage,
+                'selectedDefiLanguage': selectedDefiLanguage,
+                'selectedPrivate': private,
+              });
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -270,6 +295,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   setState(() {
                     selectedVisible = 'Everyone';
+                    private = false;
                   });
                   Navigator.pop(context);
                 },
@@ -279,6 +305,7 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   setState(() {
                     selectedVisible = 'Just me';
+                    private = true;
                   });
                   Navigator.pop(context);
                 },

@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 
 class UserDao {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('User');
+
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<Map<String, dynamic>> addUser(UserModel user) async {
     try {
@@ -31,6 +35,26 @@ class UserDao {
         Map<String, dynamic> userData =
             querySnapshot.docs.first.data() as Map<String, dynamic>;
         userData['id'] = querySnapshot.docs.first.id;
+        //cập nhật userId
+        updateUser(UserModel.fromJson(userData));
+        return {"status": true, "data": userData};
+      } else {
+        return {"status": false, "message": "Không tìm thấy người dùng."};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserById(String userId) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await userCollection.where('id', isEqualTo: userId).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        Map<String, dynamic> userData =
+            querySnapshot.docs.first.data() as Map<String, dynamic>;
+        userData['id'] = querySnapshot.docs.first.id;
         return {"status": true, "data": userData};
       } else {
         return {"status": false, "message": "Không tìm thấy người dùng."};
@@ -44,7 +68,23 @@ class UserDao {
     try {
       await userCollection.doc(user.id).update(user.toJson());
 
-      return {"status": true, "message": "Cập nhật thông tin người dùng thành công."};
+      return {
+        "status": true,
+        "message": "Cập nhật thông tin người dùng thành công."
+      };
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> uploadImageToStorage(
+      String childName, Uint8List file) async {
+    try {
+      Reference ref = _storage.ref().child(childName);
+      UploadTask uploadTask = ref.putData(file);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return {"status": true, "data": downloadUrl};
     } catch (e) {
       return {"status": false, "message": e.toString()};
     }

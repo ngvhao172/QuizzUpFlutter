@@ -1,8 +1,7 @@
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -22,7 +21,7 @@ class AuthService {
     return auth.currentUser?.uid;
   }
 
-  Future signOut() async{
+  signOut() {
     auth.signOut();
   }
   Future<UserModel?> getCurrentUser() async {
@@ -36,6 +35,7 @@ class AuthService {
         if (userMap["status"]) {
           UserModel user = UserModel.fromJson(userMap["data"]);
           user.photoURL ??= userLoggedIn.photoURL.toString();
+          UserDao().updateUser(user);
           user.userInfos = userLoggedIn.providerData;
           return user;
         }
@@ -47,6 +47,37 @@ class AuthService {
     }
     return null;
   }
+  Stream<UserModel?> getCurrentUserStream() async* {
+  try {
+    final User? userLoggedIn = auth.currentUser;
+    if (userLoggedIn == null) {
+      yield null; // Không có người dùng đăng nhập
+      return;
+    }
+
+    print(userLoggedIn);
+    final providerId = userLoggedIn.providerData.isNotEmpty
+        ? userLoggedIn.providerData[0].providerId
+        : null;
+    print(providerId);
+
+    final userMap = await UserDao().getUserByEmail(userLoggedIn.email.toString());
+    print(userMap);
+
+    if (userMap["status"]) {
+      final UserModel user = UserModel.fromJson(userMap["data"]);
+      user.photoURL ??= userLoggedIn.photoURL.toString();
+      await UserDao().updateUser(user);
+      user.userInfos = userLoggedIn.providerData;
+      yield user;
+    } else {
+      print("User not found or inactive");
+    }
+  } catch (e) {
+    print("Error: $e");
+  }
+}
+
 
   Future<Map<String, dynamic>> updateUser(UserModel userUpdate) async {
     try {

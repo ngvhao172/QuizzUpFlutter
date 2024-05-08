@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/PasswordChange.dart';
 import 'package:final_quizlet_english/screens/PasswordCreate.dart';
 import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
+import 'package:final_quizlet_english/screens/SignIn.dart';
+import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,15 +18,24 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage>  {
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
+
+  // @override
+  // bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     _userDataFuture = AuthService().getCurrentUser();
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    
   }
 
   Future<void> _refreshData() async {
@@ -34,11 +46,20 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = AuthenticateProvider.of(context)!;
     return Scaffold(
         appBar: AppBar(
           title:  Text("Profile"),
           centerTitle: true,
-          actions: [IconButton(onPressed: (){AuthService().signOut();}, icon: Icon(Icons.logout))],
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  authProvider.auth.signOut();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInPage()));
+                },
+                icon: Icon(Icons.logout))
+          ],
         ),
         body: SingleChildScrollView(
           child: FutureBuilder(
@@ -47,6 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     UserModel user = snapshot.data as UserModel;
+                    print(user);
                     for (var userInfo in user.userInfos!) {
                       if (userInfo.providerId == "password") {
                         isPasswordProvider = true;
@@ -64,7 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 CircleAvatar(
                                   backgroundImage: (user.photoURL != null &&
                                           user.photoURL != "null")
-                                      ? NetworkImage(user.photoURL!)
+                                      ? CachedNetworkImageProvider(
+                                          user.photoURL!)
                                       : const AssetImage(
                                               "assets/images/user.png")
                                           as ImageProvider<Object>?,
@@ -127,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                UpdateProfilePage()))
+                                                const UpdateProfilePage()))
                                     .then((value) async {
                                   await _refreshData();
                                 });
@@ -149,36 +172,37 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(
                               height: 20,
                             ),
-                            (isPasswordProvider==true) ? getMenuItem(
-                              title: "Change password",
-                              icon: Icons.settings,
-                              endIcon: true,
-                              onPress: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ChangePasswordPage()));
-                              },
-                            ) : getMenuItem(
-                              title: "Create password",
-                              icon: Icons.settings,
-                              endIcon: true,
-                              onPress: () async {
-                                var result = await AuthService().reAuthGoogle();
-                                if(result["status"]){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            CreatePasswordPage()));
-                                }
-                                else{
-                                  showScaffoldMessage(context, result["message"]);
-                                }
-                              },
-                            )
-                            
+                            (isPasswordProvider == true)
+                                ? getMenuItem(
+                                    title: "Change password",
+                                    icon: Icons.settings,
+                                    endIcon: true,
+                                    onPress: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChangePasswordPage()));
+                                    },
+                                  )
+                                : getMenuItem(
+                                    title: "Create password",
+                                    icon: Icons.settings,
+                                    endIcon: true,
+                                    onPress: () async {
+                                      var result =
+                                          await AuthService().reAuthGoogle();
+                                      if (result["status"]) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CreatePasswordPage()));
+                                      } else {
+                                        showScaffoldMessage(
+                                            context, result["message"]);
+                                      }
+                                    })
                           ],
                         ),
                       ),
