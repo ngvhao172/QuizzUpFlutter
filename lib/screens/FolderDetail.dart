@@ -31,6 +31,7 @@ class _FolderDetailState extends State<FolderDetail>  {
     super.initState();
 
     context.read<FolderDetailBloc>().add(LoadFolder(widget.folderId));
+
   }
 
   @override

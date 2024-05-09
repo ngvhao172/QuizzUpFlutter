@@ -10,6 +10,7 @@ class TopicModel {
   bool? private = true;
   String termLanguage;
   String definitionLanguage;
+  DateTime lastAccessed;
 
   DateTime? createdAt = DateTime.now();
   DateTime? updatedAt = DateTime.now();
@@ -24,8 +25,9 @@ class TopicModel {
       updatedAt,
       required this.userId,
       required this.name,
+      required this.lastAccessed,
       required this.termLanguage,
-      required this.definitionLanguage}) : this.createdAt = createdAt ?? DateTime.now(), this.updatedAt = updatedAt ?? DateTime.now();
+      required this.definitionLanguage}) : createdAt = createdAt ?? DateTime.now(), updatedAt = updatedAt ?? DateTime.now();
 
   factory TopicModel.fromJson(Map<String, dynamic> json) {
     return TopicModel(
@@ -36,6 +38,7 @@ class TopicModel {
         userId: json['userId'],
         playersId: json['playersId'],
         private: json['private'],
+        lastAccessed: (json['lastAccessed'] as Timestamp).toDate(),
         termLanguage: json['termLanguage'],
         definitionLanguage: json['definitionLanguage'],
         createdAt: (json['createdAt'] as Timestamp).toDate(),
@@ -51,6 +54,7 @@ class TopicModel {
       'userId': userId,
       'playersId': playersId,
       'private': private,
+      'lastAccessed': lastAccessed,
       'termLanguage': termLanguage,
       'definitionLanguage': definitionLanguage,
       'createdAt': createdAt,

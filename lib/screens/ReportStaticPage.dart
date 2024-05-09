@@ -18,23 +18,12 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text(
             'Back to Reports',
             style: TextStyle(fontWeight: FontWeight.w200),
           ),
-          leading: IconButton(
-            icon: const BackButton(
-              color: Colors.grey,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          automaticallyImplyLeading: false,
         ),
         body: Column(
           children: <Widget>[
@@ -461,7 +450,6 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
