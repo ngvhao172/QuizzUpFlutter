@@ -113,7 +113,8 @@ class _TCreatePageState extends State<TCreatePage> {
                       description: _descriptionEditingController.text,
                       private: private,
                       termLanguage: termLanguage,
-                      definitionLanguage: defiLanguage);
+                      definitionLanguage: defiLanguage,
+                      lastAccessed: DateTime.now() );
                   AddTopic addTopicEvent = AddTopic(newTopic);
                   context.read<TopicBloc>().add(addTopicEvent);
                   try {
@@ -252,6 +253,8 @@ class _TCreatePageState extends State<TCreatePage> {
                                               selectedDefinitionIndex = -1;
                                             });
                                           },
+                                          textInputAction: TextInputAction.next,
+                                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                           decoration: InputDecoration(
                                             labelText: "Term",
                                             hintText: 'Enter term',
@@ -295,6 +298,8 @@ class _TCreatePageState extends State<TCreatePage> {
                                               selectedTermIndex = -1;
                                             });
                                           },
+                                          textInputAction: TextInputAction.next,
+                                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                           decoration: InputDecoration(
                                               labelText: "Definition",
                                               hintText: 'Enter definition',

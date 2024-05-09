@@ -12,6 +12,7 @@ import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,95 @@ class _LibraryPageState extends State<LibraryPage>
   String dropdownvalue = 'All';
   int percentage = 40;
 
+  final ScrollController _scrollController = ScrollController();
+
+  Widget _buildCarousel() {
+    return AppBar(
+      title: isSearchExpanded
+          ? null
+          : const Text(
+              'Library',
+            ),
+      automaticallyImplyLeading: false,
+      actions: [
+        AnimatedContainer(
+          width:
+              isSearchExpanded ? MediaQuery.of(context).size.width - 22 : 170,
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: Colors.orange[50],
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: isSearchExpanded
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            hintText: 'Search...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          onChanged: (value) {},
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: _toggleSearch,
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            hintText: 'Search...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          onChanged: (value) {},
+                          onTap: _toggleSearch,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _toggleSearch();
+                        },
+                        icon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+        const SizedBox(
+          width: 10,
+        )
+      ],
+    );
+  }
+
   var items = [
     'All',
     'Created',
@@ -42,7 +132,7 @@ class _LibraryPageState extends State<LibraryPage>
   @override
   bool get wantKeepAlive => true;
 
-  late UserModel _user;
+  UserModel? _user;
 
   @override
   void initState() {
@@ -51,11 +141,13 @@ class _LibraryPageState extends State<LibraryPage>
 
     AuthService().getCurrentUser().then((user) {
       print(user?.id);
-      _user = user!;
+      setState(() {
+        _user = user!;
+      });
 
-      context.read<TopicBloc>().add(LoadTopics(_user.id!));
+      context.read<TopicBloc>().add(LoadTopics(_user!.id!));
 
-      context.read<FolderBloc>().add(LoadFolders(_user.id!));
+      context.read<FolderBloc>().add(LoadFolders(_user!.id!));
     });
   }
 
@@ -80,467 +172,614 @@ class _LibraryPageState extends State<LibraryPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: isSearchExpanded
-            ? null
-            : const Text(
-                'Library',
-              ),
-        automaticallyImplyLeading: false,
-        actions: [
-          AnimatedContainer(
-            width:
-                isSearchExpanded ? MediaQuery.of(context).size.width - 22 : 170,
-            duration: const Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: Colors.orange[50],
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: isSearchExpanded
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              hintText: 'Search...',
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            onChanged: (value) {},
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _toggleSearch,
-                          icon: const Icon(
-                            Icons.close,
-                            color: Colors.grey,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              hintText: 'Search...',
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            onChanged: (value) {},
-                            onTap: _toggleSearch,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            _toggleSearch();
-                          },
-                          icon: const Icon(
-                            Icons.search,
-                            color: Colors.grey,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-          const SizedBox(
-            width: 10,
-          )
-        ],
-      ),
-      body: GestureDetector(
-        onTap: () {
-          if (isSearchExpanded) {
-            _toggleSearch();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(
-                    25.0,
-                  ),
+        body: (_user == null)
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: Colors.lightGreen[700],
                 ),
-                child: TabBar(
-                  controller: _tabController,
-                  splashBorderRadius: BorderRadius.circular(25.0),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                    color: Colors.lightGreen,
-                  ),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.black,
-                  tabs: const [
-                    Tab(
-                      text: 'Topics',
-                    ),
-                    Tab(
-                      text: 'Collections',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 40,
-                          padding: const EdgeInsets.all(5.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(
-                                color: Colors.grey,
-                                style: BorderStyle.solid,
-                                width: 0.80),
+              )
+            : NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, value) {
+                  return [
+                    SliverToBoxAdapter(child: _buildCarousel()),
+                    SliverToBoxAdapter(
+                      child: Container(
+                        margin: const EdgeInsets.all(10),
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(
+                            25.0,
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              elevation: 0,
-                              value: dropdownvalue,
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              items: items.map((String items) {
-                                return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items),
-                                    onTap: () {
-                                      print(items);
-                                      if (items.compareTo("Created") == 0) {
-                                        print("created load");
-                                        context.read<TopicBloc>().add(
-                                            LoadTopicsByCreatedDay(_user.id!));
-                                      }
-                                    });
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  dropdownvalue = newValue!;
-                                });
-                              },
+                        ),
+                        child: TabBar(
+                          controller: _tabController,
+                          splashBorderRadius: BorderRadius.circular(25.0),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: ShapeDecoration(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
+                            color: Colors.lightGreen,
                           ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    ListTile(
-                                      leading:
-                                          const Icon(Icons.create_new_folder),
-                                      title: const Text('Create Topic'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const TCreatePage()),
-                                        );
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.file_present),
-                                      title: const Text('Upload file CSV'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add_circle,
-                                color: Colors.lightGreen,
-                              ),
-                              Text(
-                                ' Creation new',
-                                style: TextStyle(color: Colors.lightGreen),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Today",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[700]),
-                        ),
-                        Expanded(
-                          child: BlocBuilder<TopicBloc, TopicState>(
-                            builder: (context, state) {
-                              print(state);
-                              if (state is TopicLoading) {
-                                // return const Center(
-                                //   child: CircularProgressIndicator(
-                                //     color: Colors.lightGreen,
-                                //   ),
-                                // );
-                                return Skeletonizer(
-                                  enabled: true,
-                                  child: ListView.builder(
-                                    itemCount: 7,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return const TopicInfo(
-                                        topicId: "",
-                                        title: "",
-                                        termNumbers: 0,
-                                        authorName: "",
-                                        playersCount: 0,
-                                        userAvatar: null,
-                                        userId: "",
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else if (state is TopicLoaded) {
-                                List<TopicInfoDTO> data = state.topics;
-                                if (data.isEmpty) {
-                                  return const Center(
-                                    child: Text("Chưa có topic nào được thêm"),
-                                  );
-                                } else {
-                                  return ListView.builder(
-                                    itemCount: data.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return TopicInfo(
-                                        topicId: data[index].topic.id!,
-                                        title: data[index].topic.name,
-                                        termNumbers: data[index].termNumbers,
-                                        authorName: data[index].authorName,
-                                        playersCount: data[index].playersCount,
-                                        userAvatar: data[index].userAvatar,
-                                        userId: _user.id!,
-                                      );
-                                    },
-                                  );
-                                }
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.lightGreen,
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                    //folder
-                    // const Center(
-                    //   child: Text(
-                    //     'Để làm sauuuuu',
-                    //     style: TextStyle(
-                    //       fontSize: 25,
-                    //       fontWeight: FontWeight.w600,
-                    //     ),
-                    //   ),
-                    // ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 40,
-                          padding: const EdgeInsets.all(5.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(
-                                color: Colors.grey,
-                                style: BorderStyle.solid,
-                                width: 0.80),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                              elevation: 0,
-                              value: dropdownvalue,
-                              icon: Icon(Icons.keyboard_arrow_down),
-                              items: items.map((String items) {
-                                return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items),
-                                    onTap: () {
-                                      print(items);
-                                      if (items.compareTo("Created") == 0) {
-                                        print("created load");
-                                        context.read<TopicBloc>().add(
-                                            LoadTopicsByCreatedDay(_user.id!));
-                                      }
-                                    });
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  dropdownvalue = newValue!;
-                                });
-                              },
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.black,
+                          tabs: const [
+                            Tab(
+                              text: 'Topics',
                             ),
-                          ),
+                            Tab(
+                              text: 'Collections',
+                            ),
+                          ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    ListTile(
-                                      leading:
-                                          const Icon(Icons.create_new_folder),
-                                      title: const Text('Create Folder'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const FolderCreatePage()));
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.file_present),
-                                      title: const Text('Upload file CSV'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add_circle,
-                                color: Colors.lightGreen,
-                              ),
-                              Text(
-                                ' Creation new',
-                                style: TextStyle(color: Colors.lightGreen),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Today",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[700]),
-                        ),
-                        Expanded(
-                          child: BlocBuilder<FolderBloc, FolderState>(
-                            builder: (context, state) {
-                              print(state);
-                              if (state is FolderLoading) {
-                                // return const Center(
-                                //   child: CircularProgressIndicator(
-                                //     color: Colors.lightGreen,
-                                //   ),
-                                // );
-                                return Skeletonizer(
-                                  enabled: true,
-                                  child: ListView.builder(
-                                    itemCount: 7,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return FolderInfo(
-                                          folder:
-                                              FolderModel(name: "", userId: ""),
-                                          userName: "123",
-                                          userAvatar: null);
-                                    },
-                                  ),
-                                );
-                              } else if (state is FolderLoaded) {
-                                List<FolderModel> data = state.folders;
-                                if (data.isEmpty) {
-                                  return const Center(
-                                    child: Text("Chưa có folder nào được thêm"),
-                                  );
-                                } else {
-                                  return ListView.builder(
-                                    itemCount: data.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return FolderInfo(
-                                          folder: data[index],
-                                          userName: _user.displayName,
-                                          userAvatar: _user.photoURL);
-                                    },
-                                  );
-                                }
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.lightGreen,
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
+                      ),
                     )
-                  ],
+                  ];
+                },
+                body: Container(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.all(10),
+                              height: 40,
+                              padding: const EdgeInsets.all(5.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                border: Border.all(
+                                    color: Colors.grey,
+                                    style: BorderStyle.solid,
+                                    width: 0.80),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  elevation: 0,
+                                  value: dropdownvalue,
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  items: items.map((String items) {
+                                    return DropdownMenuItem(
+                                        value: items,
+                                        child: Text(items),
+                                        onTap: () {
+                                          print(items);
+                                          if (items.compareTo("Created") == 0) {
+                                            print("created load");
+                                            context.read<TopicBloc>().add(
+                                                LoadTopicsByCreatedDay(
+                                                    _user!.id!));
+                                          }
+                                        });
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      dropdownvalue = newValue!;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        ListTile(
+                                          leading: const Icon(
+                                              Icons.create_new_folder),
+                                          title: const Text('Create Topic'),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const TCreatePage()),
+                                            );
+                                          },
+                                        ),
+                                        ListTile(
+                                          leading:
+                                              const Icon(Icons.file_present),
+                                          title: const Text('Upload file CSV'),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add_circle,
+                                    color: Colors.lightGreen,
+                                  ),
+                                  Text(
+                                    ' Creation new',
+                                    style: TextStyle(color: Colors.lightGreen),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Expanded(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: BlocBuilder<TopicBloc, TopicState>(
+                                  builder: (context, state) {
+                                    print(state);
+                                    if (state is TopicLoading) {
+                                      // return const Center(
+                                      //   child: CircularProgressIndicator(
+                                      //     color: Colors.lightGreen,
+                                      //   ),
+                                      // );
+                                      return Skeletonizer(
+                                        enabled: true,
+                                        child: ListView.builder(
+                                          itemCount: 7,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return const TopicInfo(
+                                              topicId: "",
+                                              title: "",
+                                              termNumbers: 0,
+                                              authorName: "",
+                                              playersCount: 0,
+                                              userAvatar: null,
+                                              userId: "",
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    } else if (state is TopicLoaded) {
+                                      List<TopicInfoDTO> data = state.topics;
+                                      DateTime today = DateTime.now();
+                                      DateTime yesterday =
+                                          today.subtract(Duration(days: 1));
+                                      // currentTopics = topics["data"];
+                                      var todayTopics = [];
+                                      var yesterdayTopics = [];
+                                      var thisWeekTopics = [];
+                                      var olderTopics = [];
+                                      for (var topicDTO in data) {
+                                        if (DateFormat('yyyy-MM-dd').format(
+                                                topicDTO.topic.lastAccessed) ==
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(today)) {
+                                          todayTopics.add(topicDTO);
+                                        }
+                                        if (DateFormat('yyyy-MM-dd').format(
+                                                topicDTO.topic.lastAccessed) ==
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(yesterday)) {
+                                          yesterdayTopics.add(topicDTO);
+                                        }
+                                        if (DateFormat('yyyy-MM-dd')
+                                                    .format(topicDTO
+                                                        .topic.lastAccessed)
+                                                    .compareTo(DateFormat('yyyy-MM-dd')
+                                                        .format(today.subtract(
+                                                            Duration(
+                                                                days: 7)))) >=
+                                                0 &&
+                                            DateFormat('yyyy-MM-dd')
+                                                    .format(topicDTO
+                                                        .topic.lastAccessed)
+                                                    .compareTo(
+                                                        DateFormat('yyyy-MM-dd')
+                                                            .format(today.subtract(Duration(days: 2)))) <=
+                                                0) {
+                                          thisWeekTopics.add(topicDTO);
+                                        }
+                                        if (DateFormat('yyyy-MM-dd')
+                                                .format(
+                                                    topicDTO.topic.lastAccessed)
+                                                .compareTo(DateFormat(
+                                                        'yyyy-MM-dd')
+                                                    .format(today.subtract(
+                                                        Duration(days: 7)))) <
+                                            0) {
+                                          olderTopics.add(topicDTO);
+                                        }
+                                      }
+                                      if (data.isEmpty) {
+                                        return const Center(
+                                          child: Text(
+                                              "Chưa có topic nào được thêm"),
+                                        );
+                                      } else {
+                                        return SingleChildScrollView(
+                                          child: Column(
+                                            children: [
+                                              (todayTopics.isNotEmpty)
+                                                  ? Container(
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                      margin: EdgeInsets.only(
+                                                          left: 10),
+                                                      child: Text(
+                                                        "Today",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors
+                                                                .grey[700]),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount: todayTopics.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return TopicInfo(
+                                                    topicId: todayTopics[index]
+                                                        .topic
+                                                        .id!,
+                                                    title: todayTopics[index]
+                                                        .topic
+                                                        .name,
+                                                    termNumbers:
+                                                        todayTopics[index]
+                                                            .termNumbers,
+                                                    authorName:
+                                                        todayTopics[index]
+                                                            .authorName,
+                                                    playersCount:
+                                                        todayTopics[index]
+                                                            .playersCount,
+                                                    userAvatar:
+                                                        todayTopics[index]
+                                                            .userAvatar,
+                                                    userId: _user!.id!,
+                                                  );
+                                                },
+                                              ),
+                                              (yesterdayTopics.isNotEmpty)
+                                                  ? Container(
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                      margin: EdgeInsets.only(
+                                                          left: 10, top: 20),
+                                                      child: Text(
+                                                        "Yesterday",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors
+                                                                .grey[700]),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount:
+                                                    yesterdayTopics.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return TopicInfo(
+                                                    topicId:
+                                                        yesterdayTopics[index]
+                                                            .topic
+                                                            .id!,
+                                                    title:
+                                                        yesterdayTopics[index]
+                                                            .topic
+                                                            .name,
+                                                    termNumbers:
+                                                        yesterdayTopics[index]
+                                                            .termNumbers,
+                                                    authorName:
+                                                        yesterdayTopics[index]
+                                                            .authorName,
+                                                    playersCount:
+                                                        yesterdayTopics[index]
+                                                            .playersCount,
+                                                    userAvatar:
+                                                        yesterdayTopics[index]
+                                                            .userAvatar,
+                                                    userId: _user!.id!,
+                                                  );
+                                                },
+                                              ),
+                                              (thisWeekTopics.isNotEmpty)
+                                                  ? Container(
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                      margin: EdgeInsets.only(
+                                                          left: 10, top: 20),
+                                                      child: Text(
+                                                        "This week",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors
+                                                                .grey[700]),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount:
+                                                    thisWeekTopics.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return TopicInfo(
+                                                    topicId:
+                                                        thisWeekTopics[index]
+                                                            .topic
+                                                            .id!,
+                                                    title: thisWeekTopics[index]
+                                                        .topic
+                                                        .name,
+                                                    termNumbers:
+                                                        thisWeekTopics[index]
+                                                            .termNumbers,
+                                                    authorName:
+                                                        thisWeekTopics[index]
+                                                            .authorName,
+                                                    playersCount:
+                                                        thisWeekTopics[index]
+                                                            .playersCount,
+                                                    userAvatar:
+                                                        thisWeekTopics[index]
+                                                            .userAvatar,
+                                                    userId: _user!.id!,
+                                                  );
+                                                },
+                                              ),
+                                              (olderTopics.isNotEmpty)
+                                                  ? Container(
+                                                      alignment:
+                                                          Alignment.topLeft,
+                                                      margin: EdgeInsets.only(
+                                                          left: 10, top: 20),
+                                                      child: Text(
+                                                        "Older",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors
+                                                                .grey[700]),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                              ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount: olderTopics.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return TopicInfo(
+                                                    topicId: olderTopics[index]
+                                                        .topic
+                                                        .id!,
+                                                    title: olderTopics[index]
+                                                        .topic
+                                                        .name,
+                                                    termNumbers:
+                                                        olderTopics[index]
+                                                            .termNumbers,
+                                                    authorName:
+                                                        olderTopics[index]
+                                                            .authorName,
+                                                    playersCount:
+                                                        olderTopics[index]
+                                                            .playersCount,
+                                                    userAvatar:
+                                                        olderTopics[index]
+                                                            .userAvatar,
+                                                    userId: _user!.id!,
+                                                  );
+                                                },
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    return const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.lightGreen,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ]),
+                      //FOLDER FRAGMENT
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            height: 40,
+                            padding: const EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                  color: Colors.grey,
+                                  style: BorderStyle.solid,
+                                  width: 0.80),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton(
+                                elevation: 0,
+                                value: dropdownvalue,
+                                icon: Icon(Icons.keyboard_arrow_down),
+                                items: items.map((String items) {
+                                  return DropdownMenuItem(
+                                      value: items,
+                                      child: Text(items),
+                                      onTap: () {
+                                        print(items);
+                                        if (items.compareTo("Created") == 0) {
+                                          print("created load");
+                                          context.read<TopicBloc>().add(
+                                              LoadTopicsByCreatedDay(
+                                                  _user!.id!));
+                                        }
+                                      });
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    dropdownvalue = newValue!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading:
+                                            const Icon(Icons.create_new_folder),
+                                        title: const Text('Create Folder'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const FolderCreatePage()));
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.file_present),
+                                        title: const Text('Upload file CSV'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add_circle,
+                                  color: Colors.lightGreen,
+                                ),
+                                Text(
+                                  ' Creation new',
+                                  style: TextStyle(color: Colors.lightGreen),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Today",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700]),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: BlocBuilder<FolderBloc, FolderState>(
+                                builder: (context, state) {
+                                  print(state);
+                                  if (state is FolderLoading) {
+                                    // return const Center(
+                                    //   child: CircularProgressIndicator(
+                                    //     color: Colors.lightGreen,
+                                    //   ),
+                                    // );
+                                    return Skeletonizer(
+                                      enabled: true,
+                                      child: ListView.builder(
+                                        itemCount: 7,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return FolderInfo(
+                                              folder: FolderModel(
+                                                  name: "", userId: ""),
+                                              userName: "123",
+                                              userAvatar: null);
+                                        },
+                                      ),
+                                    );
+                                  } else if (state is FolderLoaded) {
+                                    List<FolderModel> data = state.folders;
+                                    if (data.isEmpty) {
+                                      return const Center(
+                                        child: Text(
+                                            "Chưa có folder nào được thêm"),
+                                      );
+                                    } else {
+                                      return ListView.builder(
+                                        itemCount: data.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return FolderInfo(
+                                              folder: data[index],
+                                              userName: _user!.displayName,
+                                              userAvatar: _user!.photoURL);
+                                        },
+                                      );
+                                    }
+                                  }
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.lightGreen,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+              ));
   }
 }
 

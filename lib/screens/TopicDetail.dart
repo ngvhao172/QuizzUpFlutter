@@ -3,6 +3,7 @@ import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
@@ -10,6 +11,7 @@ import 'package:final_quizlet_english/screens/FolderList.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,6 +173,11 @@ class _TDetailPageState extends State<TDetailPage>
               builder: (context, state) {
                 if (state is TopicDetailLoaded) {
                   _topicInfoDTO = state.topic;
+
+                  TopicModel topicLastAccessed = state.topic.topic;
+                  topicLastAccessed.lastAccessed = DateTime.now();
+                  TopicDao().updateTopic(topicLastAccessed);
+                  context.read<TopicBloc>().add(LoadTopics(widget.userId));
                   _vocabsFav = state.vocabsFav;
                   print(_topicInfoDTO.topic.private);
                   return Column(

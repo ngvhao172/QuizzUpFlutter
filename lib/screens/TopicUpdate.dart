@@ -136,7 +136,8 @@ class _TUpdatePageState extends State<TUpdatePage> {
                       private: visible,
                       termLanguage: termLanguage,
                       definitionLanguage: defiLanguage,
-                      updatedAt: DateTime.now());
+                      updatedAt: DateTime.now(),
+                      lastAccessed: DateTime.now());
                   UpdateTopic updateTopicEvent = UpdateTopic(updateTopic);
                   try {
                     bool allVocabulariesAddedSuccessfully = true;
@@ -178,7 +179,6 @@ class _TUpdatePageState extends State<TUpdatePage> {
                               print(
                                   'Failed to add vocabulary $term to the topic');
                             }
-                            // Trường hợp các từ còn lại giữ nguyên
                           }
                         }
                         //Thêm từ mới

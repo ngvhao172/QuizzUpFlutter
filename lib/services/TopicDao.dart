@@ -109,6 +109,7 @@ class TopicDao {
 
   Future<Map<String, dynamic>> updateTopic(TopicModel topic) async {
     try {
+      topic.updatedAt = DateTime.now();
       await topicCollection.doc(topic.id).update(topic.toJson());
 
       return {"status": true, "message": "Cập nhật topic thành công."};

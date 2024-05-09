@@ -237,8 +237,7 @@ class FolderDao {
 
   Future<void> removeTopicIdFromFolder(String folderId, String topicId) async {
     try {
-      DocumentReference folderRef =
-          FirebaseFirestore.instance.collection('folders').doc(folderId);
+      DocumentReference folderRef = folderCollection.doc(folderId);
 
       await folderRef.update({
         'topicIds': FieldValue.arrayRemove([topicId])
