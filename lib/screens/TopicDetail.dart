@@ -7,6 +7,7 @@ import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
+import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
@@ -141,10 +142,14 @@ class _TDetailPageState extends State<TDetailPage>
                         ),
                         ListTile(
                           leading: const Icon(Icons.folder_open),
-                          title: const Text('Add to Colection'),
+                          title: const Text('Add to folder'),
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => FolderListAdd(topicId: widget.topicId)));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FolderListAdd(
+                                        topicId: widget.topicId)));
                           },
                         ),
                         ListTile(
@@ -321,7 +326,11 @@ class _TDetailPageState extends State<TDetailPage>
                       //Điền từ
                       ElevatedButton(
                         onPressed: () {
-                          //
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TQuizPage()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],

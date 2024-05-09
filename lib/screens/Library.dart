@@ -88,17 +88,6 @@ class _LibraryPageState extends State<LibraryPage>
               ),
         automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-              onPressed: () {
-                AuthService().signOut();
-              },
-              icon: Icon(Icons.logout)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()));
-              },
-              icon: Icon(Icons.person)),
           AnimatedContainer(
             width:
                 isSearchExpanded ? MediaQuery.of(context).size.width - 22 : 170,
@@ -334,20 +323,20 @@ class _LibraryPageState extends State<LibraryPage>
                                 return Skeletonizer(
                                   enabled: true,
                                   child: ListView.builder(
-                                      itemCount: 7,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return const TopicInfo(
-                                          topicId: "",
-                                          title: "",
-                                          termNumbers: 0,
-                                          authorName: "",
-                                          playersCount: 0,
-                                          userAvatar: null,
-                                          userId: "",
-                                        );
-                                      },
-                                    ),
+                                    itemCount: 7,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return const TopicInfo(
+                                        topicId: "",
+                                        title: "",
+                                        termNumbers: 0,
+                                        authorName: "",
+                                        playersCount: 0,
+                                        userAvatar: null,
+                                        userId: "",
+                                      );
+                                    },
+                                  ),
                                 );
                               } else if (state is TopicLoaded) {
                                 List<TopicInfoDTO> data = state.topics;
@@ -449,7 +438,11 @@ class _LibraryPageState extends State<LibraryPage>
                                       title: const Text('Create Folder'),
                                       onTap: () {
                                         Navigator.pop(context);
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const FolderCreatePage()));
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const FolderCreatePage()));
                                       },
                                     ),
                                     ListTile(
@@ -500,12 +493,16 @@ class _LibraryPageState extends State<LibraryPage>
                                 return Skeletonizer(
                                   enabled: true,
                                   child: ListView.builder(
-                                      itemCount: 7,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return FolderInfo(folder: FolderModel(name: "", userId: ""), userName: "123", userAvatar: null);
-                                      },
-                                    ),
+                                    itemCount: 7,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return FolderInfo(
+                                          folder:
+                                              FolderModel(name: "", userId: ""),
+                                          userName: "123",
+                                          userAvatar: null);
+                                    },
+                                  ),
                                 );
                               } else if (state is FolderLoaded) {
                                 List<FolderModel> data = state.folders;
@@ -518,7 +515,10 @@ class _LibraryPageState extends State<LibraryPage>
                                     itemCount: data.length,
                                     itemBuilder:
                                         (BuildContext context, int index) {
-                                      return FolderInfo(folder: data[index], userName: _user.displayName, userAvatar: _user.photoURL);
+                                      return FolderInfo(
+                                          folder: data[index],
+                                          userName: _user.displayName,
+                                          userAvatar: _user.photoURL);
                                     },
                                   );
                                 }
@@ -545,22 +545,25 @@ class _LibraryPageState extends State<LibraryPage>
 }
 
 class FolderInfo extends StatelessWidget {
-  const FolderInfo({
-    super.key, required this.folder, this.userAvatar, required this.userName
-  });
+  const FolderInfo(
+      {super.key,
+      required this.folder,
+      this.userAvatar,
+      required this.userName});
   final FolderModel folder;
 
   final String? userAvatar;
 
   final String userName;
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => FolderDetail(folderId: folder.id!)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => FolderDetail(folderId: folder.id!)));
       },
       child: Card(
         child: Padding(
@@ -583,16 +586,17 @@ class FolderInfo extends StatelessWidget {
                 height: 20,
                 child: Row(
                   children: [
-                    (folder.topicIds!=null)? Text("${folder.topicIds!.length} topics") : const Text("0 topics"),
+                    (folder.topicIds != null)
+                        ? Text("${folder.topicIds!.length} topics")
+                        : const Text("0 topics"),
                     VerticalDivider(
                       thickness: 1,
                     ),
                     CircleAvatar(
-                      backgroundImage: 
-                         (userAvatar) != null
-                            ? CachedNetworkImageProvider(userAvatar!)
-                            : const AssetImage('assets/images/user.png')
-                                as ImageProvider<Object>,
+                      backgroundImage: (userAvatar) != null
+                          ? CachedNetworkImageProvider(userAvatar!)
+                          : const AssetImage('assets/images/user.png')
+                              as ImageProvider<Object>,
                       radius: 10,
                     ),
                     SizedBox(
@@ -651,48 +655,50 @@ class TopicInfo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Skeleton.ignore(child: SizedBox(
-                width: 70,
-                height: 70,
-                child: SfRadialGauge(
-                  axes: <RadialAxis>[
-                    RadialAxis(
-                      minimum: 0,
-                      maximum: 100,
-                      showLabels: false,
-                      showTicks: false,
-                      startAngle: 270,
-                      endAngle: 270,
-                      axisLineStyle: const AxisLineStyle(
-                        thickness: 0.2,
-                        cornerStyle: CornerStyle.bothCurve,
-                        color: Color.fromARGB(30, 0, 169, 181),
-                        thicknessUnit: GaugeSizeUnit.factor,
-                      ),
-                      pointers: <GaugePointer>[
-                        RangePointer(
-                          value: percentage,
+              leading: Skeleton.ignore(
+                child: SizedBox(
+                  width: 70,
+                  height: 70,
+                  child: SfRadialGauge(
+                    axes: <RadialAxis>[
+                      RadialAxis(
+                        minimum: 0,
+                        maximum: 100,
+                        showLabels: false,
+                        showTicks: false,
+                        startAngle: 270,
+                        endAngle: 270,
+                        axisLineStyle: const AxisLineStyle(
+                          thickness: 0.2,
                           cornerStyle: CornerStyle.bothCurve,
-                          width: 0.2,
-                          sizeUnit: GaugeSizeUnit.factor,
-                          color: Colors.lightGreen,
-                        )
-                      ],
-                      annotations: <GaugeAnnotation>[
-                        GaugeAnnotation(
-                          positionFactor: 0.1,
-                          angle: 90,
-                          widget: Text(
-                            '${percentage.toStringAsFixed(0)}%',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.orange),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
+                          color: Color.fromARGB(30, 0, 169, 181),
+                          thicknessUnit: GaugeSizeUnit.factor,
+                        ),
+                        pointers: <GaugePointer>[
+                          RangePointer(
+                            value: percentage,
+                            cornerStyle: CornerStyle.bothCurve,
+                            width: 0.2,
+                            sizeUnit: GaugeSizeUnit.factor,
+                            color: Colors.lightGreen,
+                          )
+                        ],
+                        annotations: <GaugeAnnotation>[
+                          GaugeAnnotation(
+                            positionFactor: 0.1,
+                            angle: 90,
+                            widget: Text(
+                              '${percentage.toStringAsFixed(0)}%',
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.orange),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),),
+              ),
               title: Text(title), //tên Topics
               subtitle: Column(
                 children: [

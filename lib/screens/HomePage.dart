@@ -15,24 +15,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: AssetImage("assets/images/user.png"),
-              radius: 20,
-            ),
-            SizedBox(width: 8),
-            Text(
-              'Quynh',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
+        title: const Padding(
+          padding: EdgeInsets.only(right: 12.0, top: 12.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: AssetImage("assets/images/user.png"),
+                radius: 20,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Quynh',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
         ),
         automaticallyImplyLeading: false,
         actions: [
-          Container(
-            height: 50,
-            padding: const EdgeInsets.only(right: 12.0),
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0, top: 12.0),
             child: Image.asset(
               "assets/images/QLogo.png",
               fit: BoxFit.cover, // Ensure the image covers the container
