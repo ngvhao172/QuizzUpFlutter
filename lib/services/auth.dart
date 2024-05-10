@@ -7,14 +7,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  // Future<User?> getCurrenUser() async {
-  //   User? userLoggedIn = auth.currentUser;
-  //   var user = await UserDao().getUserByEmail(auth.currentUser!.email.toString());
-  //   userLoggedIn?.updateDisplayName(user["displayName"]);
-  //   userLoggedIn?.updatePhotoURL(user["photoUrl"]);
-  //   return userLoggedIn;
-  // }
-
   Stream<User?>? get onAuthStateChanged => auth.authStateChanges();
 
   Future<String?> getCurrentUID() async {
@@ -47,37 +39,6 @@ class AuthService {
     }
     return null;
   }
-  Stream<UserModel?> getCurrentUserStream() async* {
-  try {
-    final User? userLoggedIn = auth.currentUser;
-    if (userLoggedIn == null) {
-      yield null; // Không có người dùng đăng nhập
-      return;
-    }
-
-    print(userLoggedIn);
-    final providerId = userLoggedIn.providerData.isNotEmpty
-        ? userLoggedIn.providerData[0].providerId
-        : null;
-    print(providerId);
-
-    final userMap = await UserDao().getUserByEmail(userLoggedIn.email.toString());
-    print(userMap);
-
-    if (userMap["status"]) {
-      final UserModel user = UserModel.fromJson(userMap["data"]);
-      user.photoURL ??= userLoggedIn.photoURL.toString();
-      await UserDao().updateUser(user);
-      user.userInfos = userLoggedIn.providerData;
-      yield user;
-    } else {
-      print("User not found or inactive");
-    }
-  } catch (e) {
-    print("Error: $e");
-  }
-}
-
 
   Future<Map<String, dynamic>> updateUser(UserModel userUpdate) async {
     try {

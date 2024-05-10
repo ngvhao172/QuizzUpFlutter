@@ -1,22 +1,24 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:csv/csv.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
-import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
-import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class TDetailPage extends StatefulWidget {
@@ -83,6 +85,59 @@ class _TDetailPageState extends State<TDetailPage>
         .read<TopicDetailBloc>()
         .add(LoadTopic(widget.topicId, widget.userId));
     _tabController = TabController(length: 2, vsync: this);
+  }
+
+  Future<void> _generateCsvFile() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+
+    if (statuses[Permission.storage] != PermissionStatus.granted) {
+      print("Permission denied.");
+      return;
+    }
+
+    List<Map<String, String>> associateList = [
+      {"number": "1", "lat": "14.97534313396318", "lon": "101.22998536005622"},
+      {"number": "2", "lat": "14.97534313396318", "lon": "101.22998536005622"},
+      {"number": "3", "lat": "14.97534313396318", "lon": "101.22998536005622"},
+      {"number": "4", "lat": "14.97534313396318", "lon": "101.22998536005622"}
+    ];
+
+    List<List<String>> rows = [
+      ["number", "latitude", "longitude"]
+    ];
+
+    for (var associate in associateList) {
+      rows.add([
+        associate["number"]!,
+        associate["lat"]!,
+        associate["lon"]!,
+      ]);
+    }
+
+    String csv = const ListToCsvConverter().convert(rows);
+
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = await getExternalStorageDirectory();
+    } else if (Platform.isWindows) {
+      directory = await getApplicationDocumentsDirectory();
+    }
+
+    if (directory == null) {
+      print("Failed to access storage directory.");
+      return;
+    }
+
+    File file = File('${directory.path}/filename.csv');
+
+    try {
+      await file.writeAsString(csv);
+      print("File exported successfully!");
+    } catch (e) {
+      print("Failed to export file: $e");
+    }
   }
 
   @override
@@ -157,7 +212,9 @@ class _TDetailPageState extends State<TDetailPage>
                         ListTile(
                           leading: const Icon(Icons.import_export),
                           title: const Text('Export to csv'),
-                          onTap: () {},
+                          onTap: () async {
+                            await _generateCsvFile();
+                          },
                         ),
                       ],
                     );
