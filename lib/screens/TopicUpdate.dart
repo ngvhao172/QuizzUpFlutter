@@ -74,8 +74,8 @@ class _TUpdatePageState extends State<TUpdatePage> {
       });
       terms.add({'term': vocab.term, 'definition': vocab.definition});
     }
-    termLanguage = widget.topicInfoDTO.topic.termLanguage!;
-    defiLanguage = widget.topicInfoDTO.topic.definitionLanguage!;
+    termLanguage = widget.topicInfoDTO.topic.termLanguage;
+    defiLanguage = widget.topicInfoDTO.topic.definitionLanguage;
     visible = widget.topicInfoDTO.topic.private!;
   }
 

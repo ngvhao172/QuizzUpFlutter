@@ -13,13 +13,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TCreatePage extends StatefulWidget {
-  const TCreatePage({Key? key}) : super(key: key);
+  TCreatePage({Key? key, this.importData}) : super(key: key);
+
+  List<List<dynamic>>? importData = [];
 
   @override
   State<TCreatePage> createState() => _TCreatePageState();
 }
 
 class _TCreatePageState extends State<TCreatePage> {
+
   final List<Map<String, String>> terms = [
     {'term': '', 'definition': ''},
     {'term': '', 'definition': ''},
@@ -60,6 +63,16 @@ class _TCreatePageState extends State<TCreatePage> {
   void initState() {
     super.initState();
     _userFuture = AuthService().getCurrentUser();
+
+    if(widget.importData != null){
+      terms.clear();
+      for (var i = 1; i < widget.importData!.length; i++) {
+        var vocab = widget.importData![i];
+        terms.add({'term': vocab[0], 'definition': vocab[1]});
+      }
+      termLanguage = "English";
+      defiLanguage = "Vietnamese";
+    }
   }
 
   @override
@@ -233,6 +246,7 @@ class _TCreatePageState extends State<TCreatePage> {
                             Column(
                               children: terms.asMap().entries.map(
                                 (entry) {
+                                  print(entry);
                                   final int index = entry.key;
                                   final Map<String, String> term = entry.value;
                                   return Container(
@@ -243,7 +257,8 @@ class _TCreatePageState extends State<TCreatePage> {
                                     ),
                                     child: Column(
                                       children: [
-                                        TextField(
+                                        TextFormField(
+                                          initialValue: term['term'],
                                           onChanged: (value) {
                                             term['term'] = value;
                                           },
@@ -254,7 +269,7 @@ class _TCreatePageState extends State<TCreatePage> {
                                             });
                                           },
                                           textInputAction: TextInputAction.next,
-                                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                                          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                           decoration: InputDecoration(
                                             labelText: "Term",
                                             hintText: 'Enter term',
@@ -288,7 +303,8 @@ class _TCreatePageState extends State<TCreatePage> {
                                           ),
                                         ),
                                         const SizedBox(width: 10),
-                                        TextField(
+                                        TextFormField(
+                                          initialValue: term['definition'],
                                           onChanged: (value) {
                                             term['definition'] = value;
                                           },
@@ -299,7 +315,7 @@ class _TCreatePageState extends State<TCreatePage> {
                                             });
                                           },
                                           textInputAction: TextInputAction.next,
-                                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                                          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                           decoration: InputDecoration(
                                               labelText: "Definition",
                                               hintText: 'Enter definition',

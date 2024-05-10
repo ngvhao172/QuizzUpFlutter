@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
@@ -168,6 +172,26 @@ class _LibraryPageState extends State<LibraryPage>
       isSearchExpanded = !isSearchExpanded;
     });
   }
+  List<List<dynamic>> csvData = [];
+  Future<void> _importCSV() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      String csvString = await file.readAsString();
+
+      List<List<dynamic>> parsedCSV = const CsvToListConverter().convert(csvString);
+      
+      Navigator.push(context, MaterialPageRoute(builder: (context) => TCreatePage(importData: parsedCSV,)));
+      print(parsedCSV);
+
+    } else {
+      
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +305,7 @@ class _LibraryPageState extends State<LibraryPage>
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      const TCreatePage()),
+                                                      TCreatePage()),
                                             );
                                           },
                                         ),
@@ -290,6 +314,7 @@ class _LibraryPageState extends State<LibraryPage>
                                               const Icon(Icons.file_present),
                                           title: const Text('Upload file CSV'),
                                           onTap: () {
+                                            _importCSV();
                                             Navigator.pop(context);
                                           },
                                         ),
@@ -684,6 +709,7 @@ class _LibraryPageState extends State<LibraryPage>
                                         leading: const Icon(Icons.file_present),
                                         title: const Text('Upload file CSV'),
                                         onTap: () {
+                                          
                                           Navigator.pop(context);
                                         },
                                       ),
