@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:csv/csv.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
@@ -47,6 +46,8 @@ class _TDetailPageState extends State<TDetailPage>
 
   FlutterTts flutterTts = FlutterTts();
 
+  List<Map<String, String>> data = [];
+
   void textToSpeechEn(String text) async {
     // await flutterTts.setLanguage("en-US");
     // await flutterTts.setLanguage("en-US-x-smttsfemale");
@@ -57,7 +58,7 @@ class _TDetailPageState extends State<TDetailPage>
     List<dynamic> languages = await flutterTts.getLanguages;
     print(languages);
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
@@ -88,56 +89,72 @@ class _TDetailPageState extends State<TDetailPage>
     _tabController = TabController(length: 2, vsync: this);
   }
 
-  Future<void> _generateCsvFile() async {
+  Future<bool> checkPermission() async {
     Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
+      Permission.manageExternalStorage,
     ].request();
 
-    if (statuses[Permission.storage] != PermissionStatus.granted) {
-      print("Permission denied.");
-      return;
+    print(statuses);
+    if (statuses[Permission.manageExternalStorage] != PermissionStatus.granted) {
+    print("Permission denied.");
+    return false;
     }
-
-    List<Map<String, String>> associateList = [
-      {"number": "1", "lat": "14.97534313396318", "lon": "101.22998536005622"},
-      {"number": "2", "lat": "14.97534313396318", "lon": "101.22998536005622"},
-      {"number": "3", "lat": "14.97534313396318", "lon": "101.22998536005622"},
-      {"number": "4", "lat": "14.97534313396318", "lon": "101.22998536005622"}
-    ];
-
+    
+    return true;
+  }
+  Future<void> _generateCsvFile(List<Map<String, String>> data) async {
+    var isGranted = false;
+    if (Platform.isAndroid) {
+      
+    } 
+    // if(!isGranted){
+    //   return;
+    // }
     List<List<String>> rows = [
-      ["number", "latitude", "longitude"]
+      ["English", "Vietnamese"]
     ];
 
-    for (var associate in associateList) {
+    for (var associate in data) {
       rows.add([
-        associate["number"]!,
-        associate["lat"]!,
-        associate["lon"]!,
+        associate["English"]!,
+        associate["Vietnamese"]!,
       ]);
     }
 
     String csv = const ListToCsvConverter().convert(rows);
+    File file = File("");
 
     Directory? directory;
     if (Platform.isAndroid) {
-      directory = await getExternalStorageDirectory();
+      if(await checkPermission()){
+        // directory = Directory('/storage/emulated/0/Download');
+        directory = await getExternalStorageDirectory();
+        file = File('${directory!.path}/topic_${DateTime.now().toString()}.csv');
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Permissions are not granted!")));
+      return;
+      }
+      
     } else if (Platform.isWindows) {
       directory = await getApplicationDocumentsDirectory();
+
+      file = File('${directory.path}\\topic_${DateTime.now().toString()}.csv');
     }
 
     if (directory == null) {
       print("Failed to access storage directory.");
       return;
     }
-
-    File file = File('${directory.path}/filename.csv');
+    print(directory.path);
 
     try {
       await file.writeAsString(csv);
       print("File exported successfully!");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File exported successfully!")));
     } catch (e) {
       print("Failed to export file: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
     }
   }
 
@@ -154,7 +171,7 @@ class _TDetailPageState extends State<TDetailPage>
                 Icons.more_vert,
                 color: Colors.grey,
               ),
-              onPressed: () {
+              onPressed: () async {
                 showModalBottomSheet(
                   context: context,
                   builder: (context) {
@@ -214,7 +231,11 @@ class _TDetailPageState extends State<TDetailPage>
                           leading: const Icon(Icons.import_export),
                           title: const Text('Export to csv'),
                           onTap: () async {
-                            await _generateCsvFile();
+                            Navigator.pop(context);
+                            if(await checkPermission()){
+                              await _generateCsvFile(data);
+                            }
+                            //
                           },
                         ),
                       ],
@@ -231,7 +252,9 @@ class _TDetailPageState extends State<TDetailPage>
               builder: (context, state) {
                 if (state is TopicDetailLoaded) {
                   _topicInfoDTO = state.topic;
-
+                  for (var element in _topicInfoDTO.vocabs!) {
+                    data.add({"English": element.term, "Vietnamese": element.definition});
+                  }
                   TopicModel topicLastAccessed = state.topic.topic;
                   topicLastAccessed.lastAccessed = DateTime.now();
                   TopicDao().updateTopic(topicLastAccessed);
@@ -830,8 +853,11 @@ class _TDetailPageState extends State<TDetailPage>
                   );
                 }
               },
-            )));
+            )
+          )
+        );
   }
+
 
   Widget buildCard(
       int cardIndex,
