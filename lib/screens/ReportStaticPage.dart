@@ -197,7 +197,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                 ),
               ),
               // 3
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
