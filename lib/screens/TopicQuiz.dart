@@ -131,6 +131,8 @@ class _TQuizPageState extends State<TQuizPage> {
                           //   MaterialPageRoute(
                           //       builder: (context) => TDetailPage()),
                           // );
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         },
                         child: const Text('End Test',
                             style: TextStyle(color: Colors.lightGreen)),

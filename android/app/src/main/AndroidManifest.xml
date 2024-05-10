@@ -5,6 +5,7 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
     </queries>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE">
     <application
         android:label="final_quizlet_english"
         android:name="${applicationName}"

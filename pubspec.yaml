@@ -47,12 +47,10 @@ dependencies:
   skeletonizer: ^1.1.2+1
   image_picker: ^1.0.8
   firebase_storage: ^11.6.9
-<<<<<<< HEAD
   toggle_switch: ^2.3.0
-=======
   intl: ^0.19.0
+  csv: ^6.0.0
 
->>>>>>> 77760c520b61e471ee5e9744a3355f9eb73afac7
 dev_dependencies:
   flutter_test:
     sdk: flutter
