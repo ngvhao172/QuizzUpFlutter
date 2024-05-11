@@ -1,9 +1,16 @@
+import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/FlashCardSettings.dart';
+import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:flutter/material.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TFlashcardPage extends StatefulWidget {
-  const TFlashcardPage({super.key});
+  const TFlashcardPage({super.key, required this.topic, this.settings});
+
+  final TopicInfoDTO topic;
+  final FlashCardSettings? settings;
 
   @override
   State<TFlashcardPage> createState() => _TFlashcardPageState();
@@ -18,31 +25,111 @@ class Flashcard {
 
 class _TFlashcardPageState extends State<TFlashcardPage> {
   int _currentIndexNumber = 0;
-  double _initial = 0.1;
+  late double _initial;
+
   List<Flashcard> termCard = [
-    Flashcard(question: "Q.Quỳnh1", answer: "Xinh1"),
-    Flashcard(question: "Q.Quỳnh2", answer: "Xinh2"),
-    Flashcard(question: "Q.Quỳnh3", answer: "Xinh3"),
-    Flashcard(question: "Q.Quỳnh4", answer: "Xinh4"),
-    Flashcard(question: "Q.Quỳnh5", answer: "Xinh5"),
-    Flashcard(question: "Q.Quỳnh1", answer: "Xinh1"),
-    Flashcard(question: "Q.Quỳnh2", answer: "Xinh2"),
-    Flashcard(question: "Q.Quỳnh3", answer: "Xinh3"),
-    Flashcard(question: "Q.Quỳnh4", answer: "Xinh4"),
-    Flashcard(question: "Q.Quỳnh5", answer: "Xinh5"),
+    // Flashcard(question: "Q.Quỳnh1", answer: "Xinh1"),
+    // Flashcard(question: "Q.Quỳnh2", answer: "Xinh2"),
+    // Flashcard(question: "Q.Quỳnh3", answer: "Xinh3"),
+    // Flashcard(question: "Q.Quỳnh4", answer: "Xinh4"),
+    // Flashcard(question: "Q.Quỳnh5", answer: "Xinh5"),
+    // Flashcard(question: "Q.Quỳnh1", answer: "Xinh1"),
+    // Flashcard(question: "Q.Quỳnh2", answer: "Xinh2"),
+    // Flashcard(question: "Q.Quỳnh3", answer: "Xinh3"),
+    // Flashcard(question: "Q.Quỳnh4", answer: "Xinh4"),
+    // Flashcard(question: "Q.Quỳnh5", answer: "Xinh5"),
   ];
 
   String know = '0';
   String learn = '0';
   bool randomOp = false;
   bool audioPlay = false;
-  bool isVietnameseSelected = true;
+  late String cardOrientation;
+
+  FlutterTts flutterTts = FlutterTts();
+  FlashCardSettings? fSettings;
+
+  List<String> languages = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    languages.add(widget.topic.topic.termLanguage);
+    languages.add(widget.topic.topic.definitionLanguage);
+
+    cardOrientation = widget.topic.topic.definitionLanguage;
+    for (var vocab in widget.topic.vocabs!) {
+      termCard.add(Flashcard(question: vocab.term, answer: vocab.definition));
+    }
+    if (widget.settings != null) {
+      fSettings = widget.settings;
+      print(fSettings);
+      randomOp = fSettings!.randomTerms;
+      audioPlay = fSettings!.autoPlayAudio;
+      cardOrientation = fSettings!.cardOrientation;
+      if (randomOp) {
+        termCard.shuffle();
+      }
+      // if (audioPlay) {
+      //   if (widget.topic.topic.termLanguage == "English") {
+      //     textToSpeechEn(termCard[_currentIndexNumber].question);
+      //   } else {
+      //     textToSpeechVi(termCard[_currentIndexNumber].question);
+      //   }
+      // }
+    }
+    // FlashCardSettingsDao()
+    //     .getFlashCardSettingsByUserId(widget.topic.topic.userId)
+    //     .then((result) {
+    //   if (result["status"]) {
+    //     fSettings = FlashCardSettings.fromJson(result["data"]);
+    //     randomOp = fSettings!.randomTerms;
+    //     audioPlay = fSettings!.autoPlayAudio;
+    //     cardOrientation = fSettings!.cardOrientation;
+    //     if(randomOp){
+    //       termCard.shuffle();
+    //     }
+    //     if (audioPlay) {
+    //       if (widget.topic.topic.termLanguage == "English") {
+    //         textToSpeechEn(termCard[_currentIndexNumber].question);
+    //       } else {
+    //         textToSpeechVi(termCard[_currentIndexNumber].question);
+    //       }
+    //     }
+    //   }
+    // });
+
+    _initial = 1 / termCard.length;
+    super.initState();
+  }
+
+  void textToSpeechEn(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(2.0);
+    await flutterTts.speak(text);
+  }
+
+  void textToSpeechVi(String text) async {
+    await flutterTts.setLanguage("vi-VN");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
+  }
 
   @override
   Widget build(BuildContext context) {
-    String value = (_initial * 10).toStringAsFixed(0);
-    int sizeTopic = termCard.length;
-
+    int sizeTopic = widget.topic.vocabs!.length;
+    String value = (_initial * sizeTopic).toStringAsFixed(0);
+    if (audioPlay) {
+      if (widget.topic.topic.termLanguage == "English") {
+        textToSpeechEn(termCard[_currentIndexNumber].question);
+      } else {
+        textToSpeechVi(termCard[_currentIndexNumber].question);
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -134,6 +221,23 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             setState(() {
                                               randomOp = value;
                                             });
+                                            if (fSettings == null) {
+                                              fSettings = FlashCardSettings(
+                                                  userId:
+                                                      widget.topic.topic.userId,
+                                                  randomTerms: value,
+                                                  autoPlayAudio: audioPlay,
+                                                  cardOrientation:
+                                                      cardOrientation);
+                                              FlashCardSettingsDao()
+                                                  .addFlashCardSettings(
+                                                      fSettings!);
+                                            } else {
+                                              fSettings!.randomTerms = value;
+                                              FlashCardSettingsDao()
+                                                  .updateFlashCardSettings(
+                                                      fSettings!);
+                                            }
                                           },
                                         ),
                                       ],
@@ -170,6 +274,23 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             setState(() {
                                               audioPlay = value;
                                             });
+                                            if (fSettings == null) {
+                                              fSettings = FlashCardSettings(
+                                                  userId:
+                                                      widget.topic.topic.userId,
+                                                  randomTerms: value,
+                                                  autoPlayAudio: audioPlay,
+                                                  cardOrientation:
+                                                      cardOrientation);
+                                              FlashCardSettingsDao()
+                                                  .addFlashCardSettings(
+                                                      fSettings!);
+                                            } else {
+                                              fSettings!.autoPlayAudio = value;
+                                              FlashCardSettingsDao()
+                                                  .updateFlashCardSettings(
+                                                      fSettings!);
+                                            }
                                           },
                                         ),
                                       ],
@@ -192,7 +313,10 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                       minWidth:
                                           MediaQuery.of(context).size.width,
                                       minHeight: 35,
-                                      initialLabelIndex: 1,
+                                      initialLabelIndex:
+                                          (cardOrientation == languages[0])
+                                              ? 0
+                                              : 1,
                                       activeBgColor: const [Colors.lightGreen],
                                       activeFgColor: Colors.white,
                                       inactiveBgColor: Colors.white,
@@ -200,10 +324,33 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                       borderColor: const [Colors.green],
                                       borderWidth: 1.5,
                                       totalSwitches: 2,
-                                      labels: const ['English', 'Vietnamese'],
+                                      labels: languages,
                                       onToggle: (index) {
                                         //code sử lý gì á
-                                        print('switched to: $index');
+                                        if (index == 0) {
+                                          setState(() {
+                                            cardOrientation = languages[0];
+                                          });
+                                        } else {
+                                          setState(() {
+                                            cardOrientation = languages[1];
+                                          });
+                                        }
+                                        if (fSettings == null) {
+                                          fSettings = FlashCardSettings(
+                                              userId: widget.topic.topic.userId,
+                                              randomTerms: randomOp,
+                                              autoPlayAudio: audioPlay,
+                                              cardOrientation: cardOrientation);
+                                          FlashCardSettingsDao()
+                                              .addFlashCardSettings(fSettings!);
+                                        } else {
+                                          fSettings!.cardOrientation =
+                                              cardOrientation;
+                                          FlashCardSettingsDao()
+                                              .updateFlashCardSettings(
+                                                  fSettings!);
+                                        }
                                       },
                                     ),
                                     const SizedBox(
@@ -214,7 +361,19 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                           MainAxisAlignment.center,
                                       children: [
                                         TextButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            setState(() {
+                                              cardOrientation = languages[0];
+                                              audioPlay = false;
+                                              randomOp = false;
+                                            });
+                                            fSettings!.cardOrientation = cardOrientation;
+                                            fSettings!.autoPlayAudio = audioPlay;
+                                            fSettings!.randomTerms = randomOp;
+                                            FlashCardSettingsDao()
+                                              .updateFlashCardSettings(
+                                                  fSettings!);
+                                          },
                                           child: const Text(
                                             "Refresh flashcard",
                                             style: TextStyle(
@@ -310,7 +469,18 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                             Row(
                               children: [
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    if (widget.topic.topic.termLanguage ==
+                                        "English") {
+                                      textToSpeechEn(
+                                          termCard[_currentIndexNumber]
+                                              .question);
+                                    } else {
+                                      textToSpeechVi(
+                                          termCard[_currentIndexNumber]
+                                              .question);
+                                    }
+                                  },
                                   icon: const Icon(Icons.volume_up),
                                 ),
                               ],
@@ -372,52 +542,72 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  InkWell(
-                    onTap: () {
-                      showNextCard();
-                      updateToNext();
-                      updateLearn();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.green,
-                          width: 2,
+                  Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.thumb_down,
+                          size: 30,
+                          color: Colors.red,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.thumb_down,
-                        size: 30,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      showNextCard();
-                      updateToNext();
-                      updateKnow();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.green,
-                          width: 2,
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(30),
+                            onTap: () {
+                              showNextCard();
+                              updateToNext();
+                              updateLearn();
+                            },
+                          ),
                         ),
                       ),
-                      child: const Icon(
-                        Icons.thumb_up,
-                        size: 30,
-                        color: Colors.blue,
-                      ),
-                    ),
+                    ],
                   ),
+                  Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.thumb_up,
+                          size: 30,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(30),
+                            onTap: () {
+                              showNextCard();
+                              updateToNext();
+                              updateKnow();
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               )
             ],
@@ -429,18 +619,18 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
 
   void updateToNext() {
     setState(() {
-      _initial = _initial + 0.1;
+      _initial = _initial + 1 / widget.topic.vocabs!.length;
       if (_initial > 1.0) {
-        _initial = 0.1;
+        _initial = 1 / widget.topic.vocabs!.length;
       }
     });
   }
 
   void updateToPrev() {
     setState(() {
-      _initial = _initial - 0.1;
+      _initial = _initial - 1 / widget.topic.vocabs!.length;
       if (_initial < 0.1) {
-        _initial = 1.0;
+        _initial = 1 / widget.topic.vocabs!.length;
       }
     });
   }
