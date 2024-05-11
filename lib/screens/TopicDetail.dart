@@ -4,12 +4,14 @@ import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/FlashCardSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
+import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +57,8 @@ class _TDetailPageState extends State<TDetailPage>
     // await flutterTts.setSpeechRate(0.5);
     // await flutterTts.setPitch(1);
     // await flutterTts.speak(text);
-    List<dynamic> languages = await flutterTts.getLanguages;
-    print(languages);
+    // List<dynamic> languages = await flutterTts.getLanguages;
+    // print(languages);
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
@@ -71,6 +73,8 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
   }
+
+  
 
   // late UserModel _user;
   @override
@@ -350,7 +354,7 @@ class _TDetailPageState extends State<TDetailPage>
                                         as ImageProvider<Object>?,
                             radius: 10,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           Text(
@@ -361,8 +365,8 @@ class _TDetailPageState extends State<TDetailPage>
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Icon(Icons.people),
-                                SizedBox(
+                                const Icon(Icons.people),
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 Text(
@@ -377,12 +381,20 @@ class _TDetailPageState extends State<TDetailPage>
                       ),
                       //Flashcard
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async{
+                          var result = await FlashCardSettingsDao().getFlashCardSettingsByUserId(_topicInfoDTO.topic.userId);
+                          if(result["status"]){
+                            FlashCardSettings fSettings = FlashCardSettings.fromJson(result["data"]);
+                            Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TFlashcardPage()),
+                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO,settings: fSettings)),
                           );
+                          }
+                          else{
+                            MaterialPageRoute(
+                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO));
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],
@@ -422,7 +434,7 @@ class _TDetailPageState extends State<TDetailPage>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TQuizPage()),
+                                builder: (context) => TQuizPage(topic: _topicInfoDTO,)),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -698,7 +710,7 @@ class _TDetailPageState extends State<TDetailPage>
                               width: 10,
                             ),
                             Text(
-                              "",
+                              "123",
                               style: TextStyle(color: Colors.grey),
                             ),
                             Expanded(
@@ -709,7 +721,7 @@ class _TDetailPageState extends State<TDetailPage>
                                   SizedBox(
                                     width: 10,
                                   ),
-                                  Text(""),
+                                  Text("123"),
                                 ],
                               ),
                             ),
@@ -721,11 +733,6 @@ class _TDetailPageState extends State<TDetailPage>
                         //Flashcard
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TFlashcardPage()),
-                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange[50],
