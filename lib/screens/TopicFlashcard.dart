@@ -37,6 +37,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
   bool randomOp = false;
   bool audioPlay = false;
   bool isVietnameseSelected = true;
+  bool autoFlip = false;
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +74,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                   return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                       return SizedBox(
-                        height: MediaQuery.of(context).size.height * 11 / 24,
+                        height: MediaQuery.of(context).size.height * 1 / 2,
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -216,7 +220,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                         TextButton(
                                           onPressed: () {},
                                           child: const Text(
-                                            "Refresh flashcard",
+                                            "Restart flashcard",
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.lightGreen,
@@ -308,10 +312,15 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                         child: Column(
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 IconButton(
                                   onPressed: () {},
                                   icon: const Icon(Icons.volume_up),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.star_outline_outlined),
                                 ),
                               ],
                             ),
@@ -368,7 +377,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                 ),
               ),
               const Text("Tab to see Answer"),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -391,9 +400,56 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                       child: const Icon(
                         Icons.thumb_down,
                         size: 30,
-                        color: Colors.red,
+                        color: Colors.redAccent,
                       ),
                     ),
+                  ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          showPreviousCard();
+                          updateToPrev();
+                        },
+                        child: const Icon(
+                          Icons.arrow_circle_left_rounded,
+                          size: 50,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () {
+                          if (autoFlip) {
+                            setState(() {
+                              autoFlip = false;
+                            });
+                          } else {
+                            setState(() {
+                              autoFlip = true;
+                            });
+                            Future.delayed(
+                              const Duration(milliseconds: 100),
+                              () {
+                                setState(() {
+                                  _currentIndexNumber =
+                                      (_currentIndexNumber + 1 <
+                                              termCard.length)
+                                          ? _currentIndexNumber + 1
+                                          : 0;
+                                });
+                                updateToNext();
+                              },
+                            );
+                          }
+                        },
+                        child: Icon(
+                          autoFlip ? Icons.pause_circle : Icons.play_circle,
+                          size: 50,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
                   InkWell(
                     onTap: () {
@@ -414,7 +470,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                       child: const Icon(
                         Icons.thumb_up,
                         size: 30,
-                        color: Colors.blue,
+                        color: Colors.lightBlue,
                       ),
                     ),
                   ),

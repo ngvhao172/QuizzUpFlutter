@@ -126,11 +126,6 @@ class _TQuizPageState extends State<TQuizPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => TDetailPage()),
-                          // );
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },
@@ -227,7 +222,6 @@ class _TQuizPageState extends State<TQuizPage> {
                                       setState(() {
                                         btnPressed = true;
                                         answered = true;
-                                        updateToNext();
                                       });
                                     }
                                   : null,

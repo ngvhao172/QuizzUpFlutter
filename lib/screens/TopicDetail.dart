@@ -95,18 +95,18 @@ class _TDetailPageState extends State<TDetailPage>
     ].request();
 
     print(statuses);
-    if (statuses[Permission.manageExternalStorage] != PermissionStatus.granted) {
-    print("Permission denied.");
-    return false;
+    if (statuses[Permission.manageExternalStorage] !=
+        PermissionStatus.granted) {
+      print("Permission denied.");
+      return false;
     }
-    
+
     return true;
   }
+
   Future<void> _generateCsvFile(List<Map<String, String>> data) async {
     var isGranted = false;
-    if (Platform.isAndroid) {
-      
-    } 
+    if (Platform.isAndroid) {}
     // if(!isGranted){
     //   return;
     // }
@@ -126,16 +126,16 @@ class _TDetailPageState extends State<TDetailPage>
 
     Directory? directory;
     if (Platform.isAndroid) {
-      if(await checkPermission()){
+      if (await checkPermission()) {
         // directory = Directory('/storage/emulated/0/Download');
         directory = await getExternalStorageDirectory();
-        file = File('${directory!.path}/topic_${DateTime.now().toString()}.csv');
+        file =
+            File('${directory!.path}/topic_${DateTime.now().toString()}.csv');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Permissions are not granted!")));
+        return;
       }
-      else{
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Permissions are not granted!")));
-      return;
-      }
-      
     } else if (Platform.isWindows) {
       directory = await getApplicationDocumentsDirectory();
 
@@ -151,10 +151,12 @@ class _TDetailPageState extends State<TDetailPage>
     try {
       await file.writeAsString(csv);
       print("File exported successfully!");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File exported successfully!")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("File exported successfully!")));
     } catch (e) {
       print("Failed to export file: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
     }
   }
 
@@ -232,7 +234,7 @@ class _TDetailPageState extends State<TDetailPage>
                           title: const Text('Export to csv'),
                           onTap: () async {
                             Navigator.pop(context);
-                            if(await checkPermission()){
+                            if (await checkPermission()) {
                               await _generateCsvFile(data);
                             }
                             //
@@ -253,7 +255,10 @@ class _TDetailPageState extends State<TDetailPage>
                 if (state is TopicDetailLoaded) {
                   _topicInfoDTO = state.topic;
                   for (var element in _topicInfoDTO.vocabs!) {
-                    data.add({"English": element.term, "Vietnamese": element.definition});
+                    data.add({
+                      "English": element.term,
+                      "Vietnamese": element.definition
+                    });
                   }
                   TopicModel topicLastAccessed = state.topic.topic;
                   topicLastAccessed.lastAccessed = DateTime.now();
@@ -853,11 +858,8 @@ class _TDetailPageState extends State<TDetailPage>
                   );
                 }
               },
-            )
-          )
-        );
+            )));
   }
-
 
   Widget buildCard(
       int cardIndex,
