@@ -26,17 +26,18 @@ class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
           vocabsFav.clear();
         }
       }
+      vocabsFav.clear();
       if(topicDetail["status"]){
         topicInfoDTO = topicDetail["data"];
-      final vocabFav = await vocabularyFavDao.getVocabularysFavByUserIdAndTopicId(event.userId, event.topicId);
-      if (vocabFav["status"]) {
-        var vocabFavs = vocabFav["data"];
-        for (var vocab in topicInfoDTO.vocabs!) {
-          for (var favvocab in vocabFavs) {
-          if(favvocab.vocabularyId == vocab.id){
-            vocabsFav.add(vocab);
+        final vocabFav = await vocabularyFavDao.getVocabularysFavByUserIdAndTopicId(event.userId, event.topicId);
+        if (vocabFav["status"]) {
+          var vocabFavs = vocabFav["data"];
+          for (var vocab in topicInfoDTO.vocabs!) {
+            for (var favvocab in vocabFavs) {
+            if(favvocab.vocabularyId == vocab.id){
+              vocabsFav.add(vocab);
+            }
           }
-        }
         }
       }
       else{

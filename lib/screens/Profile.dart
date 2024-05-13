@@ -5,7 +5,7 @@ import 'package:final_quizlet_english/screens/PasswordCreate.dart';
 import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
-import 'package:final_quizlet_english/services/auth.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
