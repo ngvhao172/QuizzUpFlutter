@@ -40,10 +40,14 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     // Flashcard(question: "Q.Quỳnh5", answer: "Xinh5"),
   ];
 
+  GlobalKey<FlipCardState> flipKey = GlobalKey<FlipCardState>();
+  bool isFront = true;
+
   String know = '0';
   String learn = '0';
   bool randomOp = false;
   bool audioPlay = false;
+  bool autoFlip = false;
   late String cardOrientation;
 
   FlutterTts flutterTts = FlutterTts();
@@ -123,6 +127,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
   Widget build(BuildContext context) {
     int sizeTopic = widget.topic.vocabs!.length;
     String value = (_initial * sizeTopic).toStringAsFixed(0);
+    print(autoFlip);
     if (audioPlay) {
       if (widget.topic.topic.termLanguage == "English") {
         textToSpeechEn(termCard[_currentIndexNumber].question);
@@ -130,6 +135,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
         textToSpeechVi(termCard[_currentIndexNumber].question);
       }
     }
+    // if(autoFlip){
+    //   Future.delayed(const Duration(seconds: 3), (){
+    //     showNextCard();
+    //     updateToNext();
+    //     updateLearn();
+    //   });
+    // }
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -370,12 +382,14 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                               audioPlay = false;
                                               randomOp = false;
                                             });
-                                            fSettings!.cardOrientation = cardOrientation;
-                                            fSettings!.autoPlayAudio = audioPlay;
+                                            fSettings!.cardOrientation =
+                                                cardOrientation;
+                                            fSettings!.autoPlayAudio =
+                                                audioPlay;
                                             fSettings!.randomTerms = randomOp;
                                             FlashCardSettingsDao()
-                                              .updateFlashCardSettings(
-                                                  fSettings!);
+                                                .updateFlashCardSettings(
+                                                    fSettings!);
                                           },
                                           child: const Text(
                                             "Restart flashcard",
@@ -457,6 +471,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                 width: 500,
                 height: 500,
                 child: FlipCard(
+                  key: flipKey,
                   direction: FlipDirection.HORIZONTAL,
                   front: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -469,6 +484,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                         padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: [
+<<<<<<< HEAD
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -493,10 +509,35 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                 ),
                               ],
                             ),
+=======
+                            (cardOrientation == languages[0])
+                                ? Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          if (widget.topic.topic.termLanguage ==
+                                              "English") {
+                                            textToSpeechEn(
+                                                termCard[_currentIndexNumber]
+                                                    .question);
+                                          } else {
+                                            textToSpeechVi(
+                                                termCard[_currentIndexNumber]
+                                                    .question);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.volume_up),
+                                      ),
+                                    ],
+                                  )
+                                :  const SizedBox(height: 45),
+>>>>>>> 5e110c1fb3484555d78d3d545d5c9823852b77f2
                             Expanded(
                               child: Center(
                                 child: Text(
-                                  termCard[_currentIndexNumber].question,
+                                  (cardOrientation == languages[0])
+                                      ? termCard[_currentIndexNumber].question
+                                      : termCard[_currentIndexNumber].answer,
                                   style: TextStyle(
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.bold,
@@ -523,11 +564,33 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                         padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: [
-                            const SizedBox(height: 45),
+                            (cardOrientation != languages[0])
+                                ? Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          if (widget.topic.topic.termLanguage ==
+                                              "English") {
+                                            textToSpeechEn(
+                                                termCard[_currentIndexNumber]
+                                                    .question);
+                                          } else {
+                                            textToSpeechVi(
+                                                termCard[_currentIndexNumber]
+                                                    .question);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.volume_up),
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox(height: 45),
                             Expanded(
                               child: Center(
                                 child: Text(
-                                  termCard[_currentIndexNumber].answer,
+                                  (cardOrientation == languages[0])
+                                      ? termCard[_currentIndexNumber].answer
+                                      : termCard[_currentIndexNumber].question,
                                   style: TextStyle(
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.bold,
@@ -545,8 +608,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                   ),
                 ),
               ),
+<<<<<<< HEAD
               const Text("Tab to see Answer"),
               const SizedBox(height: 20),
+=======
+              const Text("Tap to see Answer"),
+              const SizedBox(height: 10),
+>>>>>>> 5e110c1fb3484555d78d3d545d5c9823852b77f2
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -579,6 +647,51 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                               updateLearn();
                             },
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          showPreviousCard();
+                          updateToPrev();
+                        },
+                        child: const Icon(
+                          Icons.arrow_circle_left_rounded,
+                          size: 50,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () async {
+                          if (autoFlip) {
+                            setState(() {
+                              autoFlip = false;
+                            });
+                          } else {
+                            setState(() {
+                              autoFlip = true;
+                            });
+                            if (autoFlip) {
+                              flipKey.currentState!
+                                  .toggleCard();
+                            }
+                            await Future.delayed(Duration(seconds: 3), () {
+                              flipKey.currentState!
+                                  .toggleCard();
+                              showNextCard();
+                              updateToNext();
+                              updateLearn();
+                            });
+                          }
+                        },
+                        child: Icon(
+                          autoFlip ? Icons.pause_circle : Icons.play_circle,
+                          size: 50,
+                          color: Colors.orange,
                         ),
                       ),
                     ],
@@ -665,7 +778,19 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       _currentIndexNumber = (_currentIndexNumber + 1 < termCard.length)
           ? _currentIndexNumber + 1
           : 0;
+      isFront = true;
     });
+    if (autoFlip) {
+      Future.delayed(const Duration(seconds: 2), () {
+        flipKey.currentState!.toggleCard();
+        Future.delayed(const Duration(seconds: 1), () {
+          showNextCard();
+          updateToNext();
+          updateLearn();
+          flipKey.currentState!.toggleCard();
+        });
+      });
+    }
   }
 
   void showPreviousCard() {
@@ -673,6 +798,15 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       _currentIndexNumber = (_currentIndexNumber - 1 >= 0)
           ? _currentIndexNumber - 1
           : termCard.length - 1;
+      isFront = true;
     });
+    if (autoFlip) {
+      flipKey.currentState!.toggleCard();
+      Future.delayed(const Duration(seconds: 3), () {
+        showNextCard();
+        updateToNext();
+        updateLearn();
+      });
+    }
   }
 }

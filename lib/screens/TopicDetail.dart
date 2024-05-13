@@ -74,8 +74,6 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.speak(text);
   }
 
-  
-
   // late UserModel _user;
   @override
   void initState() {
@@ -381,19 +379,26 @@ class _TDetailPageState extends State<TDetailPage>
                       ),
                       //Flashcard
                       ElevatedButton(
-                        onPressed: () async{
-                          var result = await FlashCardSettingsDao().getFlashCardSettingsByUserId(_topicInfoDTO.topic.userId);
-                          if(result["status"]){
-                            FlashCardSettings fSettings = FlashCardSettings.fromJson(result["data"]);
+                        onPressed: () async {
+                          var result = await FlashCardSettingsDao()
+                              .getFlashCardSettingsByUserId(
+                                  _topicInfoDTO.topic.userId);
+                          if (result["status"]) {
+                            FlashCardSettings fSettings =
+                                FlashCardSettings.fromJson(result["data"]);
                             Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO,settings: fSettings)),
-                          );
-                          }
-                          else{
-                            MaterialPageRoute(
-                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO));
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TFlashcardPage(
+                                      topic: _topicInfoDTO,
+                                      settings: fSettings)),
+                            );
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        TFlashcardPage(topic: _topicInfoDTO)));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -434,7 +439,9 @@ class _TDetailPageState extends State<TDetailPage>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TQuizPage(topic: _topicInfoDTO,)),
+                                builder: (context) => TQuizPage(
+                                      topic: _topicInfoDTO,
+                                    )),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -732,8 +739,7 @@ class _TDetailPageState extends State<TDetailPage>
                         ),
                         //Flashcard
                         ElevatedButton(
-                          onPressed: () {
-                          },
+                          onPressed: () {},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange[50],
                             foregroundColor: Colors.black,

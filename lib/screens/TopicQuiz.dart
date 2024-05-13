@@ -22,74 +22,74 @@ class QuestionModel {
 
 class _TQuizPageState extends State<TQuizPage> {
   List<QuestionModel> questions = [
-  // QuestionModel(
-  //   "Quynh",
-  //   {
-  //     "Xinh": false,
-  //     "Qua xinh": false,
-  //     "Xinh qua": true,
-  //     "Xinh xinhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaa": false,
-  //   },
-  // ),
-  // QuestionModel("When does a cat purr ?", {
-  //   "When it cares for its kittens": false,
-  //   "When it needs confort": false,
-  //   "When it feels content": false,
-  //   "All of the above": true,
-  // }),
-  // QuestionModel("What is the averge nulber of kittens in a litter ?", {
-  //   "1 to 2": false,
-  //   "3 to 5": true,
-  //   "8 to 10": false,
-  //   "12 to 14": false,
-  // }),
-  // QuestionModel("How many moons does Mars have ?", {
-  //   "1": false,
-  //   "2": false,
-  //   "4": true,
-  //   "8": false,
-  // }),
-  // QuestionModel("What is Mars's nickname ?", {
-  //   "The red planet": true,
-  //   "The dusty planet": false,
-  //   "The hot planet": false,
-  //   "The smelly planet": false,
-  // }),
-  // QuestionModel("About How long would it take to travel to Mars ?", {
-  //   "Three days": false,
-  //   "A month": false,
-  //   "Eight months": true,
-  //   "Two years": false,
-  // }),
-  // QuestionModel(
-  //     "Mars is Named after the Roman god Mars. What is he the god of ?", {
-  //   "Fire": false,
-  //   "Love": false,
-  //   "Agriculture": false,
-  //   "War": true,
-  // }),
-  // QuestionModel("Mars Is the ___ planet from the sun ?", {
-  //   "Second": false,
-  //   "Third": false,
-  //   "Fourth": true,
-  //   "Sixth": false,
-  // }),
-  // QuestionModel(
-  //     "Where did Orville and Wilbur Wright build their first flying airplane ?",
-  //     {
-  //       "Paris, France": false,
-  //       "Boston, Massachusetts": false,
-  //       "Kitty Hawk, North Carolina": true,
-  //       "Tokyou, Japan": false,
-  //     }),
-  // QuestionModel(
-  //     "The First astronuts to travel to space came from which country ?", {
-  //   "United States": false,
-  //   "Soviet Union (now Russia)": true,
-  //   "China": false,
-  //   "Rocketonia": false,
-  // }),
-];
+    // QuestionModel(
+    //   "Quynh",
+    //   {
+    //     "Xinh": false,
+    //     "Qua xinh": false,
+    //     "Xinh qua": true,
+    //     "Xinh xinhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaa": false,
+    //   },
+    // ),
+    // QuestionModel("When does a cat purr ?", {
+    //   "When it cares for its kittens": false,
+    //   "When it needs confort": false,
+    //   "When it feels content": false,
+    //   "All of the above": true,
+    // }),
+    // QuestionModel("What is the averge nulber of kittens in a litter ?", {
+    //   "1 to 2": false,
+    //   "3 to 5": true,
+    //   "8 to 10": false,
+    //   "12 to 14": false,
+    // }),
+    // QuestionModel("How many moons does Mars have ?", {
+    //   "1": false,
+    //   "2": false,
+    //   "4": true,
+    //   "8": false,
+    // }),
+    // QuestionModel("What is Mars's nickname ?", {
+    //   "The red planet": true,
+    //   "The dusty planet": false,
+    //   "The hot planet": false,
+    //   "The smelly planet": false,
+    // }),
+    // QuestionModel("About How long would it take to travel to Mars ?", {
+    //   "Three days": false,
+    //   "A month": false,
+    //   "Eight months": true,
+    //   "Two years": false,
+    // }),
+    // QuestionModel(
+    //     "Mars is Named after the Roman god Mars. What is he the god of ?", {
+    //   "Fire": false,
+    //   "Love": false,
+    //   "Agriculture": false,
+    //   "War": true,
+    // }),
+    // QuestionModel("Mars Is the ___ planet from the sun ?", {
+    //   "Second": false,
+    //   "Third": false,
+    //   "Fourth": true,
+    //   "Sixth": false,
+    // }),
+    // QuestionModel(
+    //     "Where did Orville and Wilbur Wright build their first flying airplane ?",
+    //     {
+    //       "Paris, France": false,
+    //       "Boston, Massachusetts": false,
+    //       "Kitty Hawk, North Carolina": true,
+    //       "Tokyou, Japan": false,
+    //     }),
+    // QuestionModel(
+    //     "The First astronuts to travel to space came from which country ?", {
+    //   "United States": false,
+    //   "Soviet Union (now Russia)": true,
+    //   "China": false,
+    //   "Rocketonia": false,
+    // }),
+  ];
   late double _initial;
   int question_pos = 0;
   int score = 0;
@@ -122,12 +122,12 @@ class _TQuizPageState extends State<TQuizPage> {
     _controller = PageController(initialPage: 0);
   }
 
-    Map<String, bool> shuffleMap(Map<dynamic, dynamic> map) {
+  Map<String, bool> shuffleMap(Map<dynamic, dynamic> map) {
     var entries = map.entries.toList();
     entries.shuffle();
-    return Map<String, bool>.fromEntries(entries.map((entry) => MapEntry(entry.key.toString(), entry.value as bool)));
+    return Map<String, bool>.fromEntries(entries
+        .map((entry) => MapEntry(entry.key.toString(), entry.value as bool)));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -222,116 +222,121 @@ class _TQuizPageState extends State<TQuizPage> {
                         SizedBox(
                           height: 300,
                           child: ListView.builder(
-                            itemCount: 4,
-                            itemBuilder: (context, i) {
-                              return Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(
-                                  bottom: 20.0, left: 12.0, right: 12.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: btnPressed
-                                      ? questions[index]
-                                              .answers!
-                                              .values
-                                              .toList()[i]
-                                          ? Colors.lightGreen
-                                          : Colors.orange
-                                      : Colors.grey,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: TextButton(
-                                // style: ButtonStyle(
-                                //   shape: MaterialStatePropertyAll(
-
-                                //   ),
-                                // ),
-                                onPressed: !answered
-                                    ? () {
-                                        if (questions[index]
-                                            .answers!
-                                            .values
-                                            .toList()[i]) {
-                                          score++;
-                                          print("yes");
-                                        } else {
-                                          print("no");
-                                        }
-                                        setState(() {
-                                          btnPressed = true;
-                                          answered = true;
-                                          // updateToNext();
-                                        });
-                                      }
-                                    : null,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                        child: Text(
-                                          questions[index]
-                                              .answers!
-                                              .keys
-                                              .toList()[i],
-                                          style: TextStyle(
-                                            color: btnPressed
-                                                ? questions[index]
-                                                        .answers!
-                                                        .values
-                                                        .toList()[i]
-                                                    ? Colors.lightGreen
-                                                    : Colors.orange
-                                                : Colors.grey,
-                                            fontSize: 18.0,
-                                          ),
-                                        ),
+                              itemCount: 4,
+                              itemBuilder: (context, i) {
+                                return Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(
+                                      bottom: 20.0, left: 12.0, right: 12.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    border: Border.all(
+                                      color: btnPressed
+                                          ? questions[index]
+                                                  .answers!
+                                                  .values
+                                                  .toList()[i]
+                                              ? Colors.lightGreen
+                                              : Colors.orange
+                                          : Colors.grey,
+                                      width: 1.5,
                                     ),
-                                    btnPressed
-                                        ? questions[index]
+                                  ),
+                                  child: TextButton(
+                                    // style: ButtonStyle(
+                                    //   shape: MaterialStatePropertyAll(
+
+                                    //   ),
+                                    // ),
+                                    onPressed: !answered
+                                        ? () {
+                                            if (questions[index]
                                                 .answers!
                                                 .values
-                                                .toList()[i]
-                                            ? Container(
-                                                height: 30,
-                                                width: 30,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.lightGreen,
-                                                  borderRadius:
-                                                      BorderRadius.circular(60),
-                                                ),
-                                                child: const Icon(Icons.check,
-                                                    color: Colors.white),
-                                              )
+                                                .toList()[i]) {
+                                              score++;
+                                              print("yes");
+                                            } else {
+                                              print("no");
+                                            }
+                                            setState(() {
+                                              btnPressed = true;
+                                              answered = true;
+                                              // updateToNext();
+                                            });
+                                          }
+                                        : null,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            questions[index]
+                                                .answers!
+                                                .keys
+                                                .toList()[i],
+                                            style: TextStyle(
+                                              color: btnPressed
+                                                  ? questions[index]
+                                                          .answers!
+                                                          .values
+                                                          .toList()[i]
+                                                      ? Colors.lightGreen
+                                                      : Colors.orange
+                                                  : Colors.grey,
+                                              fontSize: 18.0,
+                                            ),
+                                          ),
+                                        ),
+                                        btnPressed
+                                            ? questions[index]
+                                                    .answers!
+                                                    .values
+                                                    .toList()[i]
+                                                ? Container(
+                                                    height: 30,
+                                                    width: 30,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.lightGreen,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              60),
+                                                    ),
+                                                    child: const Icon(
+                                                        Icons.check,
+                                                        color: Colors.white),
+                                                  )
+                                                : Container(
+                                                    height: 30,
+                                                    width: 30,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              60),
+                                                    ),
+                                                    child: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white),
+                                                  )
                                             : Container(
                                                 height: 30,
                                                 width: 30,
                                                 decoration: BoxDecoration(
-                                                  color: Colors.red,
+                                                  color: Colors.white,
                                                   borderRadius:
                                                       BorderRadius.circular(60),
+                                                  border: Border.all(
+                                                      color: Colors.grey,
+                                                      width: 2),
                                                 ),
-                                                child: const Icon(Icons.close,
-                                                    color: Colors.white),
                                               )
-                                        : Container(
-                                            height: 30,
-                                            width: 30,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(60),
-                                              border: Border.all(
-                                                  color: Colors.grey, width: 2),
-                                            ),
-                                          )
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -376,7 +381,7 @@ class _TQuizPageState extends State<TQuizPage> {
         ));
   }
 
-   void updateToNext() {
+  void updateToNext() {
     setState(() {
       _initial = _initial + 1 / widget.topic.vocabs!.length;
       if (_initial > 1.0) {
