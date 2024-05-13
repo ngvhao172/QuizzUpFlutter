@@ -484,32 +484,6 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                         padding: const EdgeInsets.all(10.0),
                         child: Column(
                           children: [
-<<<<<<< HEAD
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    if (widget.topic.topic.termLanguage ==
-                                        "English") {
-                                      textToSpeechEn(
-                                          termCard[_currentIndexNumber]
-                                              .question);
-                                    } else {
-                                      textToSpeechVi(
-                                          termCard[_currentIndexNumber]
-                                              .question);
-                                    }
-                                  },
-                                  icon: const Icon(Icons.volume_up),
-                                ),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.star_outline_outlined),
-                                ),
-                              ],
-                            ),
-=======
                             (cardOrientation == languages[0])
                                 ? Row(
                                     children: [
@@ -531,7 +505,6 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                     ],
                                   )
                                 :  const SizedBox(height: 45),
->>>>>>> 5e110c1fb3484555d78d3d545d5c9823852b77f2
                             Expanded(
                               child: Center(
                                 child: Text(
@@ -608,13 +581,8 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                   ),
                 ),
               ),
-<<<<<<< HEAD
-              const Text("Tab to see Answer"),
-              const SizedBox(height: 20),
-=======
               const Text("Tap to see Answer"),
               const SizedBox(height: 10),
->>>>>>> 5e110c1fb3484555d78d3d545d5c9823852b77f2
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
