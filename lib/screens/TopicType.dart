@@ -1,22 +1,7 @@
-// Display the Vietnamese meaning and ask the user to type the English meaning (and vice versa).
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: TypingPractice(),
-    );
-  }
-}
 
 class TypingPractice extends StatefulWidget {
   @override

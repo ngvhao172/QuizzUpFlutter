@@ -1,8 +1,12 @@
+import 'package:final_quizlet_english/blocs/topic/Topic.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
-import 'package:final_quizlet_english/screens/TopicDetail.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
+import 'package:final_quizlet_english/screens/ResultScreen.dart';
+import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'ResultScreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class TQuizPage extends StatefulWidget {
   const TQuizPage({super.key, required this.topic});
@@ -15,9 +19,10 @@ class TQuizPage extends StatefulWidget {
 }
 
 class QuestionModel {
+  VocabularyStatus vocabStatus;
   String? question;
-  Map<String, bool>? answers;
-  QuestionModel(this.question, this.answers);
+  List<Map<String, bool>>? answers;
+  QuestionModel(this.question, this.answers, this.vocabStatus);
 }
 
 class _TQuizPageState extends State<TQuizPage> {
@@ -89,49 +94,85 @@ class _TQuizPageState extends State<TQuizPage> {
   //   "China": false,
   //   "Rocketonia": false,
   // }),
-];
+  ];
+  List<QuestionModel> reLearnQuestions = [];
+  int learning = 0;
+  int knew  = 0;
   late double _initial;
-  int question_pos = 0;
-  int score = 0;
   bool btnPressed = false;
-  PageController? _controller;
+  final PageController _controller = PageController(initialPage: 0);
   String btnText = "Next Question";
   bool answered = false;
+  int originalLength = 0;
+  List<int> skipQuestions = [];
+  FlutterTts flutterTts = FlutterTts();
+  void textToSpeechEn(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
+  }
+
+  void textToSpeechVi(String text) async {
+    await flutterTts.setLanguage("vi-VN");
+    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
+  }
   @override
   void initState() {
     var answers = [];
     for (var element in widget.topic.vocabs!) {
-      answers.add(element.definition);
+      answers.add(element.vocab.definition);
     }
-    for (var vocab in widget.topic.vocabs!) {
+    for (var vocabDTO in widget.topic.vocabs!) {
       var otherAnswer = List.from(answers);
-      otherAnswer.removeWhere((element) => element == vocab.definition);
+      var vocab = vocabDTO.vocab;
+      int index = otherAnswer.indexWhere((element) => element == vocab.definition);
+      if (index != -1) {
+        otherAnswer.removeAt(index);
+      }
+      print(otherAnswer);
+
       otherAnswer.shuffle();
-      var answer = {
-        "${otherAnswer[0]}": false,
-        "${otherAnswer[1]}": false,
-        "${otherAnswer[2]}": false,
-        vocab.definition: true,
-      };
-      answer = shuffleMap(answer) as Map<String, bool>;
+      var answer = [
+        {"${otherAnswer[0]}": false},
+        {"${otherAnswer[1]}": false},
+        {"${otherAnswer[2]}": false},
+        {vocab.definition: true},
+      ];
       print(answer);
-      questions.add(QuestionModel("${vocab.term} ?", answer));
+      answer.shuffle();
+      print(answer);
+      questions.add(QuestionModel("${vocab.term} ?", answer, vocabDTO.vocabStatus));
     }
     _initial = 1 / questions.length;
     super.initState();
-    _controller = PageController(initialPage: 0);
+
+    for (var i = 0; i < questions.length; i++) {
+      print(questions[i].answers);
+    }
+    originalLength = questions.length;
+  }
+   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
-    Map<String, bool> shuffleMap(Map<dynamic, dynamic> map) {
-    var entries = map.entries.toList();
-    entries.shuffle();
-    return Map<String, bool>.fromEntries(entries.map((entry) => MapEntry(entry.key.toString(), entry.value as bool)));
+   shuffleMap(List<Map<dynamic, dynamic>> map) {
+    // var entries = map.entries.toList();
+      map.shuffle();
+    // return Map<String, bool>.fromEntries(map.map((entry) => MapEntry(entry.key.toString(), entry.value as bool)));
   }
+ 
 
 
   @override
   Widget build(BuildContext context) {
-    int noQuestions = widget.topic.vocabs!.length;
+    int noQuestions = questions.length;
     String value = (_initial * noQuestions).toStringAsFixed(0);
 
     return Scaffold(
@@ -194,7 +235,7 @@ class _TQuizPageState extends State<TQuizPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: PageView.builder(
                   itemCount: questions.length,
-                  controller: _controller!,
+                  controller: _controller,
                   onPageChanged: (page) {
                     if (page == questions.length - 1) {
                       setState(() {
@@ -207,10 +248,27 @@ class _TQuizPageState extends State<TQuizPage> {
                   },
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    return Column(  
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                          IconButton(
+                          onPressed: () {
+                            if (widget.topic.topic.termLanguage ==
+                                "English") {
+                              textToSpeechEn(
+                                  questions[index].question.toString());
+                            } else {
+                              textToSpeechVi(
+                                  questions[index].question.toString());
+                            }
+                          },
+                          icon: const Icon(Icons.volume_up),
+                        )
+                        ],),
+                        const SizedBox(height: 40,),
                         Text(
                           "${questions[index].question}",
                           style: TextStyle(
@@ -238,9 +296,8 @@ class _TQuizPageState extends State<TQuizPage> {
                                 border: Border.all(
                                   color: btnPressed
                                       ? questions[index]
-                                              .answers!
-                                              .values
-                                              .toList()[i]
+                                              .answers![i]
+                                              .values.first                                              
                                           ? Colors.lightGreen
                                           : Colors.orange
                                       : Colors.grey,
@@ -255,13 +312,30 @@ class _TQuizPageState extends State<TQuizPage> {
                                 // ),
                                 onPressed: !answered
                                     ? () {
+                                      print("log");
+                                      print(questions[index]
+                                            .answers![i].values.first
+                                            );
                                         if (questions[index]
-                                            .answers!
-                                            .values
-                                            .toList()[i]) {
-                                          score++;
+                                            .answers![i]
+                                            .values.first
+                                            ) {
+                                          // score++;
+                                            knew ++;
+                                          //update vocab status
+                                          if(questions[index].vocabStatus.status != 2){
+                                            context.read<TopicDetailBloc>().add(UpdateVocabStatusStatus(questions[index]
+                                            .vocabStatus, 2)); // knew
+                                          }
                                           print("yes");
                                         } else {
+                                          //trả lời sai => studying
+                                            learning ++;
+                                            reLearnQuestions.add(questions[index]);
+                                           if(questions[index].vocabStatus.status != 1){
+                                            context.read<TopicDetailBloc>().add(UpdateVocabStatusStatus(questions[index]
+                                            .vocabStatus, 1)); // studying
+                                          }
                                           print("no");
                                         }
                                         setState(() {
@@ -278,15 +352,15 @@ class _TQuizPageState extends State<TQuizPage> {
                                     Expanded(
                                         child: Text(
                                           questions[index]
-                                              .answers!
-                                              .keys
-                                              .toList()[i],
+                                              .answers![i]
+                                              .keys.first.toString()
+                                              ,
                                           style: TextStyle(
                                             color: btnPressed
                                                 ? questions[index]
-                                                        .answers!
+                                                        .answers![i]
                                                         .values
-                                                        .toList()[i]
+                                                        .first
                                                     ? Colors.lightGreen
                                                     : Colors.orange
                                                 : Colors.grey,
@@ -296,9 +370,9 @@ class _TQuizPageState extends State<TQuizPage> {
                                     ),
                                     btnPressed
                                         ? questions[index]
-                                                .answers!
+                                                .answers![i]
                                                 .values
-                                                .toList()[i]
+                                                .first
                                             ? Container(
                                                 height: 30,
                                                 width: 30,
@@ -349,21 +423,73 @@ class _TQuizPageState extends State<TQuizPage> {
                           ),
                           child: Text(
                             btnText,
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           onPressed: () {
-                            if (_controller!.page?.toInt() ==
+                            if(!answered){
+                              skipQuestions.add(_controller.page!.toInt());
+                            }
+                            
+                            if (_controller.page?.toInt() ==
                                 questions.length - 1) {
+                              // int notAnswered = questions.length - knew - learning; 
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          ResultScreen(score)));
+                                          ResultScreen(knew: knew, learning: learning, notAnswered: skipQuestions.length, total: originalLength,))).then((value){
+                                            if(value == "true"){
+                                              print(value);
+                                              knew = 0;
+                                              learning = 0;
+                                              // _controller.jumpToPage(0);
+                                              _controller.jumpTo(0);
+                                              setState(() {
+                                                btnText = "Next Question";
+                                                _initial = 1 / widget.topic.vocabs!.length;
+                                                btnPressed = false;
+                                                answered = false;
+                                              });
+                                            }
+                                            else if (value == "wrong-question"){
+                                              _controller.jumpTo(0);
+                                              if(skipQuestions.isNotEmpty){
+                                                print(skipQuestions);
+                                                for (var index in skipQuestions) {
+                                                  reLearnQuestions.add(questions[index]);
+                                                }
+                                              }
+                                              skipQuestions = [];
+                                              setState(() {
+                                                questions = reLearnQuestions;
+                                                reLearnQuestions = [];
+                                                print(questions);
+                                                if(questions.length == originalLength){
+                                                  knew = 0;
+                                                  learning = 0;
+                                                }
+                                                noQuestions = questions.length;
+                                                btnText = "Next Question";
+                                                _initial = 1 / noQuestions;
+                                                btnPressed = false;
+                                                answered = false;
+                                              });
+                                            }
+                                            else if(value == "to-typing"){
+                                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TypingPractice()));
+                                            }
+                                            else{
+                                              Navigator.pop(context);
+                                            }
+                                            
+                                          });
                             } else {
-                              _controller!.nextPage(
+                              _controller.nextPage(
                                   duration: const Duration(milliseconds: 250),
                                   curve: Curves.easeInExpo);
-
+                              // if(!answered){
+                              //   skipQuestions.add(_controller.page!.toInt());
+                              // }
                               setState(() {
                                 btnPressed = false;
                                 updateToNext();
@@ -383,9 +509,9 @@ class _TQuizPageState extends State<TQuizPage> {
 
    void updateToNext() {
     setState(() {
-      _initial = _initial + 1 / widget.topic.vocabs!.length;
+      _initial = _initial + 1 / questions.length;
       if (_initial > 1.0) {
-        _initial = 1 / widget.topic.vocabs!.length;
+        _initial = 1 / questions.length;
       }
     });
   }

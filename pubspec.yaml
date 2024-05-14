@@ -51,7 +51,7 @@ dependencies:
   intl: ^0.18.1
   csv: ^6.0.0
   path_provider: ^2.0.15
-  web: ^0.4.0
+  web: ^0.3.0
   permission_handler: ^11.3.1
   file_picker: ^8.0.0+1
 

@@ -3,7 +3,7 @@ import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
 import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
-import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/firebase_options.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
