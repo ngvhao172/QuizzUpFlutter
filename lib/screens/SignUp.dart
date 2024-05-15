@@ -49,7 +49,7 @@ class _SignUpPageState extends State<SignUpPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(
-                  height: 60,
+                  height: 20,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
@@ -86,7 +86,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Column(
                       children: <Widget>[
                         const SizedBox(
-                          height: 40,
+                          height: 25,
                         ),
                         FadeInUp(
                           duration: const Duration(milliseconds: 1400),
@@ -256,28 +256,30 @@ class _SignUpPageState extends State<SignUpPage> {
                                 setState(() {
                                   isLoading = true;
                                 });
-                                if(_passwordController.text == _cfpasswordController.text){
-                                    var result = await AuthService().register(
-                                    _nameController.text,
-                                    _emailController.text,
-                                    _passwordController.text);
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                if (result["status"]) {
-                                  Navigator.pop(context);
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result["message"])));
-                                }
-                                else{
+                                if (_passwordController.text ==
+                                    _cfpasswordController.text) {
+                                  var result = await AuthService().register(
+                                      _nameController.text,
+                                      _emailController.text,
+                                      _passwordController.text);
                                   setState(() {
                                     isLoading = false;
                                   });
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Mật khẩu không trùng khớp")));
+                                  if (result["status"]) {
+                                    Navigator.pop(context);
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(result["message"])));
+                                } else {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Mật khẩu không trùng khớp")));
                                 }
-                              
                               }
                             },
                             height: 50,
@@ -332,7 +334,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         const SizedBox(
-                          height: 20,
+                          height: 10,
                         ),
                         FadeInUp(
                             duration: const Duration(milliseconds: 1700),
@@ -345,7 +347,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               Expanded(child: Divider()),
                             ])),
                         const SizedBox(
-                          height: 30,
+                          height: 10,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

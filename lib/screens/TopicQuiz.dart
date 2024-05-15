@@ -7,6 +7,7 @@ import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class TQuizPage extends StatefulWidget {
   const TQuizPage({super.key, required this.topic});
@@ -106,6 +107,11 @@ class _TQuizPageState extends State<TQuizPage> {
   int originalLength = 0;
   List<int> skipQuestions = [];
   FlutterTts flutterTts = FlutterTts();
+
+  bool randomOp = false;
+  bool audioPlay = false;
+  bool isVietnameseSelected = true;
+  bool autoFlip = false;
   void textToSpeechEn(String text) async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
@@ -223,6 +229,193 @@ class _TQuizPageState extends State<TQuizPage> {
                 fontSize: 20),
           ),
           centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (BuildContext context) {
+                    return StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height * 1 / 2,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  const Text(
+                                    "Settings",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 40),
+                                ],
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Random terms",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              Text(
+                                                "Randomly display terms during the learning",
+                                                style: TextStyle(
+                                                    color: Colors.grey[700]),
+                                              ),
+                                            ],
+                                          ),
+                                          Switch(
+                                            value: randomOp,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                randomOp = value;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Play audio",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              Text(
+                                                "Automatically play audio upon card opening.",
+                                                style: TextStyle(
+                                                    color: Colors.grey[700]),
+                                              ),
+                                            ],
+                                          ),
+                                          Switch(
+                                            value: audioPlay,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                audioPlay = value;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        "Answer with",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      ToggleSwitch(
+                                        minWidth:
+                                            MediaQuery.of(context).size.width,
+                                        minHeight: 35,
+                                        initialLabelIndex: 1,
+                                        activeBgColor: const [
+                                          Colors.lightGreen
+                                        ],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        borderColor: const [Colors.green],
+                                        borderWidth: 1.5,
+                                        totalSwitches: 2,
+                                        labels: const ['English', 'Vietnamese'],
+                                        onToggle: (index) {
+                                          //code sử lý gì á
+                                          print('switched to: $index');
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {},
+                                            child: const Text(
+                                              "Restart Quiz",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.lightGreen,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            )
+          ],
         ),
         body: Column(
           children: [

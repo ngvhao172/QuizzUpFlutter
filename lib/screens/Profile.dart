@@ -12,30 +12,26 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({super.key});
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>  {
+class _ProfilePageState extends State<ProfilePage> {
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
-
-  // @override
-  // bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     _userDataFuture = AuthService().getCurrentUser();
   }
-  
+
   @override
   void dispose() {
     super.dispose();
-    
   }
 
   Future<void> _refreshData() async {
@@ -47,231 +43,244 @@ class _ProfilePageState extends State<ProfilePage>  {
   @override
   Widget build(BuildContext context) {
     final authProvider = AuthenticateProvider.of(context)!;
+
     return Scaffold(
-        appBar: AppBar(
-          title:  Text("Profile"),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  authProvider.auth.signOut();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInPage()));
-                },
-                icon: Icon(Icons.logout))
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: FutureBuilder(
-              future: _userDataFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    UserModel user = snapshot.data as UserModel;
-                    print(user);
-                    for (var userInfo in user.userInfos!) {
-                      if (userInfo.providerId == "password") {
-                        isPasswordProvider = true;
-                        break;
-                      }
-                    }
-                    return Container(
-                      padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Stack(
-                              children: [
-                                CircleAvatar(
-                                  backgroundImage: (user.photoURL != null &&
-                                          user.photoURL != "null")
-                                      ? CachedNetworkImageProvider(
-                                          user.photoURL!)
-                                      : const AssetImage(
-                                              "assets/images/user.png")
-                                          as ImageProvider<Object>?,
-                                  radius: 50,
-                                ),
-                                Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          color: Colors.lightGreen),
-                                      child: IconButton(
-                                        icon: Icon(
-                                          Icons.edit,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () {},
-                                        iconSize: 15,
-                                      ),
-                                    ))
+      // appBar: AppBar(
+      //   title: Text("Profile"),
+      //   backgroundColor: Colors.orange[200],
+      //   centerTitle: true,
+      //   automaticallyImplyLeading: false,
+      //   actions: [IconButton(onPressed: () {}, icon: Icon(Icons.logout))],
+      // ),
+      body: SingleChildScrollView(
+        child: FutureBuilder(
+          future: _userDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasData) {
+                UserModel user = snapshot.data as UserModel;
+                print(user);
+                for (var userInfo in user.userInfos!) {
+                  if (userInfo.providerId == "password") {
+                    isPasswordProvider = true;
+                    break;
+                  }
+                }
+                return Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Container(
+                          height: 300.0,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              colors: [
+                                Colors.orange.shade800,
+                                Colors.orange.shade600,
+                                Colors.orange.shade300
                               ],
                             ),
-                            const SizedBox(
-                              height: 10,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            color: Colors.white,
+                            child: Column(
+                              children: <Widget>[
+                                const SizedBox(height: 55),
+                                ListTile(
+                                  title: Text(
+                                    'Email',
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'haizzzzz@gmail.com',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Divider(),
+                                ListTile(
+                                  title: Text(
+                                    'Phone number',
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    '0123456789',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Divider(),
+                                ListTile(
+                                  title: Text(
+                                    'Password',
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("************"),
+                                      TextButton(
+                                        child: Text(
+                                          'Change Password',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange.shade700,
+                                          ),
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              user.displayName.toString(),
-                              style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 65, 65, 65)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Positioned(
+                      top: 70.0,
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage("assets/images/user.png"),
+                        radius: 60,
+                      ),
+                    ),
+                    Positioned(
+                      top: 70.0,
+                      right: MediaQuery.of(context).size.width / 2 - 80,
+                      child: TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                              shape: CircleBorder(),
+                              backgroundColor: Colors.white),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.lightGreen,
+                          )),
+                    ),
+                    const Positioned(
+                      top: 200.0,
+                      child: Text(
+                        "Phạm Nhật Quỳnh",
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                    Positioned(
+                        top: 5.0,
+                        right: 0.0,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.logout,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            authProvider.auth.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignInPage()));
+                          },
+                        )),
+                    Positioned(
+                      top: 255.0,
+                      child: Container(
+                        padding: const EdgeInsets.all(16.0),
+                        width: 300,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: const Offset(0, 5),
                             ),
-                            Text(
-                              user.email.toString(),
-                              style: const TextStyle(
-                                  color: Color.fromARGB(255, 65, 65, 65)),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "TOPICS",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade700),
+                                ),
+                                Text(
+                                  "520",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.orange.shade700),
+                                )
+                              ],
                             ),
-                            const SizedBox(
-                              height: 20,
+                            Column(
+                              children: [
+                                Text(
+                                  "FOLDERS",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade700),
+                                ),
+                                Text(
+                                  "520",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.orange.shade700),
+                                )
+                              ],
                             ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.lightGreen,
-                                foregroundColor: Colors.white,
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32.0)),
-                                minimumSize: const Size(200, 50),
-                              ),
-                              child: const Text(
-                                'Edit Profile',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const UpdateProfilePage()))
-                                    .then((value) async {
-                                  await _refreshData();
-                                });
-                              },
+                            Column(
+                              children: [
+                                Text(
+                                  "ATTEMPT",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade700),
+                                ),
+                                Text(
+                                  "520",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.orange.shade700),
+                                )
+                              ],
                             ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            const Divider(),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            getMenuItem(
-                              title: "Achievements",
-                              icon: Icons.star,
-                              endIcon: true,
-                              onPress: () {},
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            (isPasswordProvider == true)
-                                ? getMenuItem(
-                                    title: "Change password",
-                                    icon: Icons.settings,
-                                    endIcon: true,
-                                    onPress: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChangePasswordPage()));
-                                    },
-                                  )
-                                : getMenuItem(
-                                    title: "Create password",
-                                    icon: Icons.settings,
-                                    endIcon: true,
-                                    onPress: () async {
-                                      var result =
-                                          await AuthService().reAuthGoogle();
-                                      if (result["status"]) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CreatePasswordPage()));
-                                      } else {
-                                        showScaffoldMessage(
-                                            context, result["message"]);
-                                      }
-                                    })
                           ],
                         ),
                       ),
-                    );
-                  }
-                }
-                return Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: const Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        color: Colors.lightGreen,
-                      ),
-                    ],
-                  )),
+                    ),
+                  ],
                 );
-              }),
-        ));
-  }
-}
-
-class getMenuItem extends StatelessWidget {
-  const getMenuItem({
-    super.key,
-    required this.title,
-    required this.icon,
-    required this.onPress,
-    this.endIcon = true,
-    this.textColor,
-  });
-
-  final String title;
-  final IconData icon;
-  final VoidCallback onPress;
-  final bool endIcon;
-  final Color? textColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
-          color: Colors.lightGreen.withOpacity(0.1),
+              }
+            }
+          },
         ),
-        child: Icon(icon, color: Colors.blue),
       ),
-      title: Text(title,
-          style:
-              Theme.of(context).textTheme.bodyLarge?.apply(color: textColor)),
-      trailing: endIcon
-          ? Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: Colors.grey.withOpacity(0.1),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_forward_ios,
-                    size: 15, color: Colors.grey),
-                onPressed: onPress,
-              ),
-            )
-          : null,
     );
   }
 }
