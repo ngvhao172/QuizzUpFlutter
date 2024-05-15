@@ -2,18 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class ResultScreen extends StatefulWidget {
-  ResultScreen({Key? key, required this.knew, required this.learning, required this.notAnswered, required this.total}) : super(key: key);
+  ResultScreen({Key? key, required this.knew, required this.learning, required this.notAnswered, required this.total, required this.finishTime}) : super(key: key);
 
   final int knew;
   final int learning;
   final int notAnswered;
   final int total;
+  final int finishTime;
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+
+ String formatDuration(int seconds) {
+  final int hours = seconds ~/ 3600;
+  final int minutes = (seconds % 3600) ~/ 60;
+  final int remainingSeconds = seconds % 60;
+
+  final String hoursStr = hours > 0 ? '${hours.toString().padLeft(2, '0')}h': '';
+  final String minutesStr = minutes > 0 || hours > 0 ? '${(minutes % 60).toString().padLeft(2, '0')}m': '';
+  final String secondsStr = '${remainingSeconds.toString().padLeft(2, '0')}s';
+
+  return '$hoursStr$minutesStr$secondsStr';
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,53 +73,59 @@ class _ResultScreenState extends State<ResultScreen> {
             children: [
               Row(
                 children: [
-                  Stack(
-                    alignment: Alignment.center,
+                  Column(
                     children: [
-                      SizedBox(
-                        height: 120,
-                        width: 120,
-                        child: SfRadialGauge(
-                          axes: <RadialAxis>[
-                            RadialAxis(
-                              minimum: 0,
-                              maximum: 100,
-                              showLabels: false,
-                              showTicks: false,
-                              startAngle: 270,
-                              endAngle: 270,
-                              axisLineStyle: const AxisLineStyle(
-                                thickness: 0.2,
-                                cornerStyle: CornerStyle.bothCurve,
-                                color: Color.fromARGB(30, 0, 169, 181),
-                                thicknessUnit: GaugeSizeUnit.factor,
-                              ),
-                              pointers: <GaugePointer>[
-                                RangePointer(
-                                  value: percentage,
-                                  cornerStyle: CornerStyle.bothCurve,
-                                  width: 0.2,
-                                  sizeUnit: GaugeSizeUnit.factor,
-                                  color: Colors.lightGreen,
-                                )
-                              ],
-                              annotations: <GaugeAnnotation>[
-                                GaugeAnnotation(
-                                  positionFactor: 0.1,
-                                  angle: 90,
-                                  widget: Text(
-                                    '${percentage.toStringAsFixed(0)}%',
-                                    style: const TextStyle(
-                                        fontSize: 20, color: Colors.orange),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            height: 120,
+                            width: 120,
+                            child: SfRadialGauge(
+                              axes: <RadialAxis>[
+                                RadialAxis(
+                                  minimum: 0,
+                                  maximum: 100,
+                                  showLabels: false,
+                                  showTicks: false,
+                                  startAngle: 270,
+                                  endAngle: 270,
+                                  axisLineStyle: const AxisLineStyle(
+                                    thickness: 0.2,
+                                    cornerStyle: CornerStyle.bothCurve,
+                                    color: Color.fromARGB(30, 0, 169, 181),
+                                    thicknessUnit: GaugeSizeUnit.factor,
                                   ),
+                                  pointers: <GaugePointer>[
+                                    RangePointer(
+                                      value: percentage,
+                                      cornerStyle: CornerStyle.bothCurve,
+                                      width: 0.2,
+                                      sizeUnit: GaugeSizeUnit.factor,
+                                      color: Colors.lightGreen,
+                                    )
+                                  ],
+                                  annotations: <GaugeAnnotation>[
+                                    GaugeAnnotation(
+                                      positionFactor: 0.1,
+                                      angle: 90,
+                                      widget: Text(
+                                        '${percentage.toStringAsFixed(0)}%',
+                                        style: const TextStyle(
+                                            fontSize: 20, color: Colors.orange),
+                                      ),
+                                    )
+                                  ],
                                 )
                               ],
-                            )
-                          ],
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 10,),
+                      Text("Finished in ${formatDuration(widget.finishTime)}", style: const TextStyle(fontWeight: FontWeight.bold),),
                     ],
-                  ),
+                  ),                  
                 ],
               ),
               //const SizedBox(width: 30),
@@ -210,6 +231,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 10,),
                 ],
               ),
             ],

@@ -1,18 +1,24 @@
+import 'dart:async';
+
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/TopicResultRecord.dart';
+import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
 import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/screens/ResultScreen.dart';
 import 'package:final_quizlet_english/screens/TopicType.dart';
+import 'package:final_quizlet_english/services/TopicResultRecordDao.dart';
+import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TQuizPage extends StatefulWidget {
-  const TQuizPage({super.key, required this.topic});
+  const TQuizPage({super.key, required this.topicDTO});
 
-  final TopicInfoDTO topic;
+  final TopicInfoDTO topicDTO;
   // final QuizSettings? settings;
 
   @override
@@ -99,6 +105,8 @@ class _TQuizPageState extends State<TQuizPage> {
   List<QuestionModel> reLearnQuestions = [];
   int learning = 0;
   int knew = 0;
+  bool isReLearning = false;
+  String recordDocId = "";
   late double _initial;
   bool btnPressed = false;
   final PageController _controller = PageController(initialPage: 0);
@@ -128,13 +136,58 @@ class _TQuizPageState extends State<TQuizPage> {
     await flutterTts.speak(text);
   }
 
+  Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
+
+  // void handleStart() {
+  //   if(!stopwatch.isRunning) {
+  //     stopwatch.start();
+  //   }
+  // }
+  // void handleStop() {
+  //   if(stopwatch.isRunning) {
+  //     stopwatch.stop();
+  //   }
+  // }
+  //chuyển hết thời gian sang giây
+  int getStopwatchTimeToSeconds() {
+    int seconds = _stopwatch.elapsed.inSeconds;
+    return seconds;
+  }
+
+  void _startTimer() {
+    if (!_stopwatch.isRunning) {
+      _stopwatch.start();
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        setState(() {});
+      });
+    }
+  }
+
+  void _stopTimer() {
+    if (_stopwatch.isRunning) {
+      _stopwatch.stop();
+      _timer?.cancel();
+    }
+  }
+
+  void _resetTimer() {
+    _stopwatch.reset();
+    setState(() {});
+  }
+
   @override
   void initState() {
+    _startTimer();
+
+    // t = Timer.periodic(Duration(seconds: 1), (timer) {
+    //   setState(() {});
+    // });
     var answers = [];
-    for (var element in widget.topic.vocabs!) {
+    for (var element in widget.topicDTO.vocabs!) {
       answers.add(element.vocab.definition);
     }
-    for (var vocabDTO in widget.topic.vocabs!) {
+    for (var vocabDTO in widget.topicDTO.vocabs!) {
       var otherAnswer = List.from(answers);
       var vocab = vocabDTO.vocab;
       int index =
@@ -142,7 +195,7 @@ class _TQuizPageState extends State<TQuizPage> {
       if (index != -1) {
         otherAnswer.removeAt(index);
       }
-      print(otherAnswer);
+      // print(otherAnswer);
 
       otherAnswer.shuffle();
       var answer = [
@@ -151,24 +204,25 @@ class _TQuizPageState extends State<TQuizPage> {
         {"${otherAnswer[2]}": false},
         {vocab.definition: true},
       ];
-      print(answer);
+      // print(answer);
       answer.shuffle();
-      print(answer);
+      // print(answer);
       questions
           .add(QuestionModel("${vocab.term} ?", answer, vocabDTO.vocabStatus));
     }
     _initial = 1 / questions.length;
     super.initState();
 
-    for (var i = 0; i < questions.length; i++) {
-      print(questions[i].answers);
-    }
+    // for (var i = 0; i < questions.length; i++) {
+    //   print(questions[i].answers);
+    // }
     originalLength = questions.length;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _stopTimer();
     super.dispose();
   }
 
@@ -182,7 +236,7 @@ class _TQuizPageState extends State<TQuizPage> {
   Widget build(BuildContext context) {
     int noQuestions = questions.length;
     String value = (_initial * noQuestions).toStringAsFixed(0);
-
+    print(getStopwatchTimeToSeconds());
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -451,7 +505,7 @@ class _TQuizPageState extends State<TQuizPage> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                if (widget.topic.topic.termLanguage ==
+                                if (widget.topicDTO.topic.termLanguage ==
                                     "English") {
                                   textToSpeechEn(
                                       questions[index].question.toString());
@@ -511,11 +565,6 @@ class _TQuizPageState extends State<TQuizPage> {
                                     // ),
                                     onPressed: !answered
                                         ? () {
-                                            print("log");
-                                            print(questions[index]
-                                                .answers![i]
-                                                .values
-                                                .first);
                                             if (questions[index]
                                                 .answers![i]
                                                 .values
@@ -648,64 +697,128 @@ class _TQuizPageState extends State<TQuizPage> {
                             btnText,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (!answered) {
                               skipQuestions.add(_controller.page!.toInt());
                             }
 
                             if (_controller.page?.toInt() ==
                                 questions.length - 1) {
+                              _stopTimer();
                               // int notAnswered = questions.length - knew - learning;
+                              //saved record
+                              int completedTime = getStopwatchTimeToSeconds();
+                              if (isReLearning) {
+                                var res = await TopicResultRecordDao()
+                                    .getTopicResultRecordByDocId(recordDocId);
+                                int learning = widget.topicDTO.termNumbers -
+                                    knew -
+                                    skipQuestions.length;
+                                if (res["status"]) {
+                                  TopicResultRecord record = res["data"];
+                                  record.completedTime = completedTime;
+                                  record.correctAnswers = knew;
+                                  record.wrongAnswers = learning;
+                                  record.notAnswers = skipQuestions.length;
+                                  var resUpdate = await TopicResultRecordDao()
+                                      .updateTopicResultRecord(record);
+                                  print(resUpdate);
+                                }
+                                print(res["status"]);
+                              } else {
+                                TopicResultRecord record = TopicResultRecord(
+                                    topicId: widget.topicDTO.topic.id!,
+                                    userId: widget.topicDTO.topic.userId,
+                                    completedTime: completedTime,
+                                    correctAnswers: knew,
+                                    wrongAnswers: learning,
+                                    notAnswers: skipQuestions.length);
+                                var res = await TopicResultRecordDao()
+                                    .addTopicResultRecord(record);
+                                print(res);
+                                if (res["status"]) {
+                                  setState(() {
+                                    recordDocId = res["data"];
+                                  });
+                                }
+                              }
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ResultScreen(
-                                            knew: knew,
-                                            learning: learning,
-                                            notAnswered: skipQuestions.length,
-                                            total: originalLength,
-                                          ))).then((value) {
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ResultScreen(
+                                              knew: knew,
+                                              learning: learning,
+                                              notAnswered: skipQuestions.length,
+                                              total: originalLength,
+                                              finishTime: completedTime)))
+                                  .then((value) async {
                                 if (value == "true") {
-                                  print(value);
+                                  // print(value);
+                                  _resetTimer();
+                                  _startTimer();
                                   knew = 0;
                                   learning = 0;
                                   // _controller.jumpToPage(0);
                                   _controller.jumpTo(0);
                                   setState(() {
+                                    isReLearning = false;
                                     btnText = "Next Question";
-                                    _initial = 1 / widget.topic.vocabs!.length;
+                                    _initial =
+                                        1 / widget.topicDTO.vocabs!.length;
                                     btnPressed = false;
                                     answered = false;
                                   });
                                 } else if (value == "wrong-question") {
+                                  _startTimer();
                                   _controller.jumpTo(0);
                                   if (skipQuestions.isNotEmpty) {
-                                    print(skipQuestions);
+                                    // print(skipQuestions);
                                     for (var index in skipQuestions) {
                                       reLearnQuestions.add(questions[index]);
                                     }
                                   }
                                   skipQuestions = [];
                                   setState(() {
+                                    isReLearning = true;
                                     questions = reLearnQuestions;
                                     reLearnQuestions = [];
-                                    print(questions);
+                                    // print(questions);
                                     if (questions.length == originalLength) {
                                       knew = 0;
                                       learning = 0;
                                     }
                                     noQuestions = questions.length;
-                                    btnText = "Next Question";
+                                    btnText = (noQuestions == 1)
+                                        ? "See Result"
+                                        : "Next Question";
                                     _initial = 1 / noQuestions;
                                     btnPressed = false;
                                     answered = false;
                                   });
                                 } else if (value == "to-typing") {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              TypingPractice()));
+                                  var result = await TypeSettingsDao()
+                                      .getTypeSettingsByUserId(
+                                          widget.topicDTO.topic.userId);
+                                  if (result["status"]) {
+                                    TopicTypeSettings tSettings =
+                                        TopicTypeSettings.fromJson(
+                                            result["data"]);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                TypingPractice(
+                                                    topic: widget.topicDTO,
+                                                    tSettings: tSettings)));
+                                  } else {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                TypingPractice(
+                                                    topic: widget.topicDTO)));
+                                  }
+                                  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: widget.topicDTO,)));
                                 } else {
                                   Navigator.pop(context);
                                 }

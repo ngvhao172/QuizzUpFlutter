@@ -184,6 +184,7 @@ class _FolderDetailState extends State<FolderDetail>  {
                         playersCount: topics[index].playersCount,
                         userAvatar: topics[index].userAvatar,
                         userId: folder.userId,
+                        vocabs: topics[index].vocabs!,
                       );
                     },
                   ),
@@ -257,6 +258,7 @@ class _FolderDetailState extends State<FolderDetail>  {
                         playersCount: 2,
                         userAvatar: null,
                         userId: "",
+                        vocabs: [],
                       );
                     },
                   ),

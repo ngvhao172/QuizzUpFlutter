@@ -21,42 +21,8 @@ class TopicBloc extends Bloc<TopicEvent, TopicState> {
     on<LoadTopics>((event, emit) async {
       emit(TopicLoading());
       final topics = await topicDao.getTopicInfoDTOByUserId(event.userId);
-      print(topics);
-      DateTime today = DateTime.now();
-      DateTime yesterday = today.subtract(Duration(days: 1));
+      print("So LUONG:" + topics["data"].length.toString());
       currentTopics = topics["data"];
-      // todayTopics = yesterdayTopics = thisWeekTopics = otherTopics = [];
-      // for (var topicDTO in currentTopics) {
-      //   if (DateFormat('yyyy-MM-dd').format(topicDTO.topic.lastAccessed) ==
-      //       DateFormat('yyyy-MM-dd').format(today)) {
-      //     todayTopics.add(topicDTO);
-      //   }
-      //   if (DateFormat('yyyy-MM-dd').format(topicDTO.topic.lastAccessed) ==
-      //       DateFormat('yyyy-MM-dd').format(yesterday)) {
-      //     yesterdayTopics.add(topicDTO);
-      //   }
-
-      //   if (DateFormat('yyyy-MM-dd')
-      //               .format(topicDTO.topic.lastAccessed)
-      //               .compareTo(DateFormat('yyyy-MM-dd')
-      //                   .format(today.subtract(Duration(days: 7)))) >
-      //           0 &&
-      //       DateFormat('yyyy-MM-dd')
-      //               .format(topicDTO.topic.lastAccessed)
-      //               .compareTo(DateFormat('yyyy-MM-dd')
-      //                   .format(today.subtract(Duration(days: 2)))) <
-      //           0) {
-      //     thisWeekTopics.add(topicDTO);
-      //   }
-      //   if (DateFormat('yyyy-MM-dd')
-      //           .format(topicDTO.topic.lastAccessed)
-      //           .compareTo(DateFormat('yyyy-MM-dd')
-      //               .format(today.subtract(Duration(days: 7)))) <
-      //       0) {
-      //     otherTopics.add(topicDTO);
-      //   }
-      // }
-      // print(yesterdayTopics);
       currentTopics.sort((a, b) => b.topic.lastAccessed.compareTo(a.topic.lastAccessed));
       emit(TopicLoaded(currentTopics));
     });

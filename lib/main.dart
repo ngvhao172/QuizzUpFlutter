@@ -1,3 +1,5 @@
+import 'package:final_quizlet_english/blocs/community/TopicRankingBloc.dart';
+import 'package:final_quizlet_english/blocs/community/TopicRankingDetailBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
 import 'package:final_quizlet_english/screens/HomePage.dart';
@@ -56,6 +58,10 @@ class _MyAppState extends State<MyApp> {
                 create: (context) => FolderBloc(FolderDao())),
             BlocProvider<FolderDetailBloc>(
                 create: (context) => FolderDetailBloc(FolderDao())),
+            BlocProvider<TopicRankingBloc>(
+                create: (context) => TopicRankingBloc(TopicDao())),
+            BlocProvider<TopicRankingDetailBloc>(
+                create: (context) => TopicRankingDetailBloc(TopicDao())),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

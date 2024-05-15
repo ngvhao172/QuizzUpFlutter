@@ -1,6 +1,5 @@
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/dtos/FolderInfo.dart';
-import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/services/FolderDao.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,7 +11,7 @@ class FolderDetailBloc extends Bloc<FolderEvent, FolderState> {
   FolderDetailBloc(this.folderDao) : super(FolderLoading()) {
     on<LoadFolder>((event, emit) async {
       emit(FolderLoading());
-      var result = await FolderDao().getFolderInfoDTOByFolderId(event.folderId);
+      var result = await folderDao.getFolderInfoDTOByFolderId(event.folderId);
       print(result);
       if(result["status"]){
         currentFolder = result["data"];

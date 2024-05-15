@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
-import 'package:final_quizlet_english/models/TopicPlayCount.dart';
+import 'package:final_quizlet_english/models/TopicPlayedNumber.dart';
 
 class FlashCardSettingsDao{
   final CollectionReference flashCardSettingsCollection =
