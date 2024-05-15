@@ -1,169 +1,192 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ResultScreen(100),
-  ));
-}
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class ResultScreen extends StatefulWidget {
-  int score;
-  ResultScreen(this.score, {Key? key}) : super(key: key);
+  ResultScreen({Key? key, required this.knew, required this.learning, required this.notAnswered, required this.total}) : super(key: key);
+
+  final int knew;
+  final int learning;
+  final int notAnswered;
+  final int total;
+
   @override
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+
   @override
   Widget build(BuildContext context) {
+    int learning = widget.total - widget.knew - widget.notAnswered;
+    double percentage = widget.knew/(widget.knew + learning + widget.notAnswered)*100;
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.grey,
-        ),
-        automaticallyImplyLeading: false,
+        leading: IconButton(icon: Icon(Icons.close), onPressed: (){
+          Navigator.pop(context, false);
+        },)
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(
+              const Expanded(
                   flex: 2,
                   child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Text(
-                        'Chúc mừng! Bạn đã ôn tập tất cả các câu hỏi',
+                        'Congratulations! You have reviewed all the terms',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 22,
                           fontWeight: FontWeight.w900,
                         ),
                       ))),
               Expanded(
-                flex: 1,
-                child: Icon(Icons.star,
-                    color: Color.fromRGBO(87, 232, 180, 1), size: 60),
-              ),
+                  flex: 1,
+                  child: Image.asset(
+                    "assets/images/QLogo.png",
+                    height: 100,
+                  )
+                  //child: Icon(Icons.star, color: Colors.lightGreen, size: 60),
+                  ),
             ],
           ),
-          // const SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 12,
-                            // value: score / 9,
-                            value: 9,
-                            color: Color.fromRGBO(87, 232, 180, 1),
-                            backgroundColor: Colors.white,
-                          ),
+              Row(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: SfRadialGauge(
+                          axes: <RadialAxis>[
+                            RadialAxis(
+                              minimum: 0,
+                              maximum: 100,
+                              showLabels: false,
+                              showTicks: false,
+                              startAngle: 270,
+                              endAngle: 270,
+                              axisLineStyle: const AxisLineStyle(
+                                thickness: 0.2,
+                                cornerStyle: CornerStyle.bothCurve,
+                                color: Color.fromARGB(30, 0, 169, 181),
+                                thicknessUnit: GaugeSizeUnit.factor,
+                              ),
+                              pointers: <GaugePointer>[
+                                RangePointer(
+                                  value: percentage,
+                                  cornerStyle: CornerStyle.bothCurve,
+                                  width: 0.2,
+                                  sizeUnit: GaugeSizeUnit.factor,
+                                  color: Colors.lightGreen,
+                                )
+                              ],
+                              annotations: <GaugeAnnotation>[
+                                GaugeAnnotation(
+                                  positionFactor: 0.1,
+                                  angle: 90,
+                                  widget: Text(
+                                    '${percentage.toStringAsFixed(0)}%',
+                                    style: const TextStyle(
+                                        fontSize: 20, color: Colors.orange),
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
                         ),
-                        Text(
-                          '100%',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Color.fromRGBO(87, 232, 180, 1),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(width: 30),
+              //const SizedBox(width: 30),
               Column(
                 children: [
                   Container(
-                    width: 300,
+                    width: 200,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(214, 243, 237, 1),
-                      borderRadius: BorderRadius.circular(
-                          100), // Change this radius to your liking
+                      color: Colors.orange[100],
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Know',
+                          const Text(
+                            'Knew',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: Color.fromRGBO(87, 232, 180, 1),
+                              fontWeight: FontWeight.w700,
+                              color: Colors.lightGreen,
                             ),
                           ),
                           Text(
-                            '0', // replace with your number
-                            style: TextStyle(
+                            widget.knew.toString(), // replace with your number
+                            style: const TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: Color.fromRGBO(87, 232, 180, 1),
+                              fontWeight: FontWeight.w700,
+                              color: Colors.lightGreen,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Container(
-                    width: 300,
+                    width: 200,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 236, 236, 236),
+                      color: Colors.lightGreen[100],
                       borderRadius: BorderRadius.circular(
                           100), // Change this radius to your liking
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Still Learning',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: Color.fromRGBO(244, 118, 72, 1),
+                              fontWeight: FontWeight.w700,
+                              color: Colors.orange,
                             ),
                           ),
                           Text(
-                            '2', // replace with your number
-                            style: TextStyle(
+                            learning.toString(), // replace with your number
+                            style: const TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: Color.fromRGBO(244, 118, 72, 1),
+                              fontWeight: FontWeight.w700,
+                              color: Colors.orange,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Container(
-                    width: 300,
+                    width: 200,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 236, 236, 236),
+                      color: const Color.fromARGB(255, 236, 236, 236),
                       borderRadius: BorderRadius.circular(
                           100), // Change this radius to your liking
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -171,14 +194,16 @@ class _ResultScreenState extends State<ResultScreen> {
                             'Terms left',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade700,
                             ),
                           ),
                           Text(
-                            '0', // replace with your number
+                            widget.notAnswered.toString(), // replace with your number
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade700,
                             ),
                           ),
                         ],
@@ -186,68 +211,51 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                 ],
-              )
-            ],
-          ),
-          // const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle your click event here
-                  },
-                  child: const Text(
-                    'Back to last question',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: Color.fromARGB(255, 26, 63, 186),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
-          SizedBox(height: 100),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: GestureDetector(
+          // s
+          const SizedBox(height: 140),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              children: [
+                GestureDetector(
                   onTap: () {
                     // Implement your function here
+                    if(percentage!=100.0){
+                      Navigator.pop(context, "wrong-question");
+                    }
+                    else{
+                      Navigator.pop(context, "to-typing");
+                    }
                   },
-                  child: Expanded(
-                    child: Container(
+                  child: Container(
                       width: 450,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Color.fromRGBO(66, 84, 254, 1),
+                        color: const Color.fromRGBO(66, 84, 254, 1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Icon(
-                            // Icon 2 thẻ chồng lên
                             Icons.receipt_long_sharp,
                             size: 35,
                             color: Colors.white,
                           ),
                           SizedBox(width: 10),
-                          Container(
+                          SizedBox(
                             width: 250,
-                            child: const Column(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Tiếp tục xem lại 2 thuật ngữ',
+                                  'Continue learning the terms',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w700,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -256,49 +264,40 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         ],
                       ),
-                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: GestureDetector(
+                const SizedBox(height: 20),
+                GestureDetector(
                   onTap: () {
-                    // Implement your function here
+                    Navigator.pop(context, "true");
                   },
-                  child: Expanded(
-                    child: Container(
+                  child: Container(
                       width: 450,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 244, 240, 240),
+                        color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Icon(
-                            // Icon 2 thẻ chồng lên
                             Icons.refresh_outlined,
                             size: 35,
-                            color: Color.fromRGBO(66, 84, 254, 1),
+                            color: Colors.blueAccent,
                           ),
                           SizedBox(width: 10),
-                          Container(
+                          SizedBox(
                             width: 200,
-                            child: const Column(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Thực hành ở mục học',
+                                  'Restart Quiz',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color.fromRGBO(66, 84, 254, 1),
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.blueAccent,
                                   ),
                                 ),
                               ],
@@ -308,31 +307,31 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ),
                   ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle your click event here
-                  },
-                  child: const Text(
-                    'Restart Flashcards',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: Color.fromARGB(255, 26, 63, 186),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Padding(
+          //       padding: const EdgeInsets.all(20.0),
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           // Handle your click event here
+          //         },
+          //         child: const Text(
+          //           'Restart Quiz',
+          //           style: TextStyle(
+          //             fontSize: 15,
+          //             fontWeight: FontWeight.w700,
+          //             color: Colors.blueAccent,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

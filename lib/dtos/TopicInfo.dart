@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 
@@ -7,7 +8,7 @@ class TopicInfoDTO {
   int playersCount;
   String authorName;
   String? userAvatar;
-  List<VocabularyModel>? vocabs;
+  List<VocabInfoDTO>? vocabs;
   List<VocabularyModel>? favoriteVocabs;
 
   TopicModel topic;

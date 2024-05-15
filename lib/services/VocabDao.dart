@@ -9,8 +9,8 @@ class VocabularyDao {
     try {
       Map<String, dynamic> vocabData = vocab.toJson();
 
-      await vocabCollection.add(vocabData);
-      return {"status": true, "message": "Thêm từ vựng thành công."};
+      var vocabAdded = await vocabCollection.add(vocabData);
+      return {"status": true, "message": "Thêm từ vựng thành công.", "data": vocabAdded.id.toString()};
     } catch (e) {
       return {"status": false, "message": e.toString()};
     }

@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/TopicPlayCount.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/services/TopicPlayCountDao.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:final_quizlet_english/services/VocabDao.dart';
+import 'package:final_quizlet_english/services/VocabStatusDao.dart';
 
 class TopicDao {
   final CollectionReference topicCollection =
@@ -191,13 +194,26 @@ class TopicDao {
             if (vocabResult["status"]) {
               int vocabNumber = vocabResult["data"].length;
               List<Map<String, dynamic>> vocabLists = vocabResult["data"];
-              List<VocabularyModel> vocabs = [];
+              List<VocabInfoDTO> vocabs = [];
               if (vocabLists.length > 0) {
                 print(vocabLists);
-                vocabs = vocabLists
+                var newVocabsList = vocabLists
                     .map((value) => VocabularyModel.fromJson(value))
                     .toList();
+                for (var vocab in newVocabsList) {
+                  var result = await VocabularyStatusDao().getVocabularyStatusByVocabIdAndUserId(vocab.id!, user.id!);
+                  if(result["status"]){
+                    var vocabStatus = VocabularyStatus.fromJson(result["data"]);
+                    vocabs.add(VocabInfoDTO(vocab: vocab, vocabStatus: vocabStatus));
+                  }
+                }
               }
+              // List<VocabularyStatus> vocabsStatus = [];
+              // if(vocabs.length > 0){
+              //   for (var vocab in vocabLists) {
+                  
+              //   }
+              // }
               var topicPlayCount = result["data"];
               int totalTimes = 0;
               if (topicPlayCount.length > 0) {
@@ -234,64 +250,64 @@ class TopicDao {
     }
   }
 
-  Stream<Map<String, dynamic>> getTopicInfoDTOByTopicIdRealtime(
-      String topicId) async* {
-    try {
-      var resultTopic = await getTopicById(topicId);
-      if (resultTopic["status"]) {
-        TopicModel topic = TopicModel.fromJson(resultTopic["data"]);
-        var resultUser = await UserDao().getUserById(topic.userId!);
-        if (resultUser["status"]) {
-          UserModel user = UserModel.fromJson(resultUser["data"]);
+  // Stream<Map<String, dynamic>> getTopicInfoDTOByTopicIdRealtime(
+  //     String topicId) async* {
+  //   try {
+  //     var resultTopic = await getTopicById(topicId);
+  //     if (resultTopic["status"]) {
+  //       TopicModel topic = TopicModel.fromJson(resultTopic["data"]);
+  //       var resultUser = await UserDao().getUserById(topic.userId!);
+  //       if (resultUser["status"]) {
+  //         UserModel user = UserModel.fromJson(resultUser["data"]);
 
-          var result =
-              await TopicPlayCountDao().getTopicsCountByTopicId(topicId);
-          if (result["status"]) {
-            var vocabResult = await VocabularyDao().getVocabsByTopicId(topicId);
-            if (vocabResult["status"]) {
-              int vocabNumber = vocabResult["data"].length;
-              List<Map<String, dynamic>> vocabLists = vocabResult["data"];
-              List<VocabularyModel> vocabs = [];
-              if (vocabLists.length > 0) {
-                print(vocabLists);
-                vocabs = vocabLists
-                    .map((value) => VocabularyModel.fromJson(value))
-                    .toList();
-              }
-              var topicPlayCount = result["data"];
-              int totalTimes = 0;
-              if (topicPlayCount.length > 0) {
-                List<TopicPlayCount> topicPlayCountModels = topicPlayCount
-                    .map((value) => TopicPlayCount.fromJson(value));
-                totalTimes = topicPlayCountModels.fold(
-                    0,
-                    (previousValue, element) =>
-                        previousValue + (element.times ?? 0));
-              }
-              TopicInfoDTO topicInfoDTO = TopicInfoDTO(
-                topic: topic,
-                authorName: user.displayName,
-                playersCount: totalTimes,
-                termNumbers: vocabNumber,
-                userAvatar: user.photoURL,
-                vocabs: vocabs,
-              );
-              yield {"status": true, "data": topicInfoDTO};
-            } else {
-              yield {"status": false, "data": vocabResult["message"]};
-            }
-          } else {
-            yield {"status": false, "data": result["message"]};
-          }
-        } else {
-          yield {"status": false, "data": resultUser["message"]};
-        }
-      } else {
-        yield {"status": false, "message": "Không tìm thấy topic."};
-      }
-    } catch (e) {
-      yield {"status": false, "message": e.toString()};
-    }
-  }
+  //         var result =
+  //             await TopicPlayCountDao().getTopicsCountByTopicId(topicId);
+  //         if (result["status"]) {
+  //           var vocabResult = await VocabularyDao().getVocabsByTopicId(topicId);
+  //           if (vocabResult["status"]) {
+  //             int vocabNumber = vocabResult["data"].length;
+  //             List<Map<String, dynamic>> vocabLists = vocabResult["data"];
+  //             List<VocabularyModel> vocabs = [];
+  //             if (vocabLists.length > 0) {
+  //               print(vocabLists);
+  //               vocabs = vocabLists
+  //                   .map((value) => VocabularyModel.fromJson(value))
+  //                   .toList();
+  //             }
+  //             var topicPlayCount = result["data"];
+  //             int totalTimes = 0;
+  //             if (topicPlayCount.length > 0) {
+  //               List<TopicPlayCount> topicPlayCountModels = topicPlayCount
+  //                   .map((value) => TopicPlayCount.fromJson(value));
+  //               totalTimes = topicPlayCountModels.fold(
+  //                   0,
+  //                   (previousValue, element) =>
+  //                       previousValue + (element.times ?? 0));
+  //             }
+  //             TopicInfoDTO topicInfoDTO = TopicInfoDTO(
+  //               topic: topic,
+  //               authorName: user.displayName,
+  //               playersCount: totalTimes,
+  //               termNumbers: vocabNumber,
+  //               userAvatar: user.photoURL,
+  //               vocabs: vocabs,
+  //             );
+  //             yield {"status": true, "data": topicInfoDTO};
+  //           } else {
+  //             yield {"status": false, "data": vocabResult["message"]};
+  //           }
+  //         } else {
+  //           yield {"status": false, "data": result["message"]};
+  //         }
+  //       } else {
+  //         yield {"status": false, "data": resultUser["message"]};
+  //       }
+  //     } else {
+  //       yield {"status": false, "message": "Không tìm thấy topic."};
+  //     }
+  //   } catch (e) {
+  //     yield {"status": false, "message": e.toString()};
+  //   }
+  // }
   
 }

@@ -3,6 +3,9 @@ import 'HomePage.dart' as _homeTab;
 import 'Report.dart' as _reportTab;
 import 'Library.dart' as _libraryTab;
 import 'Profile.dart' as _profileTab;
+import 'package:final_quizlet_english/screens/TopicCreate.dart';
+import 'package:final_quizlet_english/screens/FolderCreate.dart';
+import 'package:final_quizlet_english/screens/FolderDetail.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -191,7 +194,56 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
+                  ),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.create_new_folder),
+                      title: const Text('Create Topic'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TCreatePage()),
+                        );
+                      },
+                    ),
+                    Divider(
+                      color: Colors.grey.shade300,
+                      indent: 10,
+                      endIndent: 10,
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.create_new_folder_outlined),
+                      title: const Text('Create Folder'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FolderCreatePage()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
         backgroundColor: Colors.lightGreen,
         foregroundColor: Colors.white,
         elevation: 0,

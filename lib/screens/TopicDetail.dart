@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
-import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
@@ -10,6 +10,7 @@ import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
+import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
@@ -50,6 +51,12 @@ class _TDetailPageState extends State<TDetailPage>
 
   List<Map<String, String>> data = [];
 
+  // List<Map<String, String>> notLearned = [];
+
+  // List<Map<String, String>> studying = [];
+
+  // List<Map<String, String>> mastered = [];
+
   void textToSpeechEn(String text) async {
     // await flutterTts.setLanguage("en-US");
     // await flutterTts.setLanguage("en-US-x-smttsfemale");
@@ -74,8 +81,6 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.speak(text);
   }
 
-  
-
   // late UserModel _user;
   @override
   void initState() {
@@ -99,18 +104,18 @@ class _TDetailPageState extends State<TDetailPage>
     ].request();
 
     print(statuses);
-    if (statuses[Permission.manageExternalStorage] != PermissionStatus.granted) {
-    print("Permission denied.");
-    return false;
+    if (statuses[Permission.manageExternalStorage] !=
+        PermissionStatus.granted) {
+      print("Permission denied.");
+      return false;
     }
-    
+
     return true;
   }
+
   Future<void> _generateCsvFile(List<Map<String, String>> data) async {
     var isGranted = false;
-    if (Platform.isAndroid) {
-      
-    } 
+    if (Platform.isAndroid) {}
     // if(!isGranted){
     //   return;
     // }
@@ -130,16 +135,16 @@ class _TDetailPageState extends State<TDetailPage>
 
     Directory? directory;
     if (Platform.isAndroid) {
-      if(await checkPermission()){
+      if (await checkPermission()) {
         // directory = Directory('/storage/emulated/0/Download');
         directory = await getExternalStorageDirectory();
-        file = File('${directory!.path}/topic_${DateTime.now().toString()}.csv');
+        file =
+            File('${directory!.path}/topic_${DateTime.now().toString()}.csv');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Permissions are not granted!")));
+        return;
       }
-      else{
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Permissions are not granted!")));
-      return;
-      }
-      
     } else if (Platform.isWindows) {
       directory = await getApplicationDocumentsDirectory();
 
@@ -155,117 +160,844 @@ class _TDetailPageState extends State<TDetailPage>
     try {
       await file.writeAsString(csv);
       print("File exported successfully!");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("File exported successfully!")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("File exported successfully!")));
     } catch (e) {
       print("Failed to export file: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: const BackButton(
-            color: Colors.grey,
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(
-                Icons.more_vert,
-                color: Colors.grey,
-              ),
-              onPressed: () async {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        ListTile(
-                          leading: const Icon(Icons.edit),
-                          title: const Text('Edit Topic'),
-                          onTap: () {
+      appBar: AppBar(
+        leading: const BackButton(
+          color: Colors.grey,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Colors.grey,
+            ),
+            onPressed: () async {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text('Edit Topic'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          //edit topic
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TUpdatePage(
+                                      topicInfoDTO: _topicInfoDTO,
+                                    )),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.delete),
+                        title: const Text('Delete Topic'),
+                        onTap: () {
+                          //delete r về lại trang library
+
+                          showDialogMessage(
+                              context, "Are you sure you want to continue?",
+                              () {
+                            context
+                                .read<TopicBloc>()
+                                .add(RemoveTopic(widget.topicId));
                             Navigator.pop(context);
-                            //edit topic
-                            Navigator.push(
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          }, () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          }, "Delete", "Cancel");
+                          // context.read<TopicBloc>().add(RemoveTopic(widget.topicId));
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.folder_open),
+                        title: const Text('Add to folder'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => TUpdatePage(
-                                        topicInfoDTO: _topicInfoDTO,
-                                      )),
-                            );
-                          },
+                                  builder: (context) =>
+                                      FolderListAdd(topicId: widget.topicId)));
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.import_export),
+                        title: const Text('Export to csv'),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          if (await checkPermission()) {
+                            await _generateCsvFile(data);
+                          }
+                          //
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        ],
+      ),
+      body: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: BlocBuilder<TopicDetailBloc, TopicState>(
+            builder: (context, state) {
+              if (state is TopicDetailLoaded) {
+                _topicInfoDTO = state.topic;
+                List<VocabularyModel> notLearned = [];
+                List<VocabularyModel> studying = [];
+                List<VocabularyModel> knew = [];
+                List<VocabularyModel> mastered = [];
+                for (var element in _topicInfoDTO.vocabs!) {
+                  data.add({
+                    "English": element.vocab.term,
+                    "Vietnamese": element.vocab.definition
+                  });
+                  if (element.vocabStatus.status == 0) {
+                    notLearned.add(element.vocab);
+                  } else if (element.vocabStatus.status == 1) {
+                    studying.add(element.vocab);
+                  } else if (element.vocabStatus.status == 2) {
+                    knew.add(element.vocab);
+                  } else {
+                    mastered.add(element.vocab);
+                  }
+                }
+                TopicModel topicLastAccessed = state.topic.topic;
+                topicLastAccessed.lastAccessed = DateTime.now();
+                TopicDao().updateTopic(topicLastAccessed);
+                context.read<TopicBloc>().add(LoadTopics(widget.userId));
+                _vocabsFav = state.vocabsFav;
+                print(_topicInfoDTO.topic.private);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: Colors.orange[50],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Image.asset(
+                            'assets/images/QLogo.png',
+                          ),
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.delete),
-                          title: const Text('Delete Topic'),
-                          onTap: () {
-                            //delete r về lại trang library
-
-                            showDialogMessage(
-                                context, "Are you sure you want to continue?",
-                                () {
-                              context
-                                  .read<TopicBloc>()
-                                  .add(RemoveTopic(widget.topicId));
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            }, () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            }, "Delete", "Cancel");
-                            // context.read<TopicBloc>().add(RemoveTopic(widget.topicId));
-                          },
+                        const SizedBox(
+                          width: 20,
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.folder_open),
-                          title: const Text('Add to folder'),
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => FolderListAdd(
-                                        topicId: widget.topicId)));
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.import_export),
-                          title: const Text('Export to csv'),
-                          onTap: () async {
-                            Navigator.pop(context);
-                            if(await checkPermission()){
-                              await _generateCsvFile(data);
-                            }
-                            //
-                          },
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _topicInfoDTO.topic.name,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('${_topicInfoDTO.termNumbers}  terms'),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Colors.red[100],
+                                          ),
+                                          //Privacy
+                                          child: Text(
+                                            (_topicInfoDTO.topic.private!)
+                                                ? "Private"
+                                                : "Public",
+                                            style: const TextStyle(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    );
-                  },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        CircleAvatar(
+                          backgroundImage: (_topicInfoDTO.userAvatar != null &&
+                                  _topicInfoDTO.userAvatar != "null")
+                              ? CachedNetworkImageProvider(
+                                  _topicInfoDTO.userAvatar!)
+                              : const AssetImage("assets/images/user.png")
+                                  as ImageProvider<Object>?,
+                          radius: 10,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          _topicInfoDTO.authorName,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Icon(Icons.people),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                  'Played by ${_topicInfoDTO.playersCount} users'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    //Flashcard
+                    ElevatedButton(
+                      onPressed: () async {
+                        var result = await FlashCardSettingsDao()
+                            .getFlashCardSettingsByUserId(
+                                _topicInfoDTO.topic.userId);
+                        if (result["status"]) {
+                          FlashCardSettings fSettings =
+                              FlashCardSettings.fromJson(result["data"]);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TFlashcardPage(
+                                    topic: _topicInfoDTO, settings: fSettings)),
+                          );
+                        } else {
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  TFlashcardPage(topic: _topicInfoDTO));
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[50],
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.my_library_books,
+                              color: Colors.lightGreen,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Flashcard',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    //Điền từ
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TQuizPage(
+                                    topic: _topicInfoDTO,
+                                  )),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[50],
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.quiz,
+                              color: Colors.lightGreen,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Quiz',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    //Làm trắc nghiệm
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[50],
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.edit,
+                              color: Colors.lightGreen,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Type',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    (_vocabsFav.isNotEmpty)
+                        ? Container(
+                            height: 25,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(
+                                15.0,
+                              ),
+                            ),
+                            child: TabBar(
+                              controller: _tabController,
+                              splashBorderRadius: BorderRadius.circular(
+                                15.0,
+                              ),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: ShapeDecoration(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    15.0,
+                                  ),
+                                ),
+                                color: Colors.lightGreen,
+                              ),
+                              labelColor: Colors.white,
+                              unselectedLabelColor: Colors.black,
+                              tabs: [
+                                const Tab(
+                                  text: 'All Vocabs',
+                                ),
+                                Tab(
+                                  text: 'Only Favorites (${_vocabsFav.length})',
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text(
+                      "Terms",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    (_vocabsFav.isNotEmpty)
+                        ? Expanded(
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      (notLearned.isNotEmpty)
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Text(
+                                                  "Not learned",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: notLearned.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var vocab =
+                                                        notLearned[index];
+                                                    var isFav = _vocabsFav
+                                                        .contains(vocab);
+                                                    return buildCard(
+                                                        index + 1,
+                                                        vocab.term,
+                                                        vocab.definition,
+                                                        widget.userId,
+                                                        vocab.id!,
+                                                        isFav,
+                                                        _topicInfoDTO
+                                                            .topic.termLanguage,
+                                                        _topicInfoDTO.topic
+                                                            .definitionLanguage);
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(
+                                              height: 0,
+                                            ),
+                                      (studying.isNotEmpty)
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Text(
+                                                  "Learning",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: studying.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var vocab = studying[index];
+                                                    var isFav = _vocabsFav
+                                                        .contains(vocab);
+                                                    return buildCard(
+                                                        index + 1,
+                                                        vocab.term,
+                                                        vocab.definition,
+                                                        widget.userId,
+                                                        vocab.id!,
+                                                        isFav,
+                                                        _topicInfoDTO
+                                                            .topic.termLanguage,
+                                                        _topicInfoDTO.topic
+                                                            .definitionLanguage);
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(
+                                              height: 0,
+                                            ),
+                                          (knew.isNotEmpty)
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Text(
+                                                  "Learned",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: knew.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var vocab = knew[index];
+                                                    var isFav = _vocabsFav
+                                                        .contains(vocab);
+                                                    return buildCard(
+                                                        index + 1,
+                                                        vocab.term,
+                                                        vocab.definition,
+                                                        widget.userId,
+                                                        vocab.id!,
+                                                        isFav,
+                                                        _topicInfoDTO
+                                                            .topic.termLanguage,
+                                                        _topicInfoDTO.topic
+                                                            .definitionLanguage);
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(
+                                              height: 0,
+                                            ),
+                                      (mastered.isNotEmpty)
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Text(
+                                                  "Mastered",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: mastered.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var vocab = mastered[index];
+                                                    var isFav = _vocabsFav
+                                                        .contains(vocab);
+                                                    return buildCard(
+                                                        index + 1,
+                                                        vocab.term,
+                                                        vocab.definition,
+                                                        widget.userId,
+                                                        vocab.id!,
+                                                        isFav,
+                                                        _topicInfoDTO
+                                                            .topic.termLanguage,
+                                                        _topicInfoDTO.topic
+                                                            .definitionLanguage);
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(
+                                              height: 0,
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: _vocabsFav.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var vocab = _vocabsFav[index];
+                                    return buildCard(
+                                        index + 1,
+                                        vocab.term,
+                                        vocab.definition,
+                                        widget.userId,
+                                        vocab.id!,
+                                        true,
+                                        _topicInfoDTO.topic.termLanguage,
+                                        _topicInfoDTO.topic.definitionLanguage);
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                        : Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  (notLearned.isNotEmpty)
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            Text(
+                                              "Not learned",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            ListView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              shrinkWrap: true,
+                                              itemCount: notLearned.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                var vocab = notLearned[index];
+                                                var isFav =
+                                                    _vocabsFav.contains(vocab);
+                                                return buildCard(
+                                                    index + 1,
+                                                    vocab.term,
+                                                    vocab.definition,
+                                                    widget.userId,
+                                                    vocab.id!,
+                                                    isFav,
+                                                    _topicInfoDTO
+                                                        .topic.termLanguage,
+                                                    _topicInfoDTO.topic
+                                                        .definitionLanguage);
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      : const SizedBox(
+                                          height: 0,
+                                        ),
+                                      (studying.isNotEmpty)
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            Text(
+                                              "Learning",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            ListView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              shrinkWrap: true,
+                                              itemCount: studying.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                var vocab = studying[index];
+                                                var isFav =
+                                                    _vocabsFav.contains(vocab);
+                                                return buildCard(
+                                                    index + 1,
+                                                    vocab.term,
+                                                    vocab.definition,
+                                                    widget.userId,
+                                                    vocab.id!,
+                                                    isFav,
+                                                    _topicInfoDTO
+                                                        .topic.termLanguage,
+                                                    _topicInfoDTO.topic
+                                                        .definitionLanguage);
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      : const SizedBox(
+                                          height: 0,
+                                        ),
+                                      (knew.isNotEmpty)
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Text(
+                                                  "Knew",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: knew.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    var vocab = knew[index];
+                                                    var isFav = _vocabsFav
+                                                        .contains(vocab);
+                                                    return buildCard(
+                                                        index + 1,
+                                                        vocab.term,
+                                                        vocab.definition,
+                                                        widget.userId,
+                                                        vocab.id!,
+                                                        isFav,
+                                                        _topicInfoDTO
+                                                            .topic.termLanguage,
+                                                        _topicInfoDTO.topic
+                                                            .definitionLanguage);
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(
+                                              height: 0,
+                                            ),
+                                      (mastered.isNotEmpty)
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            Text(
+                                              "Mastered",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            ListView.builder(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              shrinkWrap: true,
+                                              itemCount: mastered.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                var vocab = mastered[index];
+                                                var isFav =
+                                                    _vocabsFav.contains(vocab);
+                                                return buildCard(
+                                                    index + 1,
+                                                    vocab.term,
+                                                    vocab.definition,
+                                                    widget.userId,
+                                                    vocab.id!,
+                                                    isFav,
+                                                    _topicInfoDTO
+                                                        .topic.termLanguage,
+                                                    _topicInfoDTO.topic
+                                                        .definitionLanguage);
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      : const SizedBox(
+                                          height: 0,
+                                        ),
+                                ],
+                              ),
+                            ),
+                          ),
+                  ],
                 );
-              },
-            )
-          ],
-        ),
-        body: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: BlocBuilder<TopicDetailBloc, TopicState>(
-              builder: (context, state) {
-                if (state is TopicDetailLoaded) {
-                  _topicInfoDTO = state.topic;
-                  for (var element in _topicInfoDTO.vocabs!) {
-                    data.add({"English": element.term, "Vietnamese": element.definition});
-                  }
-                  TopicModel topicLastAccessed = state.topic.topic;
-                  topicLastAccessed.lastAccessed = DateTime.now();
-                  TopicDao().updateTopic(topicLastAccessed);
-                  context.read<TopicBloc>().add(LoadTopics(widget.userId));
-                  _vocabsFav = state.vocabsFav;
-                  print(_topicInfoDTO.topic.private);
-                  return Column(
+                //KHONG CHINH SUA CODE TRONG NAY
+                //HIEN THI SKELETON TRONG LUC LOAD DATA
+              } else {
+                return Skeletonizer(
+                  enabled: true,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -287,9 +1019,9 @@ class _TDetailPageState extends State<TDetailPage>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  _topicInfoDTO.topic.name,
-                                  style: const TextStyle(
+                                const Text(
+                                  "123",
+                                  style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -297,7 +1029,7 @@ class _TDetailPageState extends State<TDetailPage>
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text('${_topicInfoDTO.termNumbers}  terms'),
+                                    const Text('123'),
                                     Expanded(
                                       child: Row(
                                         mainAxisAlignment:
@@ -312,10 +1044,8 @@ class _TDetailPageState extends State<TDetailPage>
                                               color: Colors.red[100],
                                             ),
                                             //Privacy
-                                            child: Text(
-                                              (_topicInfoDTO.topic.private!)
-                                                  ? "Private"
-                                                  : "Public",
+                                            child: const Text(
+                                              "123",
                                               style: TextStyle(
                                                 color: Colors.red,
                                               ),
@@ -334,38 +1064,31 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
-                      Row(
+                      const Row(
                         children: [
                           SizedBox(
                             width: 10,
                           ),
                           CircleAvatar(
-                            backgroundImage:
-                                (_topicInfoDTO.userAvatar != null &&
-                                        _topicInfoDTO.userAvatar != "null")
-                                    ? CachedNetworkImageProvider(
-                                        _topicInfoDTO.userAvatar!)
-                                    : const AssetImage("assets/images/user.png")
-                                        as ImageProvider<Object>?,
+                            backgroundImage: null,
                             radius: 10,
                           ),
-                          const SizedBox(
+                          SizedBox(
                             width: 10,
                           ),
                           Text(
-                            _topicInfoDTO.authorName,
+                            "123",
                             style: TextStyle(color: Colors.grey),
                           ),
                           Expanded(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                const Icon(Icons.people),
-                                const SizedBox(
+                                Icon(Icons.people),
+                                SizedBox(
                                   width: 10,
                                 ),
-                                Text(
-                                    'Played by ${_topicInfoDTO.playersCount} users'),
+                                Text("123"),
                               ],
                             ),
                           ),
@@ -376,21 +1099,7 @@ class _TDetailPageState extends State<TDetailPage>
                       ),
                       //Flashcard
                       ElevatedButton(
-                        onPressed: () async{
-                          var result = await FlashCardSettingsDao().getFlashCardSettingsByUserId(_topicInfoDTO.topic.userId);
-                          if(result["status"]){
-                            FlashCardSettings fSettings = FlashCardSettings.fromJson(result["data"]);
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO,settings: fSettings)),
-                          );
-                          }
-                          else{
-                            MaterialPageRoute(
-                                builder: (context) => TFlashcardPage(topic: _topicInfoDTO));
-                          }
-                        },
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],
                           foregroundColor: Colors.black,
@@ -426,11 +1135,7 @@ class _TDetailPageState extends State<TDetailPage>
                       //Điền từ
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TQuizPage(topic: _topicInfoDTO,)),
-                          );
+                          //
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],
@@ -467,7 +1172,7 @@ class _TDetailPageState extends State<TDetailPage>
                       //Làm trắc nghiệm
                       ElevatedButton(
                         onPressed: () {
-                          //
+                          
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[50],
@@ -501,46 +1206,6 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
-                      (_vocabsFav.length > 0)
-                          ? Container(
-                              height: 25,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(
-                                  15.0,
-                                ),
-                              ),
-                              child: TabBar(
-                                controller: _tabController,
-                                splashBorderRadius: BorderRadius.circular(
-                                  15.0,
-                                ),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: ShapeDecoration(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      15.0,
-                                    ),
-                                  ),
-                                  color: Colors.lightGreen,
-                                ),
-                                labelColor: Colors.white,
-                                unselectedLabelColor: Colors.black,
-                                tabs: [
-                                  const Tab(
-                                    text: 'All Vocabs',
-                                  ),
-                                  Tab(
-                                    text:
-                                        'Only Favorites (${_vocabsFav.length})',
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Container(),
-                      const SizedBox(
-                        height: 20,
-                      ),
                       Text(
                         "Terms",
                         style: TextStyle(
@@ -551,320 +1216,24 @@ class _TDetailPageState extends State<TDetailPage>
                       const SizedBox(
                         height: 20,
                       ),
-                      (_vocabsFav.length > 0)
-                          ? Expanded(
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: _topicInfoDTO.vocabs!.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var vocab = _topicInfoDTO.vocabs![index];
-                                      var isFav = _vocabsFav.contains(vocab);
-                                      return buildCard(
-                                          index + 1,
-                                          vocab.term,
-                                          vocab.definition,
-                                          widget.userId,
-                                          vocab.id!,
-                                          isFav,
-                                          _topicInfoDTO.topic.termLanguage,
-                                          _topicInfoDTO
-                                              .topic.definitionLanguage);
-                                    },
-                                  ),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: _vocabsFav.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var vocab = _vocabsFav[index];
-                                      return buildCard(
-                                          index + 1,
-                                          vocab.term,
-                                          vocab.definition,
-                                          widget.userId,
-                                          vocab.id!,
-                                          true,
-                                          _topicInfoDTO.topic.termLanguage,
-                                          _topicInfoDTO
-                                              .topic.definitionLanguage);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Expanded(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: _topicInfoDTO.vocabs!.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  var vocab = _topicInfoDTO.vocabs![index];
-                                  var isFav = _vocabsFav.contains(vocab);
-                                  return buildCard(
-                                      index + 1,
-                                      vocab.term,
-                                      vocab.definition,
-                                      widget.userId,
-                                      vocab.id!,
-                                      isFav,
-                                      _topicInfoDTO.topic.termLanguage,
-                                      _topicInfoDTO.topic.definitionLanguage);
-                                },
-                              ),
-                            ),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildCard(
+                                index + 1, "", "", "", "", false, "", "");
+                          },
+                        ),
+                      ),
                     ],
-                  );
-                  //KHONG CHINH SUA CODE TRONG NAY
-                  //HIEN THI SKELETON TRONG LUC LOAD DATA
-                } else {
-                  return Skeletonizer(
-                    enabled: true,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              height: 70,
-                              decoration: BoxDecoration(
-                                color: Colors.orange[50],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Image.asset(
-                                'assets/images/QLogo.png',
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "123",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Text('123'),
-                                      Expanded(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 2),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                color: Colors.red[100],
-                                              ),
-                                              //Privacy
-                                              child: const Text(
-                                                "123",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                            ),
-                            CircleAvatar(
-                              backgroundImage: null,
-                              radius: 10,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "123",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Icon(Icons.people),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text("123"),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        //Flashcard
-                        ElevatedButton(
-                          onPressed: () {
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[50],
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            alignment: Alignment.center,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.my_library_books,
-                                  color: Colors.lightGreen,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Flashcard',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        //Điền từ
-                        ElevatedButton(
-                          onPressed: () {
-                            //
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[50],
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            alignment: Alignment.center,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.quiz,
-                                  color: Colors.lightGreen,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Quiz',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        //Làm trắc nghiệm
-                        ElevatedButton(
-                          onPressed: () {
-                            //
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[50],
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            height: 50,
-                            alignment: Alignment.center,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.edit,
-                                  color: Colors.lightGreen,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Type',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Terms",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: 5,
-                            itemBuilder: (BuildContext context, int index) {
-                              return buildCard(
-                                  index + 1, "", "", "", "", false, "", "");
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            )
-          )
-        );
+                  ),
+                );
+              }
+            },
+          )),
+    );
   }
-
 
   Widget buildCard(
       int cardIndex,

@@ -1,329 +1,335 @@
+import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
 import 'package:flutter/material.dart';
-
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class ResultFlashcard extends StatefulWidget {
-  const ResultFlashcard({super.key});
+  const ResultFlashcard({super.key, required this.knew, required this.learning});
+
+  final int knew;
+  final int learning;
 
   @override
   State<ResultFlashcard> createState() => _ResultFlashcardState();
 }
 
 class _ResultFlashcardState extends State<ResultFlashcard> {
+
   @override
   Widget build(BuildContext context) {
+    double percentage = widget.knew/(widget.knew+widget.learning)*100;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          appBar: AppBar(
-            leading: const BackButton(
-              color: Colors.grey,
+            appBar: AppBar(
+              leading: IconButton(icon: Icon(Icons.close), onPressed: (){
+                Navigator.pop(context, "false");
+              },)
             ),
-            automaticallyImplyLeading: false,
-          ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                      flex: 2,
-                      child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Text(
-                            'Chúc mừng! Bạn đã ôn tập tất cả các thẻ',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ))),
-                  Expanded(
-                    flex: 1,
-                    child: Icon(Icons.star,
-                        color: Color.fromRGBO(87, 232, 180, 1), size: 60),
-                  ),
-                ],
-              ),
-              // const SizedBox(height: 5),
-              const Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'Tiến độ của bạn',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Color.fromARGB(255, 114, 113, 113),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const Expanded(
+                        flex: 2,
+                        child: Padding(
+                            padding: EdgeInsets.only(left: 20, right: 20),
+                            child: Text(
+                              'Congratulations! Try testing your self for extra practice',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ))),
+                    Expanded(
+                        flex: 1,
+                        child: Image.asset(
+                          "assets/images/QLogo.png",
+                          height: 100,
+                        )
+                        //child: Icon(Icons.star, color: Colors.lightGreen, size: 60),
+                        ),
+                  ],
+                ),
+                // const SizedBox(height: 5),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'Your progressing',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              // SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Row(
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
                       children: [
                         Stack(
                           alignment: Alignment.center,
                           children: [
                             SizedBox(
-                              height: 100,
-                              width: 100,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 12,
-                                // value: score / 9,
-                                value: 9,
-                                color: Color.fromRGBO(87, 232, 180, 1),
-                                backgroundColor: Colors.white,
+                              height: 120,
+                              width: 120,
+                              child: SfRadialGauge(
+                                axes: <RadialAxis>[
+                                  RadialAxis(
+                                    minimum: 0,
+                                    maximum: 100,
+                                    showLabels: false,
+                                    showTicks: false,
+                                    startAngle: 270,
+                                    endAngle: 270,
+                                    axisLineStyle: const AxisLineStyle(
+                                      thickness: 0.2,
+                                      cornerStyle: CornerStyle.bothCurve,
+                                      color: Color.fromARGB(30, 0, 169, 181),
+                                      thicknessUnit: GaugeSizeUnit.factor,
+                                    ),
+                                    pointers: <GaugePointer>[
+                                      RangePointer(
+                                        value: percentage,
+                                        cornerStyle: CornerStyle.bothCurve,
+                                        width: 0.2,
+                                        sizeUnit: GaugeSizeUnit.factor,
+                                        color: Colors.lightGreen,
+                                      )
+                                    ],
+                                    annotations: <GaugeAnnotation>[
+                                      GaugeAnnotation(
+                                        positionFactor: 0.1,
+                                        angle: 90,
+                                        widget: Text(
+                                          '${percentage.toStringAsFixed(0)}%',
+                                          style: const TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.orange),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
                               ),
-                            ),
-                            Icon(
-                              Icons.check,
-                              color: Color.fromRGBO(87, 232, 180, 1),
-                              size: 50,
                             ),
                           ],
                         ),
+                        const SizedBox(width: 30),
+                        Column(
+                          children: [
+                            Container(
+                              width: 200,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.orange[100],
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Knew',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.lightGreen,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.knew.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.lightGreen,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              width: 200,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Still learning',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.learning.toString(), 
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
                     ),
-                  ),
-                  SizedBox(width: 30),
-                  Column(
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
                     children: [
-                      Container(
-                        width: 300,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(214, 243, 237, 1),
-                          borderRadius: BorderRadius.circular(
-                              100), // Change this radius to your liking
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Hoàn thành',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color.fromRGBO(87, 232, 180, 1),
-                                ),
-                              ),
-                              Text(
-                                '1', // replace with your number
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color.fromRGBO(87, 232, 180, 1),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        width: 300,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 236, 236, 236),
-                          borderRadius: BorderRadius.circular(
-                              100), // Change this radius to your liking
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Còn lại',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              Text(
-                                '1', // replace with your number
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
+                      Text(
+                        'Next Step',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade700,
                         ),
                       ),
                     ],
-                  )
-                ],
-              ),
-              // const SizedBox(height: 20),
-              const Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'Bước tiếp theo',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Color.fromARGB(255, 114, 113, 113),
-                      ),
-                    ),
                   ),
-                ],
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GestureDetector(
+                ),
+                Column(
+                  children: [
+                    GestureDetector(
                       onTap: () {
                         // Implement your function here
+                        Navigator.pop(context, "to-quiz");
                       },
-                      child: Expanded(
-                        child: Container(
-                          width: 450,
-                          height: 90,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 246, 239, 239),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(
-                                Icons.refresh_outlined,
-                                size: 35,
-                                color: Color.fromRGBO(66, 84, 254, 1),
-                              ),
-                              SizedBox(width: 30),
-                              Container(
-                                width: 250, // Set your desired width
-                                child: const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Học các thuật ngữ này',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color.fromRGBO(66, 84, 254, 1),
-                                      ),
+                      child: Container(
+                        width: 450,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            const Icon(
+                              Icons.receipt_long_sharp,
+                              size: 35,
+                              color: Colors.blueAccent,
+                            ),
+                            //const SizedBox(width: 30),
+                            SizedBox(
+                              width: 200,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Learn these terms',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.blueAccent,
                                     ),
-                                    Text(
-                                      'Trả lời các câu hỏi về thuật ngữ này để xây dựng kiến thức',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color.fromRGBO(85, 83, 83, 1),
-                                      ),
+                                  ),
+                                  Text(
+                                    'Answer questions about this terminology to build your knowledge',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade700,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 70),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 20,
-                                color: Color.fromRGBO(66, 84, 254, 1),
-                              )
-                            ],
-                          ),
+                            ),
+                            //const SizedBox(width: 70),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 20,
+                              color: Colors.blueAccent,
+                            )
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: GestureDetector(
+                    const SizedBox(height: 20),
+                    GestureDetector(
                       onTap: () {
-                        // Implement your function here
+                        Navigator.pop(context, "true");
                       },
-                      child: Expanded(
-                        child: Container(
-                          width: 450,
-                          height: 90,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 244, 240, 240),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(
-                                // Icon 2 thẻ chồng lên
-                                Icons.receipt_long_sharp,
-                                size: 35,
-                                color: Color.fromRGBO(66, 84, 254, 1),
-                              ),
-                              SizedBox(width: 30),
-                              Container(
-                                width: 250, // Set your desired width
-                                child: const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Đặt lại thẻ ghi nhớ',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color.fromRGBO(66, 84, 254, 1),
-                                      ),
+                      child: Container(
+                        width: 450,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            const Icon(
+                              Icons.refresh_outlined,
+                              size: 35,
+                              color: Colors.blueAccent,
+                            ),
+                            SizedBox(
+                              width: 200,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Restart the flash card',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.blueAccent,
                                     ),
-                                    Text(
-                                      'Học lại thuật ngữ từ đầu',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color.fromRGBO(85, 83, 83, 1),
-                                      ),
+                                  ),
+                                  Text(
+                                    'Learn the terminology from the beginning',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade700,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 70),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 20,
-                                color: Color.fromRGBO(66, 84, 254, 1),
-                              )
-                            ],
-                          ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 20,
+                              color: Colors.blueAccent,
+                            )
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              // InkWell(
-              //   onTap: () {
-              //     // Implement your function here
-              //   },
-              //   child: const Text(
-              //     'Restart Flashcards',
-              //     style: TextStyle(
-              //       fontSize: 34,
-              //       fontWeight: FontWeight.w500,
-              //       color: Color.fromARGB(255, 9, 98, 171),
-              //     ),
-              //   ),
-              // )
-            ],
-          ),
-        ));
+                  ],
+                ),
+              ],
+            )));
   }
 }

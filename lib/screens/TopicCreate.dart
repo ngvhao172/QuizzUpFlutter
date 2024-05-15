@@ -2,10 +2,12 @@ import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabDao.dart';
+import 'package:final_quizlet_english/services/VocabStatusDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/TopicSetting.dart';
@@ -55,7 +57,7 @@ class _TCreatePageState extends State<TCreatePage> {
   String termLanguage = "";
   String defiLanguage = "";
 
-  bool private = false;
+  bool private = true;
 
   late Future<UserModel?> _userFuture;
   late UserModel user;
@@ -145,6 +147,13 @@ class _TCreatePageState extends State<TCreatePage> {
                         allVocabulariesAddedSuccessfully = false;
 
                         print('Failed to add vocabulary $term to the topic');
+                      }
+                      else{
+                        String vocabId = res["data"]; //vocabId
+                        //Add vocab status
+                        VocabularyStatus status = VocabularyStatus(vocabularyId: vocabId, topicId: topicId, userId: user.id!);
+                        var result = await VocabularyStatusDao().addVocabularyStatus(status);
+                        print(result);
                       }
                     }
                     if (allVocabulariesAddedSuccessfully) {
