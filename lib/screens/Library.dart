@@ -173,8 +173,9 @@ class _LibraryPageState extends State<LibraryPage>
       isSearchExpanded = !isSearchExpanded;
     });
   }
+
   List<List<dynamic>> csvData = [];
-  
+
   Future<void> _importCSV() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -185,14 +186,17 @@ class _LibraryPageState extends State<LibraryPage>
       File file = File(result.files.single.path!);
       String csvString = await file.readAsString();
 
-      List<List<dynamic>> parsedCSV = const CsvToListConverter().convert(csvString);
-      
-      Navigator.push(context, MaterialPageRoute(builder: (context) => TCreatePage(importData: parsedCSV,)));
-      print(parsedCSV);
+      List<List<dynamic>> parsedCSV =
+          const CsvToListConverter().convert(csvString);
 
-    } else {
-      
-    }
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => TCreatePage(
+                    importData: parsedCSV,
+                  )));
+      print(parsedCSV);
+    } else {}
   }
 
   @override
@@ -210,36 +214,20 @@ class _LibraryPageState extends State<LibraryPage>
                   return [
                     SliverToBoxAdapter(child: _buildCarousel()),
                     SliverToBoxAdapter(
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(
-                            25.0,
+                      child: TabBar(
+                        controller: _tabController,
+                        labelColor: Colors.lightGreen,
+                        indicatorColor: Colors.lightGreen,
+                        tabs: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Tab(text: 'Topics'),
                           ),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          splashBorderRadius: BorderRadius.circular(25.0),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicator: ShapeDecoration(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            color: Colors.lightGreen,
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Tab(text: 'Folders'),
                           ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.black,
-                          tabs: const [
-                            Tab(
-                              text: 'Topics',
-                            ),
-                            Tab(
-                              text: 'Collections',
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
                     )
                   ];
@@ -718,7 +706,6 @@ class _LibraryPageState extends State<LibraryPage>
                                         leading: const Icon(Icons.file_present),
                                         title: const Text('Upload file CSV'),
                                         onTap: () {
-                                          
                                           Navigator.pop(context);
                                         },
                                       ),

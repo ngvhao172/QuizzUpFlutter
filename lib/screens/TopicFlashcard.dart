@@ -163,10 +163,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                   return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                       return SizedBox(
-                        height: MediaQuery.of(context).size.height * 11 / 24,
+                        height: MediaQuery.of(context).size.height * 1 / 2,
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -380,7 +383,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                                     fSettings!);
                                           },
                                           child: const Text(
-                                            "Refresh flashcard",
+                                            "Restart flashcard",
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.lightGreen,
