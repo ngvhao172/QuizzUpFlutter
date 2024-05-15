@@ -1,31 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ResultScreen(100),
-  ));
-}
-
 class ResultScreen extends StatefulWidget {
-  int score;
-  ResultScreen(this.score, {Key? key}) : super(key: key);
+  ResultScreen({Key? key, required this.knew, required this.learning, required this.notAnswered, required this.total}) : super(key: key);
+
+  final int knew;
+  final int learning;
+  final int notAnswered;
+  final int total;
+
   @override
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  double percentage = 40;
 
   @override
   Widget build(BuildContext context) {
+    int learning = widget.total - widget.knew - widget.notAnswered;
+    double percentage = widget.knew/(widget.knew + learning + widget.notAnswered)*100;
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.grey,
-        ),
-        automaticallyImplyLeading: false,
+        leading: IconButton(icon: Icon(Icons.close), onPressed: (){
+          Navigator.pop(context, false);
+        },)
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -119,13 +117,13 @@ class _ResultScreenState extends State<ResultScreen> {
                       color: Colors.orange[100],
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Know',
+                          const Text(
+                            'Knew',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -133,8 +131,8 @@ class _ResultScreenState extends State<ResultScreen> {
                             ),
                           ),
                           Text(
-                            '0', // replace with your number
-                            style: TextStyle(
+                            widget.knew.toString(), // replace with your number
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.lightGreen,
@@ -153,12 +151,12 @@ class _ResultScreenState extends State<ResultScreen> {
                       borderRadius: BorderRadius.circular(
                           100), // Change this radius to your liking
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Still Learning',
                             style: TextStyle(
                               fontSize: 15,
@@ -167,8 +165,8 @@ class _ResultScreenState extends State<ResultScreen> {
                             ),
                           ),
                           Text(
-                            '2', // replace with your number
-                            style: TextStyle(
+                            learning.toString(), // replace with your number
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.orange,
@@ -183,7 +181,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     width: 200,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 236, 236, 236),
+                      color: const Color.fromARGB(255, 236, 236, 236),
                       borderRadius: BorderRadius.circular(
                           100), // Change this radius to your liking
                     ),
@@ -201,7 +199,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             ),
                           ),
                           Text(
-                            '0', // replace with your number
+                            widget.notAnswered.toString(), // replace with your number
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -216,29 +214,8 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ],
           ),
-          // const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle your click event here
-                  },
-                  child: const Text(
-                    'Back to last question',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 100),
+          // s
+          const SizedBox(height: 140),
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: Column(
@@ -246,13 +223,18 @@ class _ResultScreenState extends State<ResultScreen> {
                 GestureDetector(
                   onTap: () {
                     // Implement your function here
+                    if(percentage!=100.0){
+                      Navigator.pop(context, "wrong-question");
+                    }
+                    else{
+                      Navigator.pop(context, "to-typing");
+                    }
                   },
-                  child: Expanded(
-                    child: Container(
+                  child: Container(
                       width: 450,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Color.fromRGBO(66, 84, 254, 1),
+                        color: const Color.fromRGBO(66, 84, 254, 1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Row(
@@ -282,16 +264,14 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         ],
                       ),
-                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
-                    // Implement your function here
+                    Navigator.pop(context, "true");
                   },
-                  child: Expanded(
-                    child: Container(
+                  child: Container(
                       width: 450,
                       height: 50,
                       decoration: BoxDecoration(
@@ -327,32 +307,31 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle your click event here
-                  },
-                  child: const Text(
-                    'Restart Quiz',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Padding(
+          //       padding: const EdgeInsets.all(20.0),
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           // Handle your click event here
+          //         },
+          //         child: const Text(
+          //           'Restart Quiz',
+          //           style: TextStyle(
+          //             fontSize: 15,
+          //             fontWeight: FontWeight.w700,
+          //             color: Colors.blueAccent,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

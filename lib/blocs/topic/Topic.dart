@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 
 abstract class TopicEvent {}
@@ -58,6 +59,13 @@ class AddVocabFav extends TopicEvent {
   final VocabFavouriteModel favVocab;
 
   AddVocabFav(this.favVocab);
+}
+
+class UpdateVocabStatusStatus extends TopicEvent {
+  final VocabularyStatus vocabStatus;
+  final int status;
+
+  UpdateVocabStatusStatus(this.vocabStatus, this.status);
 }
 
 abstract class TopicState {}

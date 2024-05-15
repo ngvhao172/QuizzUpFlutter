@@ -1,9 +1,11 @@
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabFavDao.dart';
+import 'package:final_quizlet_english/services/VocabStatusDao.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
@@ -34,8 +36,8 @@ class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
           var vocabFavs = vocabFav["data"];
           for (var vocab in topicInfoDTO.vocabs!) {
             for (var favvocab in vocabFavs) {
-            if(favvocab.vocabularyId == vocab.id){
-              vocabsFav.add(vocab);
+            if(favvocab.vocabularyId == vocab.vocab.id){
+              vocabsFav.add(vocab.vocab);
             }
           }
         }
@@ -57,8 +59,8 @@ class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
       if (result["status"]) {
         print(result);
         for (var element in topicInfoDTO.vocabs!) {
-          if(event.favVocab.vocabularyId == element.id){
-            vocabsFav.add(element);
+          if(event.favVocab.vocabularyId == element.vocab.id){
+            vocabsFav.add(element.vocab);
           }
         }
         emit(TopicDetailLoaded(topicInfoDTO, vocabsFav));
@@ -71,6 +73,22 @@ class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
       if (result["status"]) {
         print(result);
         vocabsFav.removeWhere((element) => element.id == event.vocabId);
+      } 
+      else{
+        print(result["message"]);
+      }
+      emit(TopicDetailLoaded(topicInfoDTO, vocabsFav));
+    });
+
+    on<UpdateVocabStatusStatus>((event, emit) async {
+      var result = await VocabularyStatusDao().updateVocabularyStatusStatus(event.vocabStatus.id!, event.status);
+      if (result["status"]) {
+        print(result);
+        for (var element in topicInfoDTO.vocabs!) {
+          if(element.vocabStatus.id == event.vocabStatus.id!){
+            element.vocabStatus = result["data"];
+          }
+        }
       } 
       else{
         print(result["message"]);

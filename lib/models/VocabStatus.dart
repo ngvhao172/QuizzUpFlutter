@@ -1,26 +1,25 @@
-enum VocabularyStatus {
-  notStudied,
-  studying,
-  mastered,
-}
-class VocabStatus {
+//0: notStudied, 1: studying, 2: knew, 3: mastered
+class VocabularyStatus {
 
   String? id;
   String vocabularyId;
   String userId;
-  VocabularyStatus status;
+  String topicId;
+  int status;
 
-  VocabStatus({
+  VocabularyStatus({
     this.id,
     required this.vocabularyId,
+    required this.topicId,
     required this.userId,
-    this.status = VocabularyStatus.notStudied,
+    this.status = 0,
   });
 
-  factory VocabStatus.fromJson(Map<String, dynamic> json) {
-    return VocabStatus(
+  factory VocabularyStatus.fromJson(Map<String, dynamic> json) {
+    return VocabularyStatus(
       id: json['id'],
       vocabularyId: json['vocabularyId'],
+      topicId: json['topicId'],
       userId: json['userId'],
       status: json['status']
     );
@@ -30,6 +29,7 @@ class VocabStatus {
     return {
       'id': id,
       'vocabularyId': vocabularyId,
+      'topicId': topicId,
       'userId': userId,
       'status': status
     };

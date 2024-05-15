@@ -1,30 +1,29 @@
+import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-void main() async {
-  runApp(const ResultFlashcard());
-}
-
 class ResultFlashcard extends StatefulWidget {
-  const ResultFlashcard({super.key});
+  const ResultFlashcard({super.key, required this.knew, required this.learning});
+
+  final int knew;
+  final int learning;
 
   @override
   State<ResultFlashcard> createState() => _ResultFlashcardState();
 }
 
 class _ResultFlashcardState extends State<ResultFlashcard> {
-  double percentage = 40;
 
   @override
   Widget build(BuildContext context) {
+    double percentage = widget.knew/(widget.knew+widget.learning)*100;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
-              leading: const BackButton(
-                color: Colors.grey,
-              ),
-              automaticallyImplyLeading: false,
+              leading: IconButton(icon: Icon(Icons.close), onPressed: (){
+                Navigator.pop(context, "false");
+              },)
             ),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -133,14 +132,14 @@ class _ResultFlashcardState extends State<ResultFlashcard> {
                                 color: Colors.orange[100],
                                 borderRadius: BorderRadius.circular(100),
                               ),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 15.0),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Know',
+                                    const Text(
+                                      'Knew',
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -148,8 +147,8 @@ class _ResultFlashcardState extends State<ResultFlashcard> {
                                       ),
                                     ),
                                     Text(
-                                      '1', // replace with your number
-                                      style: TextStyle(
+                                      widget.knew.toString(),
+                                      style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.lightGreen,
@@ -183,7 +182,7 @@ class _ResultFlashcardState extends State<ResultFlashcard> {
                                       ),
                                     ),
                                     Text(
-                                      '1', // replace with your number
+                                      widget.learning.toString(), 
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -221,6 +220,7 @@ class _ResultFlashcardState extends State<ResultFlashcard> {
                     GestureDetector(
                       onTap: () {
                         // Implement your function here
+                        Navigator.pop(context, "to-quiz");
                       },
                       child: Container(
                         width: 450,
@@ -276,7 +276,7 @@ class _ResultFlashcardState extends State<ResultFlashcard> {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        // Implement your function here
+                        Navigator.pop(context, "true");
                       },
                       child: Container(
                         width: 450,

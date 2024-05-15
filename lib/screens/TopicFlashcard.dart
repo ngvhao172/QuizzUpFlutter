@@ -1,8 +1,15 @@
+import 'package:final_quizlet_english/blocs/topic/Topic.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
+import 'package:final_quizlet_english/screens/ResultFlashcard.dart';
+import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
+import 'package:final_quizlet_english/services/VocabStatusDao.dart';
 import 'package:flutter/material.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -17,10 +24,14 @@ class TFlashcardPage extends StatefulWidget {
 }
 
 class Flashcard {
+  final VocabularyStatus vocabStatus;
   final String question;
   final String answer;
 
-  Flashcard({required this.question, required this.answer});
+  Flashcard(
+      {required this.vocabStatus,
+      required this.question,
+      required this.answer});
 }
 
 class _TFlashcardPageState extends State<TFlashcardPage> {
@@ -41,7 +52,6 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
   ];
 
   GlobalKey<FlipCardState> flipKey = GlobalKey<FlipCardState>();
-  bool isFront = true;
 
   String know = '0';
   String learn = '0';
@@ -63,7 +73,10 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
 
     cardOrientation = widget.topic.topic.definitionLanguage;
     for (var vocab in widget.topic.vocabs!) {
-      termCard.add(Flashcard(question: vocab.term, answer: vocab.definition));
+      termCard.add(Flashcard(
+          vocabStatus: vocab.vocabStatus,
+          question: vocab.vocab.term,
+          answer: vocab.vocab.definition));
     }
     if (widget.settings != null) {
       fSettings = widget.settings;
@@ -74,34 +87,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       if (randomOp) {
         termCard.shuffle();
       }
-      // if (audioPlay) {
-      //   if (widget.topic.topic.termLanguage == "English") {
-      //     textToSpeechEn(termCard[_currentIndexNumber].question);
-      //   } else {
-      //     textToSpeechVi(termCard[_currentIndexNumber].question);
-      //   }
-      // }
     }
-    // FlashCardSettingsDao()
-    //     .getFlashCardSettingsByUserId(widget.topic.topic.userId)
-    //     .then((result) {
-    //   if (result["status"]) {
-    //     fSettings = FlashCardSettings.fromJson(result["data"]);
-    //     randomOp = fSettings!.randomTerms;
-    //     audioPlay = fSettings!.autoPlayAudio;
-    //     cardOrientation = fSettings!.cardOrientation;
-    //     if(randomOp){
-    //       termCard.shuffle();
-    //     }
-    //     if (audioPlay) {
-    //       if (widget.topic.topic.termLanguage == "English") {
-    //         textToSpeechEn(termCard[_currentIndexNumber].question);
-    //       } else {
-    //         textToSpeechVi(termCard[_currentIndexNumber].question);
-    //       }
-    //     }
-    //   }
-    // });
 
     _initial = 1 / termCard.length;
     super.initState();
@@ -136,11 +122,9 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       }
     }
     // if(autoFlip){
-    //   Future.delayed(const Duration(seconds: 3), (){
-    //     showNextCard();
-    //     updateToNext();
-    //     updateLearn();
-    //   });
+    //   showNextCard();
+    //   updateToNext();
+    //   updateLearn();
     // }
     return Scaffold(
       appBar: AppBar(
@@ -472,6 +456,14 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                 height: 500,
                 child: FlipCard(
                   key: flipKey,
+                  onFlip: () {
+                    //Cập nhật trạng thái => learning (1)
+                    if (termCard[_currentIndexNumber].vocabStatus.status != 1) {
+                      context.read<TopicDetailBloc>().add(
+                          UpdateVocabStatusStatus(
+                              termCard[_currentIndexNumber].vocabStatus, 1));
+                    }
+                  },
                   direction: FlipDirection.HORIZONTAL,
                   front: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -504,7 +496,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                       ),
                                     ],
                                   )
-                                :  const SizedBox(height: 45),
+                                : const SizedBox(height: 45),
                             Expanded(
                               child: Center(
                                 child: Text(
@@ -644,12 +636,10 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                               autoFlip = true;
                             });
                             if (autoFlip) {
-                              flipKey.currentState!
-                                  .toggleCard();
+                              flipKey.currentState!.toggleCard();
                             }
                             await Future.delayed(Duration(seconds: 3), () {
-                              flipKey.currentState!
-                                  .toggleCard();
+                              flipKey.currentState!.toggleCard();
                               showNextCard();
                               updateToNext();
                               updateLearn();
@@ -741,22 +731,53 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     });
   }
 
-  void showNextCard() {
-    setState(() {
-      _currentIndexNumber = (_currentIndexNumber + 1 < termCard.length)
-          ? _currentIndexNumber + 1
-          : 0;
-      isFront = true;
-    });
-    if (autoFlip) {
-      Future.delayed(const Duration(seconds: 2), () {
-        flipKey.currentState!.toggleCard();
-        Future.delayed(const Duration(seconds: 1), () {
-          showNextCard();
-          updateToNext();
-          updateLearn();
+  void showNextCard() async {
+    print(_currentIndexNumber);
+    print(termCard.length);
+    if (_currentIndexNumber < termCard.length - 1) {
+      setState(() {
+        _currentIndexNumber += 1;
+      });
+      if (autoFlip) {
+        await Future.delayed(const Duration(seconds: 2), () async {
           flipKey.currentState!.toggleCard();
+          await Future.delayed(const Duration(seconds: 1), () {
+            showNextCard();
+            updateToNext();
+            updateLearn();
+            flipKey.currentState!.toggleCard();
+          });
         });
+      }
+    } else {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => 
+          ResultFlashcard(knew: int.parse(know), learning: int.parse(learn),
+            ))).then((value) async {
+        if (value == "true") {
+          setState(() {
+            know = "0";
+            learn = "0";
+            _currentIndexNumber = 0;
+          });
+          if (autoFlip) {
+            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 2), () async {
+              flipKey.currentState!.toggleCard();
+              await Future.delayed(const Duration(seconds: 1), () {
+                showNextCard();
+                updateToNext();
+                updateLearn();
+                flipKey.currentState!.toggleCard();
+              });
+            });
+          }
+        } else if(value == "to-quiz"){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topic: widget.topic)));
+        }
+        else {
+          Navigator.pop(context);
+        }
       });
     }
   }
@@ -766,7 +787,6 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       _currentIndexNumber = (_currentIndexNumber - 1 >= 0)
           ? _currentIndexNumber - 1
           : termCard.length - 1;
-      isFront = true;
     });
     if (autoFlip) {
       flipKey.currentState!.toggleCard();

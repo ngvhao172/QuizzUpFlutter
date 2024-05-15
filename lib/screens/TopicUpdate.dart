@@ -1,13 +1,15 @@
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
-import 'package:final_quizlet_english/blocs/topic/TopidDetailBloc.dart';
+import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabDao.dart';
+import 'package:final_quizlet_english/services/VocabStatusDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/TopicSetting.dart';
@@ -65,8 +67,8 @@ class _TUpdatePageState extends State<TUpdatePage> {
     _descriptionEditingController =
         TextEditingController(text: widget.topicInfoDTO.topic.description);
     terms.clear();
-    for (var vocab in widget.topicInfoDTO.vocabs!) {
-      print(vocab);
+    for (var vocabDTO in widget.topicInfoDTO.vocabs!) {
+      var vocab = vocabDTO.vocab;
       OriTerms.add({
         'term': vocab.term,
         'definition': vocab.definition,
@@ -192,6 +194,13 @@ class _TUpdatePageState extends State<TUpdatePage> {
                           var res =
                               await VocabularyDao().addVocabulary(newVocab);
                           print(res["status"]);
+                          if(res["status"]){
+                              String vocabId = res["data"]; //vocabId
+                              //Add vocab status
+                              VocabularyStatus status = VocabularyStatus(vocabularyId: vocabId, topicId: widget.topicInfoDTO.topic.id!, userId: user.id!);
+                              var result = await VocabularyStatusDao().addVocabularyStatus(status);
+                              print(result);
+                          }
                         }
                       }
                     }
