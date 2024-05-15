@@ -98,6 +98,7 @@ class _AddTopicToFolderState extends State<AddTopicToFolder>
                               playersCount: 0,
                               userAvatar: null,
                               userId: "",
+                              vocabs: [],
                             );
                           },
                         ),

@@ -6,6 +6,8 @@ import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
+import 'package:final_quizlet_english/models/TopicPlayedNumber.dart';
+import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
@@ -14,6 +16,8 @@ import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
+import 'package:final_quizlet_english/services/TopicPlayedNumberDao.dart';
+import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -398,6 +402,23 @@ class _TDetailPageState extends State<TDetailPage>
                     //Flashcard
                     ElevatedButton(
                       onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_topicInfoDTO.topic.userId, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          topicPlay.times = topicPlay.times + 1;//ngao'
+                          print(topicPlay.times);
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _topicInfoDTO.topic.userId, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
                         var result = await FlashCardSettingsDao()
                             .getFlashCardSettingsByUserId(
                                 _topicInfoDTO.topic.userId);
@@ -450,12 +471,30 @@ class _TDetailPageState extends State<TDetailPage>
                     ),
                     //Điền từ
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_topicInfoDTO.topic.userId, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          var timesAdd = topicPlay.times + 1;
+                          topicPlay.times = timesAdd;
+        
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _topicInfoDTO.topic.userId, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => TQuizPage(
-                                    topic: _topicInfoDTO,
+                                    topicDTO: _topicInfoDTO,
                                   )),
                         );
                       },
@@ -493,8 +532,34 @@ class _TDetailPageState extends State<TDetailPage>
                     ),
                     //Làm trắc nghiệm
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice()));
+                      onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_topicInfoDTO.topic.userId, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          topicPlay.times = topicPlay.times + 1;
+                          print(topicPlay.times);
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _topicInfoDTO.topic.userId, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
+                        var result = await TypeSettingsDao()
+                            .getTypeSettingsByUserId(
+                                _topicInfoDTO.topic.userId);
+                        if (result["status"]) {
+                          TopicTypeSettings tSettings = TopicTypeSettings.fromJson(result["data"]);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: _topicInfoDTO, tSettings: tSettings)));
+                        }
+                        else{
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: _topicInfoDTO)));
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange[50],

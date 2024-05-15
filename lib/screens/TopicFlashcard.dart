@@ -93,6 +93,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    flipKey.currentState?.dispose();
+    super.dispose();
+  }
+
   void textToSpeechEn(String text) async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
@@ -737,12 +744,16 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       });
       if (autoFlip) {
         await Future.delayed(const Duration(seconds: 2), () async {
-          flipKey.currentState!.toggleCard();
+          if(flipKey.currentState!=null){
+            flipKey.currentState!.toggleCard();
+          }
           await Future.delayed(const Duration(seconds: 1), () {
             showNextCard();
             updateToNext();
             updateLearn();
-            flipKey.currentState!.toggleCard();
+            if(flipKey.currentState!=null){
+              flipKey.currentState!.toggleCard();
+            }
           });
         });
       }
@@ -770,7 +781,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
             });
           }
         } else if(value == "to-quiz"){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topic: widget.topic)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic)));
         }
         else {
           Navigator.pop(context);

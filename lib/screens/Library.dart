@@ -8,6 +8,7 @@ import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/FolderCreate.dart';
@@ -368,21 +369,24 @@ class _LibraryPageState extends State<LibraryPage>
                                               playersCount: 0,
                                               userAvatar: null,
                                               userId: "",
+                                              vocabs: [],
                                             );
                                           },
                                         ),
                                       );
                                     } else if (state is TopicLoaded) {
                                       List<TopicInfoDTO> data = state.topics;
+                                      print(data);
                                       DateTime today = DateTime.now();
                                       DateTime yesterday =
                                           today.subtract(Duration(days: 1));
                                       // currentTopics = topics["data"];
-                                      var todayTopics = [];
-                                      var yesterdayTopics = [];
-                                      var thisWeekTopics = [];
-                                      var olderTopics = [];
+                                      List<TopicInfoDTO> todayTopics = [];
+                                      List<TopicInfoDTO> yesterdayTopics = [];
+                                      List<TopicInfoDTO> thisWeekTopics = [];
+                                      List<TopicInfoDTO> olderTopics = [];
                                       for (var topicDTO in data) {
+                                        print(topicDTO.vocabs!.length);
                                         if (DateFormat('yyyy-MM-dd').format(
                                                 topicDTO.topic.lastAccessed) ==
                                             DateFormat('yyyy-MM-dd')
@@ -476,6 +480,7 @@ class _LibraryPageState extends State<LibraryPage>
                                                         todayTopics[index]
                                                             .userAvatar,
                                                     userId: _user!.id!,
+                                                    vocabs: todayTopics[index].vocabs!,
                                                   );
                                                 },
                                               ),
@@ -526,6 +531,7 @@ class _LibraryPageState extends State<LibraryPage>
                                                         yesterdayTopics[index]
                                                             .userAvatar,
                                                     userId: _user!.id!,
+                                                    vocabs: yesterdayTopics[index].vocabs!,
                                                   );
                                                 },
                                               ),
@@ -575,6 +581,7 @@ class _LibraryPageState extends State<LibraryPage>
                                                         thisWeekTopics[index]
                                                             .userAvatar,
                                                     userId: _user!.id!,
+                                                    vocabs: thisWeekTopics[index].vocabs!,
                                                   );
                                                 },
                                               ),
@@ -622,6 +629,7 @@ class _LibraryPageState extends State<LibraryPage>
                                                         olderTopics[index]
                                                             .userAvatar,
                                                     userId: _user!.id!,
+                                                    vocabs: todayTopics[index].vocabs!,
                                                   );
                                                 },
                                               ),
@@ -892,9 +900,11 @@ class TopicInfo extends StatelessWidget {
     required this.authorName,
     required this.playersCount,
     required this.userId,
+    required this.vocabs,
     this.userAvatar,
   });
 
+  final List<VocabInfoDTO> vocabs;
   final String topicId;
   final String title;
   final int termNumbers;
@@ -905,7 +915,16 @@ class TopicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double percentage = 0;
+    int learnedVocabs = 0;
+    for (var vocab in vocabs) {
+      print(vocab);
+      //2: knew, 3: mastered
+      if(vocab.vocabStatus.status == 2 || vocab.vocabStatus.status == 3){
+        learnedVocabs ++;
+      }
+    }
+    double percentage = learnedVocabs/vocabs.length*100;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(

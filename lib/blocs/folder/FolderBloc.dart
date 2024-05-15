@@ -12,7 +12,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   FolderBloc(this.folderDao) : super(FolderLoading()) {
     on<LoadFolders>((event, emit) async {
       emit(FolderLoading());
-      var result = await FolderDao().getFoldersByUserId(event.userId);
+      var result = await folderDao.getFoldersByUserId(event.userId);
       print(result);
       if(result["status"]){
         currentFolders = result["data"];
@@ -28,13 +28,13 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
     // });
 
     on<AddFolder>((event, emit) async {
-      var result = await FolderDao().addFolder(event.Folder);
+      var result = await folderDao.addFolder(event.Folder);
       if (result["status"]) {
         print(result);
         String folderId = result["data"];
         event.completer.complete(folderId); // Trả về id
         // final Folders = await FolderDao.getFolderInfoDTOByUserId(event.Folder.userId);
-        final newFolderAdded = await FolderDao().getFolderById(folderId);
+        final newFolderAdded = await folderDao.getFolderById(folderId);
         if(newFolderAdded["status"]) {
           currentFolders.add(FolderModel.fromJson(newFolderAdded["data"]));
         }
@@ -46,9 +46,9 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
     });
 
     on<UpdateFolder>((event, emit) async {
-      var result = await FolderDao().updateFolder(event.Folder);
+      var result = await folderDao.updateFolder(event.Folder);
       currentFolders.removeWhere((FolderToDelete) => FolderToDelete.id == event.Folder.id);
-      final newFolderAdded = await FolderDao().getFolderById(event.Folder.id!);
+      final newFolderAdded = await folderDao.getFolderById(event.Folder.id!);
       if(newFolderAdded["status"]){
         currentFolders.add(newFolderAdded["data"]);
       }
@@ -57,7 +57,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
     
     on<RemoveFolder>((event, emit) async {
-      var result = await FolderDao().deleteFolderById(event.FolderId);
+      var result = await folderDao.deleteFolderById(event.FolderId);
       if(result["status"]){
         currentFolders.removeWhere((FolderToDelete) => FolderToDelete.id == event.FolderId);
       }
