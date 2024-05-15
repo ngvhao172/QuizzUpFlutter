@@ -3,6 +3,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+void main() async {
+  runApp(MaterialApp(home: TypingPractice()));
+}
+
 class TypingPractice extends StatefulWidget {
   @override
   _TypingPracticeState createState() => _TypingPracticeState();

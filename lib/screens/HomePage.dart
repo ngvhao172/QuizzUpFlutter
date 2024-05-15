@@ -1,4 +1,5 @@
 import 'package:final_quizlet_english/screens/Report.dart';
+import 'package:final_quizlet_english/screens/searchPage.dart';
 import 'package:flutter/material.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
@@ -69,6 +70,14 @@ class _HomePageState extends State<HomePage> {
                             hintText: "Search topic, creator,...",
                             prefixIcon: Icon(Icons.search),
                           ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -202,14 +211,18 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      selectOption(
+                      topicOption(
                           color: Colors.orange[50]!,
-                          title: "aaa", //Title
-                          subtitle: "aaaa"),
-                      selectOption(
+                          title: "Name Topic",
+                          subtitle: "Pham Nhat Quynh",
+                          image: 'assets/images/user.png',
+                          term: '3'),
+                      topicOption(
                           color: Colors.orange[50]!,
-                          title: "aaa",
-                          subtitle: "aaaa"),
+                          title: "Name Topic",
+                          subtitle: "Pham Nhat Quynh",
+                          image: 'assets/images/user.png',
+                          term: '3'),
                     ],
                   ),
                 ),
@@ -246,14 +259,18 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      selectOption(
-                          color: Colors.orange[50]!,
-                          title: "aaa", //Title
-                          subtitle: "aaaa"),
-                      selectOption(
+                      folderOption(
                           color: Colors.orange[50]!,
                           title: "aaa",
-                          subtitle: "aaaa"),
+                          subtitle: "aaaa",
+                          image: 'assets/images/user.png',
+                          topic: '3'),
+                      folderOption(
+                          color: Colors.orange[50]!,
+                          title: "aaa",
+                          subtitle: "aaaa",
+                          image: 'assets/images/user.png',
+                          topic: '3'),
                     ],
                   ),
                 ),
@@ -265,36 +282,132 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget selectOption({
+  Widget topicOption({
     required Color color,
     required String title,
     required String subtitle,
+    required String image,
+    required String term,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10.0),
-      padding: EdgeInsets.only(left: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.only(left: 20),
       height: 120,
       width: 240,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.orange.shade200, width: 0.7),
       ),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 22, color: Colors.grey[700]),
+              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.lightGreen[100],
+              ),
+              child: Text(
+                '$term terms',
+                style: const TextStyle(
+                  color: Colors.green,
+                ),
+              ),
             ),
             const SizedBox(
-              height: 5,
+              height: 20,
             ),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 19, color: Colors.grey[700]),
-            ),
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: AssetImage(image),
+                  radius: 12,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              ],
+            )
           ]),
+    );
+  }
+
+  Widget folderOption({
+    required Color color,
+    required String title,
+    required String subtitle,
+    required String image,
+    required String topic,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.only(left: 20),
+      height: 120,
+      width: 240,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.orange.shade200, width: 0.7),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.folder_open_outlined),
+              const SizedBox(
+                width: 20,
+              ),
+              Text(
+                title,
+                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+              ),
+            ],
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          SizedBox(
+            height: 20,
+            child: Row(
+              children: [
+                Text("$topic topics"),
+                const SizedBox(
+                  width: 5,
+                ),
+                const VerticalDivider(
+                  thickness: 1,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                CircleAvatar(
+                  backgroundImage: AssetImage(image),
+                  radius: 12,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
