@@ -179,13 +179,11 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                             ),
                             SizedBox(width: 10),
                             Column(
-                              // add this widget
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Text('3',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight
-                                            .bold)), // replace with your text
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 Text('Attempts'), // replace with your text
                               ],
                             ),
@@ -206,7 +204,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                     width: 25,
                     height: 25,
                     decoration: BoxDecoration(
-                      color: Colors.green, // set the color to green
+                      color: Colors.green,
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
@@ -217,7 +215,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                     width: 25,
                     height: 25,
                     decoration: BoxDecoration(
-                      color: Colors.red, // set the color to red
+                      color: Colors.red, 
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
@@ -228,7 +226,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                     width: 25,
                     height: 25,
                     decoration: BoxDecoration(
-                      color: Colors.grey, // set the color to red
+                      color: Colors.grey, 
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),

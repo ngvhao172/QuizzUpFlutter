@@ -81,6 +81,8 @@ flutter:
     - assets/images/google_icon.png
     - assets/images/user.png
     - assets/images/QLogo.png
+    - assets/images/studyboy.png
+    - assets/images/studygirl.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
