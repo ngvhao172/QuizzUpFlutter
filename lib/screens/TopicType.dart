@@ -8,8 +8,18 @@ void main() async {
 }
 
 class TypingPractice extends StatefulWidget {
+  const TypingPractice({super.key});
+
+  // final TopicInfoDTO topic;
+  // final TypeSettings? settings;
   @override
   _TypingPracticeState createState() => _TypingPracticeState();
+}
+class TypingPractise {
+  final String term;
+  final String definition;
+
+  TypingPractise({required this.term, required this.definition});
 }
 
 class _TypingPracticeState extends State<TypingPractice> {
@@ -22,6 +32,7 @@ class _TypingPracticeState extends State<TypingPractice> {
   ]..shuffle();
   final FlutterTts flutterTts = FlutterTts();
 
+  // late double _initial;
   bool _isEnglishDisplayed = true;
   int _currentIndex = 0;
   String _feedback = '';
@@ -39,8 +50,14 @@ class _TypingPracticeState extends State<TypingPractice> {
 //     _unlearnedVocab = List.from(_vocabList)..shuffle();
 //   }
 
+  List<String> languages = [];
+
   @override
   void initState() {
+    // languages.add(widget.topic.topic.termLanguage);
+    // languages.add(widget.topic.topic.definitionLanguage);
+
+
     super.initState();
     _focusNode = FocusNode();
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -74,6 +91,7 @@ class _TypingPracticeState extends State<TypingPractice> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
@@ -114,7 +132,8 @@ class _TypingPracticeState extends State<TypingPractice> {
                           width:
                               10), // Add some spacing between the icon and the text
                       Text(
-                        isCorrect ? 'Correct!' : 'Incorrect',
+                        // isCorrect ? 'Correct!' : 'Incorrect',
+                        '${_feedback}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -276,14 +295,240 @@ class _TypingPracticeState extends State<TypingPractice> {
               );
             },
           ),
+          // actions: <Widget>[
+          //   Padding(
+          //     padding: const EdgeInsets.all(8.0), // Add padding here
+          //     child: IconButton(
+          //       icon: Icon(Icons.swap_horiz),
+          //       onPressed: _toggleLanguage,
+          //     ),
+          //   ),
+          // ],
           actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0), // Add padding here
-              child: IconButton(
-                icon: Icon(Icons.swap_horiz),
-                onPressed: _toggleLanguage,
+            IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.grey,
               ),
-            ),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (BuildContext context) {
+                    return StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height * 11 / 24,
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  const Text(
+                                    "Settings",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 40),
+                                ],
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Random terms",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              Text(
+                                                "Randomly display terms during the learning",
+                                                style: TextStyle(
+                                                    color: Colors.grey[700]),
+                                              ),
+                                            ],
+                                          ),
+                                          Switch(
+                                            value: false,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Play sound automatically",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              Text(
+                                                "Automatically play audio upon type opening.",
+                                                style: TextStyle(
+                                                    color: Colors.grey[700]),
+                                              ),
+                                            ],
+                                          ),
+                                          Switch(
+                                            // value: audioPlay,
+                                            value: false,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        "Card orientation",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      // ToggleSwitch(
+                                      //   minWidth:
+                                      //       MediaQuery.of(context).size.width,
+                                      //   minHeight: 35,
+                                      //   initialLabelIndex:
+                                      //       (cardOrientation == languages[0])
+                                      //           ? 0
+                                      //           : 1,
+                                      //   activeBgColor: const [
+                                      //     Colors.lightGreen
+                                      //   ],
+                                      //   activeFgColor: Colors.white,
+                                      //   inactiveBgColor: Colors.white,
+                                      //   inactiveFgColor: Colors.grey[900],
+                                      //   borderColor: const [Colors.green],
+                                      //   borderWidth: 1.5,
+                                      //   totalSwitches: 2,
+                                      //   labels: languages,
+                                      //   onToggle: (index) {
+                                      //     //code sử lý gì á
+                                      //     if (index == 0) {
+                                      //       setState(() {
+                                      //         cardOrientation = languages[0];
+                                      //       });
+                                      //     } else {
+                                      //       setState(() {
+                                      //         cardOrientation = languages[1];
+                                      //       });
+                                      //     }
+                                      //     if (fSettings == null) {
+                                      //       fSettings = FlashCardSettings(
+                                      //           userId:
+                                      //               widget.topic.topic.userId,
+                                      //           randomTerms: randomOp,
+                                      //           autoPlayAudio: audioPlay,
+                                      //           cardOrientation:
+                                      //               cardOrientation);
+                                      //       FlashCardSettingsDao()
+                                      //           .addFlashCardSettings(
+                                      //               fSettings!);
+                                      //     } else {
+                                      //       fSettings!.cardOrientation =
+                                      //           cardOrientation;
+                                      //       FlashCardSettingsDao()
+                                      //           .updateFlashCardSettings(
+                                      //               fSettings!);
+                                      //     }
+                                      //   },
+                                      // ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                // cardOrientation = languages[0];
+                                                // audioPlay = false;
+                                                // randomOp = false;
+                                              });
+                                              // fSettings!.cardOrientation =
+                                              //     cardOrientation;
+                                              // fSettings!.autoPlayAudio =
+                                              //     audioPlay;
+                                              // fSettings!.randomTerms = randomOp;
+                                              // FlashCardSettingsDao()
+                                              //     .updateFlashCardSettings(
+                                              //         fSettings!);
+                                            },
+                                            child: const Text(
+                                              "Refresh flashcard",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.lightGreen,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            )
           ],
         ),
         body: Column(
@@ -308,8 +553,12 @@ class _TypingPracticeState extends State<TypingPractice> {
                     decoration: InputDecoration(
                       labelText:
                           'Type the ${_isEnglishDisplayed ? 'Vietnamese' : 'English'} meaning',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.arrow_upward_rounded),
+                        onPressed: _checkAnswer,
+                      ),
                     ),
-                    onSubmitted: (value) => _checkAnswer(),
+                    // onSubmitted: (value) => _checkAnswer(),
                   ),
                   SizedBox(height: 20),
                   // Text(
