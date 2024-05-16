@@ -52,8 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
       //   automaticallyImplyLeading: false,
       //   actions: [IconButton(onPressed: () {}, icon: Icon(Icons.logout))],
       // ),
-      body: SingleChildScrollView(
-        child: FutureBuilder(
+      body: FutureBuilder(
           future: _userDataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
@@ -100,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    'haizzzzz@gmail.com',
+                                    user.email.toString(),
                                     style: TextStyle(
                                       fontSize: 16,
                                     ),
@@ -117,13 +116,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    '0123456789',
-                                    style: TextStyle(
+                                    (user.phoneNumber!=null) ? user.phoneNumber! : "",
+                                    style: const TextStyle(
                                       fontSize: 16,
                                     ),
                                   ),
                                 ),
-                                Divider(),
+                                const Divider(),
                                 ListTile(
                                   title: Text(
                                     'Password',
@@ -137,7 +136,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text("************"),
+                                      const Text("************"),
+                                      (isPasswordProvider == true)?
                                       TextButton(
                                         child: Text(
                                           'Change Password',
@@ -146,7 +146,35 @@ class _ProfilePageState extends State<ProfilePage> {
                                             color: Colors.orange.shade700,
                                           ),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChangePasswordPage()));
+                                        },
+                                      ) : TextButton(
+                                        child: Text(
+                                          'Create Password',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange.shade700,
+                                          ),
+                                        ),
+                                        onPressed: () async {
+                                           var result =
+                                          await AuthService().reAuthGoogle();
+                                          if (result["status"]) {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CreatePasswordPage()));
+                                          } else {
+                                            showScaffoldMessage(
+                                                context, result["message"]);
+                                          }
+                                        },
                                       ),
                                     ],
                                   ),
@@ -157,10 +185,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
-                    const Positioned(
+                    Positioned(
                       top: 70.0,
                       child: CircleAvatar(
-                        backgroundImage: AssetImage("assets/images/user.png"),
+                        backgroundImage: (user.photoURL != null &&
+                                          user.photoURL != "null")
+                                      ? CachedNetworkImageProvider(
+                                          user.photoURL!)
+                                      : const AssetImage(
+                                              "assets/images/user.png")
+                                          as ImageProvider<Object>?,
                         radius: 60,
                       ),
                     ),
@@ -168,20 +202,29 @@ class _ProfilePageState extends State<ProfilePage> {
                       top: 70.0,
                       right: MediaQuery.of(context).size.width / 2 - 80,
                       child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const UpdateProfilePage()))
+                                    .then((value) async {
+                                  await _refreshData();
+                                });
+                          },
                           style: TextButton.styleFrom(
-                              shape: CircleBorder(),
+                              shape: const CircleBorder(),
                               backgroundColor: Colors.white),
                           child: const Icon(
                             Icons.edit,
                             color: Colors.lightGreen,
                           )),
                     ),
-                    const Positioned(
+                    Positioned(
                       top: 200.0,
                       child: Text(
-                        "Phạm Nhật Quỳnh",
-                        style: TextStyle(
+                        user.displayName.toString(),
+                        style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
@@ -278,9 +321,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               }
             }
+            return const Center(child: CircularProgressIndicator(color: Colors.lightGreen,),);
           },
         ),
-      ),
     );
   }
 }

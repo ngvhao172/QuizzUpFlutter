@@ -113,6 +113,29 @@ class TopicDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getPublicTopicsByTopicName(String topicName) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await topicCollection.where('name', isEqualTo: topicName).where("private", isEqualTo: false).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Map<String, dynamic>> topicsData = querySnapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+        for (var i = 0; i < topicsData.length; i++) {
+          if (topicsData[i]["id"] == null) {
+            topicsData[i]["id"] = querySnapshot.docs[i].id;
+            updateTopic(TopicModel.fromJson(topicsData[i]));
+          }
+        }
+        return {"status": true, "data": topicsData};
+      } else {
+        return {"status": false, "message": "Không tìm thấy topic."};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
 
   Future<Map<String, dynamic>> updateTopic(TopicModel topic) async {
     try {
@@ -138,55 +161,6 @@ class TopicDao {
         var resultUser = await UserDao().getUserById(userId);
         if (resultUser["status"]) {
           UserModel user = UserModel.fromJson(resultUser["data"]);
-
-          // for (TopicModel topicModel in topics) {
-          //   var result = await TopicPlayCountDao()
-          //       .getTopicsCountByTopicId(topicModel.id!);
-          //   if (result["status"]) {
-          //     var vocabResult =
-          //         await VocabularyDao().getVocabsByTopicId(topicModel.id!);
-          //     if (vocabResult["status"]) {
-          //       // int vocabNumber = vocabResult["data"];
-          //       List<Map<String, dynamic>> vocabLists = vocabResult["data"];
-          //       List<VocabInfoDTO> vocabs = [];
-          //       if (vocabLists.length > 0) {
-          //         print(vocabLists);
-          //         var newVocabsList = vocabLists
-          //             .map((value) => VocabularyModel.fromJson(value))
-          //             .toList();
-          //         for (var vocab in newVocabsList) {
-          //           var result = await VocabularyStatusDao().getVocabularyStatusByVocabIdAndUserId(vocab.id!, user.id!);
-          //           if(result["status"]){
-          //             var vocabStatus = VocabularyStatus.fromJson(result["data"]);
-          //             vocabs.add(VocabInfoDTO(vocab: vocab, vocabStatus: vocabStatus));
-          //           }
-          //         }
-          //       }
-          //       var topicPlayCount = result["data"];
-          //       int totalTimes = 0;
-          //       if (topicPlayCount.length > 0) {
-          //         List<TopicPlayCount> topicPlayCountModels = topicPlayCount
-          //             .map((value) => TopicPlayCount.fromJson(value));
-          //         totalTimes = topicPlayCountModels.fold(
-          //             0,
-          //             (previousValue, element) =>
-          //                 previousValue + (element.times ?? 0));
-          //       }
-          //       TopicInfoDTO topicInfoDTO = TopicInfoDTO(
-          //           topic: topicModel,
-          //           authorName: user.displayName,
-          //           playersCount: totalTimes,
-          //           termNumbers: vocabs.length,
-          //           userAvatar: user.photoURL,
-          //           vocabs: vocabs);
-          //       topicsInfo.add(topicInfoDTO);
-          //     } else {
-          //       return {"status": false, "message": vocabResult["message"]};
-          //     }
-          //   } else {
-          //     return {"status": false, "message": result["message"]};
-          //   }
-          // }
           for (TopicModel topicModel in topics) {
             var result = await getTopicInfoDTOByTopicId(topicModel.id!);
             if (result["status"]) {
@@ -207,6 +181,34 @@ class TopicDao {
       return {"status": false, "message": e.toString()};
     }
   }
+
+  Future<Map<String, dynamic>> getPublicTopicInfoDTOsByTopicName(String topicName) async {
+    try {
+      List<TopicInfoDTO> topicsInfo = [];
+      var resultTopics = await getPublicTopicsByTopicName(topicName);
+      if (resultTopics["status"]) {
+        List<Map<String, dynamic>> topicsData = resultTopics["data"];
+
+        List<TopicModel> topics =
+          topicsData.map((topic) => TopicModel.fromJson(topic)).toList();
+        for (TopicModel topicModel in topics) {
+          var result = await getTopicInfoDTOByTopicId(topicModel.id!);
+          if (result["status"]) {
+            topicsInfo.add(result["data"]);
+          }
+          print(result);
+        }
+        for (var element in topicsInfo) {
+          print(element.vocabs);
+        }
+        return {"status": true, "data": topicsInfo};
+      }
+      return {"status": false, "message": resultTopics["message"]};
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+  
 
   Future<Map<String, dynamic>> getTopicInfoDTOByTopicId(String topicId) async {
     try {
@@ -310,7 +312,11 @@ class TopicDao {
           var resTopic = await TopicDao().getTopicById(topicPlay.topicId);
           if (resTopic["status"]) {
             TopicModel topic = TopicModel.fromJson(resTopic["data"]);
-            //get participants
+            if(topic.private == true){
+              continue;
+            }
+            else{
+              //get participants
             var participants = await TopicPlayedNumberDao()
                 .getTopicPlayedNumbersByTopicId(topicPlay.topicId);
             if (participants["status"]) {
@@ -337,14 +343,16 @@ class TopicDao {
                       topicName: topic.name,
                       lastPlayed: topicPlay.updatedAt!,
                       participants: totalParticipants,
-                      accuracy: accuracy);
-                  topicRankingInfoDTOs.add(ranking);
+                      accuracy: accuracy
+                );
+                topicRankingInfoDTOs.add(ranking);
               }
               else{
                 return {"status": false, "data": attempts["message"]};
               }
             } else {
               return {"status": false, "data": participants["message"]};
+            }
             }
           } else {
             return {"status": false, "data": resTopic["message"]};
@@ -376,12 +384,18 @@ class TopicDao {
         //total attempts
         String? mostCorrectAnswerUserId;
         String? completedShortestTimeUserId;
+        String? mostCorrectAnswerRecordId;
+        String? completedShortestTimeRecordId;
         int mostCorrect = 0;
         int completedTime = 100000;
         List<Map<String, dynamic>> userPlayTimes = [];
-        if(records.isNotEmpty){
-          completedTime = records[0].completedTime;
-        }
+        // if(records.isNotEmpty){
+        //   completedTime = records[0].completedTime;
+        //   if(records[0].wrongAnswers ==0 && records[0].notAnswers == 0){
+        //     completedShortestTimeUserId = records[0].userId;
+        //     completedShortestTimeRecordId = records[0].id;
+        //   }
+        // }
         int correctNumber = 0;
         int wrongNumber = 0;
         int notAnsweredNumber = 0;
@@ -392,10 +406,12 @@ class TopicDao {
           if(record.correctAnswers>mostCorrect){
             mostCorrect = record.correctAnswers;
             mostCorrectAnswerUserId = record.userId;
+            mostCorrectAnswerRecordId = record.id;
           }
-          if(record.completedTime < completedTime){
+          if(record.completedTime < completedTime && record.wrongAnswers ==0 && record.notAnswers == 0){///100% accuracy
             completedTime = record.completedTime;
             completedShortestTimeUserId = record.userId;
+            completedShortestTimeRecordId = record.id;
           }
           int index = userPlayTimes.indexWhere((element) => element['userId'] == record.userId);
           if (index != -1) {
@@ -416,12 +432,19 @@ class TopicDao {
           if(resUser["status"]){
             userMostAttempts = UserModel.fromJson(resUser["data"]);
           }
+          List<TopicResultRecord> mostAttemptRecords = [];
           TopicResultRecord? mostAttemptRecord;
           records.forEach((element) {
             if (element.userId == mostAttemptsUserMap["userId"]) {
-              mostAttemptRecord = element;
+              mostAttemptRecords.add(element);
             }
           });
+          int mostCorrect = 0;
+          for (var element in mostAttemptRecords) {
+            if(element.correctAnswers > mostCorrect){
+              mostAttemptRecord = element;
+            }
+          }
           RecordUser mostAttemptsUserRecord = 
           RecordUser(userName: userMostAttempts!.displayName, photoURL: userMostAttempts.photoURL!, 
           attemptNumbers: mostAttemptsUserMap["count"], correctAnswers: mostAttemptRecord!.correctAnswers, 
@@ -440,7 +463,7 @@ class TopicDao {
           }
           TopicResultRecord? shortestTimeRecord;
           records.forEach((element) {
-            if (element.userId == completedShortestTimeUserId) {
+            if (element.id == completedShortestTimeRecordId) {
               shortestTimeRecord = element;
             }
           });
@@ -461,7 +484,7 @@ class TopicDao {
           }
           TopicResultRecord? mostCorrectRecord;
           records.forEach((element) {
-            if (element.userId == mostCorrectAnswerUserId) {
+            if (element.id == mostCorrectAnswerRecordId) {
               mostCorrectRecord = element;
             }
           });

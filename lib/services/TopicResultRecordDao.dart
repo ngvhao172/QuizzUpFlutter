@@ -63,9 +63,17 @@ class TopicResultRecordDao {
           await topicResultRecordCollection.where('topicId', isEqualTo: topicId).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-          List<TopicResultRecord> topicData =
-            querySnapshot.docs.map((doc) => TopicResultRecord.fromJson(doc.data() as Map<String, dynamic>)).toList();
-        return {"status": true, "data": topicData};
+          List<Map<String, dynamic>> topicData =
+            querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        for (var i = 0; i < topicData.length; i++) {
+          if (topicData[i]["id"] == null) {
+            topicData[i]["id"] = querySnapshot.docs[i].id;
+            updateTopicResultRecord(TopicResultRecord.fromJson(topicData[i]));
+          }
+        }
+        List<TopicResultRecord> topics = [];
+        for (var element in topicData) { topics.add(TopicResultRecord.fromJson(element));}
+        return {"status": true, "data": topics};
       } else {
         return {"status": true, "data": []};
       }
@@ -79,9 +87,17 @@ class TopicResultRecordDao {
           await topicResultRecordCollection.where('userId', isEqualTo: userId).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-          List<TopicResultRecord> topicData =
-            querySnapshot.docs.map((doc) => TopicResultRecord.fromJson(doc.data() as Map<String, dynamic>)).toList();
-        return {"status": true, "data": topicData};
+          List<Map<String, dynamic>> topicData =
+            querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+        for (var i = 0; i < topicData.length; i++) {
+          if (topicData[i]["id"] == null) {
+            topicData[i]["id"] = querySnapshot.docs[i].id;
+            updateTopicResultRecord(TopicResultRecord.fromJson(topicData[i]));
+          }
+        }
+        List<TopicResultRecord> topics = [];
+        for (var element in topicData) { topics.add(TopicResultRecord.fromJson(element));}
+        return {"status": true, "data": topics};
       } else {
         return {"status": true, "data": []};
       }

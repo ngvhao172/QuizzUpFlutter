@@ -63,6 +63,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: TextField(
+                          keyboardType: TextInputType.none,
                           onChanged: (value) {},
                           decoration: const InputDecoration(
                             enabledBorder: InputBorder.none,

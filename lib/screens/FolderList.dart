@@ -152,7 +152,7 @@ class _FolderListAddState extends State<FolderListAdd> {
                                                   const FolderCreatePage()));
                                     },
                                   ),
-                                  Text("Chưa có topic nào được thêm"),
+                                  Text("Chưa có folder nào được thêm"),
                                 ],
                               ),
                             );

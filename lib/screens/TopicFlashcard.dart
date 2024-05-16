@@ -14,10 +14,12 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TFlashcardPage extends StatefulWidget {
-  const TFlashcardPage({super.key, required this.topic, this.settings});
+  const TFlashcardPage({super.key, required this.topic, required this.userId, this.settings});
 
   final TopicInfoDTO topic;
   final FlashCardSettings? settings;
+
+  final String userId;
 
   @override
   State<TFlashcardPage> createState() => _TFlashcardPageState();
@@ -71,7 +73,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     languages.add(widget.topic.topic.termLanguage);
     languages.add(widget.topic.topic.definitionLanguage);
 
-    cardOrientation = widget.topic.topic.definitionLanguage;
+    cardOrientation = widget.topic.topic.termLanguage;
     for (var vocab in widget.topic.vocabs!) {
       termCard.add(Flashcard(
           vocabStatus: vocab.vocabStatus,
@@ -230,7 +232,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             if (fSettings == null) {
                                               fSettings = FlashCardSettings(
                                                   userId:
-                                                      widget.topic.topic.userId,
+                                                     widget.userId,
                                                   randomTerms: value,
                                                   autoPlayAudio: audioPlay,
                                                   cardOrientation:
@@ -283,7 +285,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             if (fSettings == null) {
                                               fSettings = FlashCardSettings(
                                                   userId:
-                                                      widget.topic.topic.userId,
+                                                      widget.userId,
                                                   randomTerms: value,
                                                   autoPlayAudio: audioPlay,
                                                   cardOrientation:
@@ -344,7 +346,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                         }
                                         if (fSettings == null) {
                                           fSettings = FlashCardSettings(
-                                              userId: widget.topic.topic.userId,
+                                              userId: widget.userId,
                                               randomTerms: randomOp,
                                               autoPlayAudio: audioPlay,
                                               cardOrientation: cardOrientation);
@@ -784,7 +786,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
             });
           }
         } else if(value == "to-quiz"){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic, userId: widget.userId,)));
         }
         else {
           Navigator.pop(context);

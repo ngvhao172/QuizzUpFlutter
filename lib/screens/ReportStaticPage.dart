@@ -63,7 +63,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
             builder: (context, state) {
               if(state is TopicRankingDetailLoaded){
                 TopicRankingDetailInfoDTO topicRankingDTO = state.topicRankingInfoDTO;
-                print(topicRankingDTO);
+                // print(topicRankingDTO.completedShortestTimeUser!.photoURL);
                 return Column(
                 children: <Widget>[
                   Padding(
@@ -183,7 +183,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                                   // add this widget
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    Text("${topicRankingDTO.accuracy}%",
+                                    Text("${topicRankingDTO.accuracy.toStringAsFixed(0)}%",
                                         style: const TextStyle(
                                             color: Colors.red,
                                             fontWeight: FontWeight
@@ -310,7 +310,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                                       Colors.blue, // set the color to blue
                                   backgroundImage: (topicRankingDTO.mostCorrectAnswerUser!.photoURL != null)
                                       ? CachedNetworkImageProvider(
-                                          topicRankingDTO.completedShortestTimeUser!.photoURL!)
+                                          topicRankingDTO.mostCorrectAnswerUser!.photoURL!)
                                       : const AssetImage(
                                               "assets/images/user.png")
                                           as ImageProvider<Object>?
@@ -790,7 +790,7 @@ class _TopicStatisticsPageState extends State<TopicStatisticsPage> {
                                       Colors.blue, // set the color to blue
                                   backgroundImage: (topicRankingDTO.mostAttemptsUser!.photoURL != null)
                                       ? CachedNetworkImageProvider(
-                                          topicRankingDTO.completedShortestTimeUser!.photoURL!)
+                                          topicRankingDTO.mostAttemptsUser!.photoURL!)
                                       : const AssetImage(
                                               "assets/images/user.png")
                                           as ImageProvider<Object>?

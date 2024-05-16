@@ -3,9 +3,11 @@ import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
+import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/FolderUpdate.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:final_quizlet_english/screens/TopicAddToFolder.dart';
+import 'package:final_quizlet_english/services/auth.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +27,8 @@ class _FolderDetailState extends State<FolderDetail>  {
 
   late FolderModel lateFolder;
 
+  UserModel? _user;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -32,7 +36,13 @@ class _FolderDetailState extends State<FolderDetail>  {
 
     context.read<FolderDetailBloc>().add(LoadFolder(widget.folderId));
 
+    AuthService().getCurrentUser().then((value){
+      setState(() {
+        _user = value!;
+      });
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +117,7 @@ class _FolderDetailState extends State<FolderDetail>  {
               icon: const Icon(Icons.more_vert))
         ],
       ),
-      body: Container(
+      body: (_user!=null)? Container(
         padding: const EdgeInsets.all(10),
         child: BlocBuilder<FolderDetailBloc, FolderState>(
             builder: (context, state) {
@@ -183,7 +193,7 @@ class _FolderDetailState extends State<FolderDetail>  {
                         authorName: topics[index].authorName,
                         playersCount: topics[index].playersCount,
                         userAvatar: topics[index].userAvatar,
-                        userId: folder.userId,
+                        userId: _user!.id!,
                         vocabs: topics[index].vocabs!,
                       );
                     },
@@ -267,7 +277,7 @@ class _FolderDetailState extends State<FolderDetail>  {
             ));
           }
         }),
-      ),
+      ) : const Center(child: CircularProgressIndicator(color: Colors.lightGreen),),
     );
   }
 }

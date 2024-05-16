@@ -1,24 +1,29 @@
 import 'dart:async';
 
+import 'package:final_quizlet_english/blocs/community/TopicRanking.dart';
+import 'package:final_quizlet_english/blocs/community/TopicRankingBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/TopicResultRecord.dart';
 import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
+import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/screens/ResultScreen.dart';
 import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/services/TopicResultRecordDao.dart';
 import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
+import 'package:final_quizlet_english/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TQuizPage extends StatefulWidget {
-  const TQuizPage({super.key, required this.topicDTO});
+  const TQuizPage({super.key, required this.topicDTO, required this.userId});
 
   final TopicInfoDTO topicDTO;
+  final String userId;
   // final QuizSettings? settings;
 
   @override
@@ -698,6 +703,7 @@ class _TQuizPageState extends State<TQuizPage> {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           onPressed: () async {
+                            context.read<TopicRankingBloc>().add(LoadTopicRankings(widget.userId));
                             if (!answered) {
                               skipQuestions.add(_controller.page!.toInt());
                             }
@@ -728,7 +734,7 @@ class _TQuizPageState extends State<TQuizPage> {
                               } else {
                                 TopicResultRecord record = TopicResultRecord(
                                     topicId: widget.topicDTO.topic.id!,
-                                    userId: widget.topicDTO.topic.userId,
+                                    userId: widget.userId,
                                     completedTime: completedTime,
                                     correctAnswers: knew,
                                     wrongAnswers: learning,
