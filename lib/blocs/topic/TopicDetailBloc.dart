@@ -20,7 +20,7 @@ class TopicDetailBloc extends Bloc<TopicEvent, TopicState> {
   TopicDetailBloc(this.topicDao, this.vocabularyFavDao) : super(TopicLoading()) {
     on<LoadTopic>((event, emit) async {
       emit(TopicLoading());
-      final topicDetail = await topicDao.getTopicInfoDTOByTopicId(event.topicId);
+      final topicDetail = await topicDao.getTopicInfoDTOByTopicIdAndUserId(event.topicId, event.userId);
       print(topicDetail);
       if(vocabsFav.isNotEmpty){
         print(topicInfoDTO.topic.id);

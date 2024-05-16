@@ -34,11 +34,11 @@ class _FolderDetailState extends State<FolderDetail>  {
     // TODO: implement initState
     super.initState();
 
-    context.read<FolderDetailBloc>().add(LoadFolder(widget.folderId));
-
     AuthService().getCurrentUser().then((value){
       setState(() {
         _user = value!;
+
+        context.read<FolderDetailBloc>().add(LoadFolder(widget.folderId, _user!.id!));
       });
     });
   }
@@ -166,19 +166,19 @@ class _FolderDetailState extends State<FolderDetail>  {
                 const SizedBox(
                   height: 20,
                 ),
-                Row(children: [
-                  Expanded(
-                      child: ElevatedButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll<Color>(Colors.lightGreen)),
-                    child: const Text(
-                      "Học thư mục này",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ))
-                ]),
+                // Row(children: [
+                //   Expanded(
+                //       child: ElevatedButton(
+                //     onPressed: () {},
+                //     style: const ButtonStyle(
+                //         backgroundColor:
+                //             MaterialStatePropertyAll<Color>(Colors.lightGreen)),
+                //     child: const Text(
+                //       "Học thư mục này",
+                //       style: TextStyle(color: Colors.white),
+                //     ),
+                //   ))
+                // ]),
                 const SizedBox(
                   height: 20,
                 ),

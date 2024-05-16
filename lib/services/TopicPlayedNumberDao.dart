@@ -54,6 +54,25 @@ class TopicPlayedNumberDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getTop5PublicTopicPlayedNumbers() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await topicCollection.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+          List<TopicPlayedNumber> topicData =
+            querySnapshot.docs.map((doc) => TopicPlayedNumber.fromJson(doc.data() as Map<String, dynamic>)).toList();
+        topicData.sort((a, b) => b.times.compareTo(a.times));
+
+        List<TopicPlayedNumber> top5Topics = topicData.take(5).toList();
+        return {"status": true, "data": top5Topics};
+      } else {
+        return {"status": true, "data": []};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
   Future<Map<String, dynamic>> getTopicPlayedNumbersByUserId(String userId) async {
     try {
       QuerySnapshot querySnapshot =

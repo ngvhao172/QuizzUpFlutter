@@ -70,7 +70,7 @@ class _AddTopicToFolderState extends State<AddTopicToFolder>
                   UpdateFolder updateFolder = UpdateFolder(folder);
                   context.read<FolderBloc>().add(updateFolder);
                   context.read<FolderBloc>().add(LoadFolders(_user.id!));
-                  context.read<FolderDetailBloc>().add(LoadFolder(folder.id!));
+                  context.read<FolderDetailBloc>().add(LoadFolder(folder.id!, _user.id!));
               }
             },
           )

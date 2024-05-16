@@ -11,15 +11,13 @@ import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/FolderDao.dart';
+import 'package:final_quizlet_english/services/PageChangeNotifier.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/VocabFavDao.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:final_quizlet_english/screens/TopicDetail.dart';
-import 'package:final_quizlet_english/screens/TopicFlashcard.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +60,8 @@ class _MyAppState extends State<MyApp> {
                 create: (context) => TopicRankingBloc(TopicDao())),
             BlocProvider<TopicRankingDetailBloc>(
                 create: (context) => TopicRankingDetailBloc(TopicDao())),
+            ChangeNotifierProvider(
+                create: (context) => PageProvider())
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

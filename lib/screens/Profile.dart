@@ -18,10 +18,12 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClientMixin {
   late Future<UserModel?> _userDataFuture;
 
   bool isPasswordProvider = false;
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {

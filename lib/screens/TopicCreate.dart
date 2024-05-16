@@ -130,7 +130,7 @@ class _TCreatePageState extends State<TCreatePage> {
                       termLanguage: termLanguage,
                       definitionLanguage: defiLanguage,
                       lastAccessed: DateTime.now() );
-                  AddTopic addTopicEvent = AddTopic(newTopic);
+                  AddTopic addTopicEvent = AddTopic(newTopic, user.id!);
                   context.read<TopicBloc>().add(addTopicEvent);
                   try {
                     String topicId = await addTopicEvent.completer.future;

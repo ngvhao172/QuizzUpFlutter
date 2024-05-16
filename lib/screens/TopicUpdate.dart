@@ -140,7 +140,7 @@ class _TUpdatePageState extends State<TUpdatePage> {
                       definitionLanguage: defiLanguage,
                       updatedAt: DateTime.now(),
                       lastAccessed: DateTime.now());
-                  UpdateTopic updateTopicEvent = UpdateTopic(updateTopic);
+                  UpdateTopic updateTopicEvent = UpdateTopic(updateTopic, user.id!);
                   try {
                     bool allVocabulariesAddedSuccessfully = true;
 

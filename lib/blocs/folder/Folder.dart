@@ -21,8 +21,9 @@ class LoadFoldersByCreatedDay extends FolderEvent {
 
 class LoadFolder extends FolderEvent {
   final String folderId;
+  final String userId;
 
-  LoadFolder(this.folderId);
+  LoadFolder(this.folderId, this.userId);
 }
 
 class AddFolder extends FolderEvent {

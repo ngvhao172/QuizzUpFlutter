@@ -92,7 +92,7 @@ class _SearchPageState extends State<SearchPage>
     });
     List<Map<String, dynamic>> _topicsDTO = [];
     // await Future.delayed(Duration(seconds: 2)); query data
-    var res = await TopicDao().getPublicTopicInfoDTOsByTopicName(value);
+    var res = await TopicDao().getPublicTopicInfoDTOsByTopicName(value, _user!.id!);
     print(res);
     if(res["status"]){
       List<TopicInfoDTO> topicDTOs = res["data"];

@@ -29,16 +29,18 @@ class LoadTopic extends TopicEvent {
 
 class AddTopic extends TopicEvent {
   final TopicModel topic;
+  final String userId;
 
   final Completer<String> completer;//mục đích lưu trữ id trả về của topic
 
-  AddTopic(this.topic)  : completer = Completer<String>();
+  AddTopic(this.topic, this.userId)  : completer = Completer<String>();
 }
 
 class UpdateTopic extends TopicEvent {
   final TopicModel topic;
+  final String userId;
 
-  UpdateTopic(this.topic); 
+  UpdateTopic(this.topic, this.userId); 
 }
 
 class RemoveTopic extends TopicEvent {

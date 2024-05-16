@@ -7,13 +7,11 @@ import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/TopicResultRecord.dart';
 import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
-import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/screens/ResultScreen.dart';
 import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/services/TopicResultRecordDao.dart';
 import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
-import 'package:final_quizlet_english/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -135,7 +133,7 @@ class _TQuizPageState extends State<TQuizPage> {
 
   void textToSpeechVi(String text) async {
     await flutterTts.setLanguage("vi-VN");
-    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
@@ -714,7 +712,8 @@ class _TQuizPageState extends State<TQuizPage> {
                               // int notAnswered = questions.length - knew - learning;
                               //saved record
                               int completedTime = getStopwatchTimeToSeconds();
-                              if (isReLearning) {
+                              if(widget.topicDTO.vocabs!.length == widget.topicDTO.termNumbers){//choi = favorite => khong add vao record
+                                if (isReLearning) {
                                 var res = await TopicResultRecordDao()
                                     .getTopicResultRecordByDocId(recordDocId);
                                 int learning = widget.topicDTO.termNumbers -
@@ -748,6 +747,7 @@ class _TQuizPageState extends State<TQuizPage> {
                                   });
                                 }
                               }
+                              }
                               Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -762,11 +762,11 @@ class _TQuizPageState extends State<TQuizPage> {
                                   // print(value);
                                   _resetTimer();
                                   _startTimer();
-                                  knew = 0;
-                                  learning = 0;
                                   // _controller.jumpToPage(0);
                                   _controller.jumpTo(0);
                                   setState(() {
+                                    knew = 0;
+                                    learning = 0;
                                     isReLearning = false;
                                     btnText = "Next Question";
                                     _initial =

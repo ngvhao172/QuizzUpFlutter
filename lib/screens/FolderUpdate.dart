@@ -57,7 +57,7 @@ class _FolderUpdatePageState extends State<FolderUpdatePage> {
                     UpdateFolder updateFolder = UpdateFolder(update);
                     context.read<FolderBloc>().add(updateFolder);
                     context.read<FolderBloc>().add(LoadFolders(user.id!));
-                    context.read<FolderDetailBloc>().add(LoadFolder(update.id!));
+                    context.read<FolderDetailBloc>().add(LoadFolder(update.id!, user.id!));
                     Navigator.pop(context);
                     // Navigator.push(context, MaterialPageRoute(builder: (context) => FolderDetail(folderId: update.id!)));
                 }

@@ -11,7 +11,7 @@ class FolderDetailBloc extends Bloc<FolderEvent, FolderState> {
   FolderDetailBloc(this.folderDao) : super(FolderLoading()) {
     on<LoadFolder>((event, emit) async {
       emit(FolderLoading());
-      var result = await folderDao.getFolderInfoDTOByFolderId(event.folderId);
+      var result = await folderDao.getFolderInfoDTOByFolderIdAndUserId(event.folderId, event.userId);
       print(result);
       if(result["status"]){
         currentFolder = result["data"];

@@ -42,7 +42,7 @@ class TopicBloc extends Bloc<TopicEvent, TopicState> {
         String topicId = result["data"];
         event.completer.complete(topicId); // Trả về id
         // final topics = await topicDao.getTopicInfoDTOByUserId(event.topic.userId);
-        final newTopicAdded = await topicDao.getTopicInfoDTOByTopicId(topicId);
+        final newTopicAdded = await topicDao.getTopicInfoDTOByTopicIdAndUserId(topicId, event.userId);
         if (newTopicAdded["status"]) {
           currentTopics.add(newTopicAdded["data"]);
           // todayTopics.add(newTopicAdded["data"]);
@@ -60,7 +60,7 @@ class TopicBloc extends Bloc<TopicEvent, TopicState> {
       // todayTopics.removeWhere(
       //     (topicToDelete) => topicToDelete.topic.id == event.topic.id);
       final newTopicAdded =
-          await topicDao.getTopicInfoDTOByTopicId(event.topic.id!);
+          await topicDao.getTopicInfoDTOByTopicIdAndUserId(event.topic.id!, event.userId);
       if (newTopicAdded["status"]) {
         currentTopics.add(newTopicAdded["data"]);
         // todayTopics.add(newTopicAdded["data"]);

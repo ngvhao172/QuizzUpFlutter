@@ -117,8 +117,8 @@ class FolderDao {
   //   }
   // }
 
-  Future<Map<String, dynamic>> getFolderInfoDTOByFolderId(
-      String folderId) async {
+  Future<Map<String, dynamic>> getFolderInfoDTOByFolderIdAndUserId(
+      String folderId, String userId) async {
     try {
       var resultFolder = await getFolderById(folderId);
       if (resultFolder["status"]) {
@@ -127,7 +127,7 @@ class FolderDao {
         if (folder.topicIds != null) {
           for (var i = 0; i < folder.topicIds!.length; i++) {
             var resultTopic =
-                await TopicDao().getTopicInfoDTOByTopicId(folder.topicIds![i]);
+                await TopicDao().getTopicInfoDTOByTopicIdAndUserId(folder.topicIds![i], userId);
             if (resultTopic["status"]) {
               TopicInfoDTO topic = resultTopic["data"];
               topics.add(topic);

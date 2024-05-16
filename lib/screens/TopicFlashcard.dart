@@ -102,11 +102,11 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     super.dispose();
   }
 
-  void textToSpeechEn(String text) async {
+    void textToSpeechEn(String text) async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(2.0);
+    await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
   }
 

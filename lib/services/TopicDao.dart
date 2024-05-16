@@ -7,11 +7,13 @@ import 'package:final_quizlet_english/dtos/TopicRankingInfo.dart';
 import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/TopicPlayedNumber.dart';
+import 'package:final_quizlet_english/models/TopicRecentlyAccessed.dart';
 import 'package:final_quizlet_english/models/TopicResultRecord.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/services/TopicPlayedNumberDao.dart';
+import 'package:final_quizlet_english/services/TopicRecentlyAccessedDao.dart';
 import 'package:final_quizlet_english/services/TopicResultRecordDao.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:final_quizlet_english/services/VocabDao.dart';
@@ -162,7 +164,7 @@ class TopicDao {
         if (resultUser["status"]) {
           UserModel user = UserModel.fromJson(resultUser["data"]);
           for (TopicModel topicModel in topics) {
-            var result = await getTopicInfoDTOByTopicId(topicModel.id!);
+            var result = await getTopicInfoDTOByTopicIdAndUserId(topicModel.id!, userId);
             if (result["status"]) {
               topicsInfo.add(result["data"]);
             }
@@ -182,7 +184,7 @@ class TopicDao {
     }
   }
 
-  Future<Map<String, dynamic>> getPublicTopicInfoDTOsByTopicName(String topicName) async {
+  Future<Map<String, dynamic>> getPublicTopicInfoDTOsByTopicName(String topicName, String userId) async {
     try {
       List<TopicInfoDTO> topicsInfo = [];
       var resultTopics = await getPublicTopicsByTopicName(topicName);
@@ -192,7 +194,7 @@ class TopicDao {
         List<TopicModel> topics =
           topicsData.map((topic) => TopicModel.fromJson(topic)).toList();
         for (TopicModel topicModel in topics) {
-          var result = await getTopicInfoDTOByTopicId(topicModel.id!);
+          var result = await getTopicInfoDTOByTopicIdAndUserId(topicModel.id!, userId);
           if (result["status"]) {
             topicsInfo.add(result["data"]);
           }
@@ -208,9 +210,67 @@ class TopicDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getTop5PublicTopicInfoDTOs(String userId) async {
+    try {
+      List<TopicInfoDTO> topicsInfo = [];
+      var resultTopics = await TopicPlayedNumberDao().getTop5PublicTopicPlayedNumbers();
+      if (resultTopics["status"]) {
+        List<TopicPlayedNumber> topicsData = resultTopics["data"];
+        for (TopicPlayedNumber topicModel in topicsData) {
+          var result = await getTopicInfoDTOByTopicIdAndUserId(topicModel.topicId, userId);
+          if (result["status"]) {
+            topicsInfo.add(result["data"]);
+          }
+          print(result);
+        }
+        return {"status": true, "data": topicsInfo};
+      }
+      return {"status": false, "message": resultTopics["message"]};
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+  Future<Map<String, dynamic>> getPublicTopicInfoDTOsRecentlyAccessed(String userId) async {
+    try {
+      List<TopicInfoDTO> topicsInfo = [];
+      var topicRecently = await TopicRecentlyAccessedDao().getTopicRecentlyAccessedByUserId(userId);
+      if(topicRecently["status"]){
+        TopicRecentlyAccessed topicsAccessed = topicRecently["data"];
+        for (String topicId in topicsAccessed.topicIds) {
+          var result = await getTopicInfoDTOByTopicIdAndUserId(topicId, userId);
+          if (result["status"]) {
+            topicsInfo.add(result["data"]);
+          }
+          print(result);
+        }
+        // for (var element in topicsInfo) {
+        //   print(element.vocabs);
+        // }
+        return {"status": true, "data": topicsInfo};
+      }
+      else{
+        //get top 5 public topic hien len
+        var top5Topic = await getTop5PublicTopicInfoDTOs(userId);
+        if(top5Topic["status"]){
+          List<TopicPlayedNumber> top5Topics = top5Topic["data"];
+          for (var topic in top5Topics) {
+            var result = await getTopicInfoDTOByTopicIdAndUserId(topic.topicId, userId);
+            if (result["status"]) {
+              topicsInfo.add(result["data"]);
+            }
+            print(result);
+            }
+        }
+        return {"status": true, "data": topicsInfo};
+        
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
   
 
-  Future<Map<String, dynamic>> getTopicInfoDTOByTopicId(String topicId) async {
+  Future<Map<String, dynamic>> getTopicInfoDTOByTopicIdAndUserId(String topicId, String userId) async {
     try {
       var resultTopic = await getTopicById(topicId);
       if (resultTopic["status"]) {
@@ -235,11 +295,18 @@ class TopicDao {
                 for (var vocab in newVocabsList) {
                   var result = await VocabularyStatusDao()
                       .getVocabularyStatusByVocabIdAndUserId(
-                          vocab.id!, user.id!);
+                          vocab.id!, userId);
                   if (result["status"]) {
                     var vocabStatus = VocabularyStatus.fromJson(result["data"]);
                     vocabs.add(
                         VocabInfoDTO(vocab: vocab, vocabStatus: vocabStatus));
+                  }
+                  //chua dc khoi tao status
+                  else{
+                    VocabularyStatus status = VocabularyStatus(vocabularyId: vocab.id!, topicId: topicId, userId: userId);
+                    await VocabularyStatusDao().addVocabularyStatus(status);
+                    vocabs.add(
+                        VocabInfoDTO(vocab: vocab, vocabStatus: status));
                   }
                 }
               }
