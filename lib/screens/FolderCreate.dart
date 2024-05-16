@@ -17,7 +17,6 @@ class FolderCreatePage extends StatefulWidget {
 }
 
 class _FolderCreatePageState extends State<FolderCreatePage> {
-
   TextEditingController _titleEditingController = TextEditingController();
   TextEditingController _descriptionEditingController = TextEditingController();
 
@@ -28,38 +27,74 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
     super.initState();
     _userFuture = AuthService().getCurrentUser();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create Folder",
+        title: const Text(
+          "Create Folder",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         actions: <Widget>[
           TextButton(
             onPressed: () async {
-              if(_titleEditingController.text.isNotEmpty){
-                
-                //Tạo folder
-                FolderModel newFolder = FolderModel(userId: user.id!
-                , name: _titleEditingController.text, description: _descriptionEditingController.text, topicIds: []);
-                // var result = await FolderDao().addFolder(newFolder);
-                
-                try {
+              // if (_titleEditingController.text.isNotEmpty) {
+              //   //Tạo folder
+              //   FolderModel newFolder = FolderModel(
+              //       userId: user.id!,
+              //       name: _titleEditingController.text,
+              //       description: _descriptionEditingController.text,
+              //       topicIds: []);
+              //   // var result = await FolderDao().addFolder(newFolder);
+
+              //   try {
+              //     AddFolder addFolderEvent = AddFolder(newFolder);
+              //     context.read<FolderBloc>().add(addFolderEvent);
+              //     String folderId = await addFolderEvent.completer.future;
+              //     Navigator.pop(context);
+              //     Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) =>
+              //                 FolderDetail(folderId: folderId)));
+              //   } catch (e) {
+              //     showScaffoldMessage(context, e.toString());
+              //   }
+              // } else {
+              //   showScaffoldMessage(context, 'Title is required');
+              // }
+
+              var title = _titleEditingController.text;
+              if (title.isEmpty) {
+                showDialogMessage(context, 'Title is required');
+              } else {
+                if (_titleEditingController.text.isNotEmpty) {
+                  //Tạo folder
+                  FolderModel newFolder = FolderModel(
+                      userId: user.id!,
+                      name: _titleEditingController.text,
+                      description: _descriptionEditingController.text,
+                      topicIds: []);
+                  // var result = await FolderDao().addFolder(newFolder);
+
+                  try {
                     AddFolder addFolderEvent = AddFolder(newFolder);
                     context.read<FolderBloc>().add(addFolderEvent);
                     String folderId = await addFolderEvent.completer.future;
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FolderDetail(folderId: folderId)));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                FolderDetail(folderId: folderId)));
+                  } catch (e) {
+                    showScaffoldMessage(context, e.toString());
+                  }
+                } else {
+                  showScaffoldMessage(context, 'Title is required');
                 }
-                catch(e){
-                  showScaffoldMessage(context, e.toString());
-                }
-              }
-              else{
-                 showScaffoldMessage(context, 'Title is required');
               }
             },
             child: const Text(
@@ -79,9 +114,9 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Form(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
                             const SizedBox(height: 10),
                             TextFormField(
                               controller: _titleEditingController,
@@ -116,9 +151,7 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
                                 ),
                               ),
                             ),
-                          ]
-                        )
-                      ),
+                          ])),
                     );
                   }
                 }
@@ -136,5 +169,41 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
                 );
               })),
     );
+  }
+
+  Future<dynamic> showDialogMessage(BuildContext context, String message) {
+    return showGeneralDialog(
+        context: context,
+        transitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (context, animation1, animation2) {
+          return Container();
+        },
+        transitionBuilder: (context, animation1, animation2, widget) {
+          return ScaleTransition(
+              scale: Tween<double>(begin: 0.5, end: 1).animate(animation1),
+              child: FadeTransition(
+                  opacity:
+                      Tween<double>(begin: 0.5, end: 1).animate(animation1),
+                  child: AlertDialog(
+                    content: Text(message),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Delete',
+                            style: TextStyle(color: Colors.orange)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Continue',
+                            style: TextStyle(color: Colors.lightGreen)),
+                      ),
+                    ],
+                  )));
+        });
   }
 }

@@ -1,36 +1,41 @@
+import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
 import 'package:final_quizlet_english/screens/SummaryType.dart';
+import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class TypingPractice extends StatefulWidget {
-  const TypingPractice({super.key});
+  const TypingPractice({super.key, required this.topic, this.tSettings});
 
-  // final TopicInfoDTO topic;
-  // final TypeSettings? settings;
+  final TopicInfoDTO topic;
+  final TopicTypeSettings? tSettings;
   @override
   _TypingPracticeState createState() => _TypingPracticeState();
 }
-// class TypingPractise {
-//   final String term;
-//   final String definition;
-//
-//   TypingPractise({required this.term, required this.definition});
-// }
+
+class TypingPractise {
+  final String term;
+  final String definition;
+
+  TypingPractise({required this.term, required this.definition});
+}
 
 class _TypingPracticeState extends State<TypingPractice> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _vocabList = [
-    {'english': 'hello', 'vietnamese': 'xin chào'},
-    {'english': 'goodbye', 'vietnamese': 'tạm biệt'},
-    {'english': 'please', 'vietnamese': 'làm ơn'},
+    // {'term': 'hello', 'definition': 'xin chào'},
+    // {'term': 'goodbye', 'definition': 'tạm biệt'},
+    // {'term': 'please', 'definition': 'làm ơn'},
     // Add more vocabulary here
-  ]..shuffle();
+  ];
   final FlutterTts flutterTts = FlutterTts();
 
   // late double _initial;
-  bool _isEnglishDisplayed = true;
+  // bool _isEnglishDisplayed = true;
   int _currentIndex = 0;
   String _feedback = '';
   int _correctCount = 0;
@@ -49,10 +54,41 @@ class _TypingPracticeState extends State<TypingPractice> {
 
   List<String> languages = [];
 
+  late double _initial;
+
+  String answerType = "Term";
+  bool randomOp = false;
+  bool audioPlay = false;
+
+  String nextAnswerType = "Term";
+
+  TopicTypeSettings? tSettings;
+
   @override
   void initState() {
     // languages.add(widget.topic.topic.termLanguage);
     // languages.add(widget.topic.topic.definitionLanguage);
+
+    if (widget.tSettings != null) {
+      tSettings = widget.tSettings;
+      randomOp = tSettings!.randomTerms;
+      audioPlay = tSettings!.autoPlayAudio;
+      answerType = tSettings!.answerType;
+      nextAnswerType = tSettings!.answerType;
+      print("SHUFFLE" + randomOp.toString());
+    }
+    for (var vocabDTO in widget.topic.vocabs!) {
+      print(vocabDTO);
+      var vocab = vocabDTO.vocab;
+      _vocabList.add({"term": vocab.term, "definition": vocab.definition});
+    }
+    if (randomOp) {
+        _vocabList.shuffle();
+    }
+    if(audioPlay){
+      textToSpeech();
+    }
+    _initial = 1 / _vocabList.length;
 
     super.initState();
     _focusNode = FocusNode();
@@ -61,20 +97,35 @@ class _TypingPracticeState extends State<TypingPractice> {
     });
   }
 
-  void _toggleLanguage() {
-    setState(() {
-      _isEnglishDisplayed = !_isEnglishDisplayed;
-    });
+  // void _toggleLanguage() {
+  //   setState(() {
+  //     _isEnglishDisplayed = !_isEnglishDisplayed;
+  //   });
+  // }
+
+  // void _speak(String text) async {
+  //   await flutterTts.speak(text);
+  // }
+  void textToSpeechEn(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
   }
 
-  void _speak(String text) async {
+  void textToSpeechVi(String text) async {
+    await flutterTts.setLanguage("vi-VN");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
   }
 
   void _checkAnswer() {
-    String? correctAnswer = _isEnglishDisplayed
-        ? _vocabList[_currentIndex]['vietnamese']
-        : _vocabList[_currentIndex]['english'];
+    String? correctAnswer = (answerType == "Definition")
+        ? _vocabList[_currentIndex]['definition']
+        : _vocabList[_currentIndex]['term'];
     bool isCorrect = _controller.text.toLowerCase() == correctAnswer;
     if (isCorrect) {
       _feedback = 'Correct!';
@@ -198,10 +249,10 @@ class _TypingPracticeState extends State<TypingPractice> {
                       Navigator.of(context).pop();
                       _controller.clear();
                       if (_currentIndex < _vocabList.length - 1) {
-                        _currentIndex++;
-                        if (_isEnglishDisplayed) {
-                          _speak(_vocabList[_currentIndex]['english']!);
-                        }
+                        updateToNext();
+                        // if (true) {
+                        //   _speak(_vocabList[_currentIndex]['english']!);
+                        // }
                       } else {
                         Navigator.push(
                           context,
@@ -224,10 +275,14 @@ class _TypingPracticeState extends State<TypingPractice> {
 
   @override
   Widget build(BuildContext context) {
+    int noQuestions = _vocabList.length;
+    print("NO QUESTIONS: " + noQuestions.toString());
+    String value = (_initial * noQuestions).toStringAsFixed(0);
+
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            '1 / 3',
+            '${value} / ${noQuestions}',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[700],
@@ -351,9 +406,27 @@ class _TypingPracticeState extends State<TypingPractice> {
                                             ],
                                           ),
                                           Switch(
-                                            value: false,
-                                            onChanged: (bool value) {
-                                              setState(() {});
+                                            value: randomOp,
+                                            onChanged: (bool value) async {
+                                              setState(() {
+                                                randomOp = value;
+                                              });
+                                              if (tSettings == null) {
+                                                tSettings = TopicTypeSettings(
+                                                    userId: widget
+                                                        .topic.topic.userId,
+                                                    randomTerms: value,
+                                                    autoPlayAudio: audioPlay,
+                                                    answerType: answerType);
+                                                await TypeSettingsDao()
+                                                    .addTypeSettings(
+                                                        tSettings!);
+                                              } else {
+                                                tSettings!.randomTerms = value;
+                                                await TypeSettingsDao()
+                                                    .updateTypeSettings(
+                                                        tSettings!);
+                                              }
                                             },
                                           ),
                                         ],
@@ -386,9 +459,28 @@ class _TypingPracticeState extends State<TypingPractice> {
                                           ),
                                           Switch(
                                             // value: audioPlay,
-                                            value: false,
+                                            value: audioPlay,
                                             onChanged: (bool value) {
-                                              setState(() {});
+                                              setState(() {
+                                                audioPlay = value;
+                                              });
+                                              if (tSettings == null) {
+                                                tSettings = TopicTypeSettings(
+                                                    userId: widget
+                                                        .topic.topic.userId,
+                                                    randomTerms: value,
+                                                    autoPlayAudio: audioPlay,
+                                                    answerType: answerType);
+                                                TypeSettingsDao()
+                                                    .addTypeSettings(
+                                                        tSettings!);
+                                              } else {
+                                                tSettings!.autoPlayAudio =
+                                                    value;
+                                                TypeSettingsDao()
+                                                    .updateTypeSettings(
+                                                        tSettings!);
+                                              }
                                             },
                                           ),
                                         ],
@@ -397,7 +489,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                                         height: 20,
                                       ),
                                       Text(
-                                        "Card orientation",
+                                        "Answer type",
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -407,55 +499,51 @@ class _TypingPracticeState extends State<TypingPractice> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      // ToggleSwitch(
-                                      //   minWidth:
-                                      //       MediaQuery.of(context).size.width,
-                                      //   minHeight: 35,
-                                      //   initialLabelIndex:
-                                      //       (cardOrientation == languages[0])
-                                      //           ? 0
-                                      //           : 1,
-                                      //   activeBgColor: const [
-                                      //     Colors.lightGreen
-                                      //   ],
-                                      //   activeFgColor: Colors.white,
-                                      //   inactiveBgColor: Colors.white,
-                                      //   inactiveFgColor: Colors.grey[900],
-                                      //   borderColor: const [Colors.green],
-                                      //   borderWidth: 1.5,
-                                      //   totalSwitches: 2,
-                                      //   labels: languages,
-                                      //   onToggle: (index) {
-                                      //     //code sử lý gì á
-                                      //     if (index == 0) {
-                                      //       setState(() {
-                                      //         cardOrientation = languages[0];
-                                      //       });
-                                      //     } else {
-                                      //       setState(() {
-                                      //         cardOrientation = languages[1];
-                                      //       });
-                                      //     }
-                                      //     if (fSettings == null) {
-                                      //       fSettings = FlashCardSettings(
-                                      //           userId:
-                                      //               widget.topic.topic.userId,
-                                      //           randomTerms: randomOp,
-                                      //           autoPlayAudio: audioPlay,
-                                      //           cardOrientation:
-                                      //               cardOrientation);
-                                      //       FlashCardSettingsDao()
-                                      //           .addFlashCardSettings(
-                                      //               fSettings!);
-                                      //     } else {
-                                      //       fSettings!.cardOrientation =
-                                      //           cardOrientation;
-                                      //       FlashCardSettingsDao()
-                                      //           .updateFlashCardSettings(
-                                      //               fSettings!);
-                                      //     }
-                                      //   },
-                                      // ),
+                                      ToggleSwitch(
+                                        minWidth:
+                                            MediaQuery.of(context).size.width,
+                                        minHeight: 35,
+                                        initialLabelIndex:
+                                            (nextAnswerType == "Term") ? 0 : 1,
+                                        activeBgColor: const [
+                                          Colors.lightGreen
+                                        ],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        borderColor: const [Colors.green],
+                                        borderWidth: 1.5,
+                                        totalSwitches: 2,
+                                        labels: const ["Term", "Definition"],
+                                        onToggle: (index) {
+                                          //code sử lý gì á
+                                          if (index == 0) {
+                                            setState(() {
+                                              nextAnswerType = "Term";
+                                            });
+                                          } else {
+                                            setState(() {
+                                              nextAnswerType = "Definition";
+                                            });
+                                          }
+                                          if(nextAnswerType!=answerType){
+                                            if (tSettings == null) {
+                                            tSettings = TopicTypeSettings(
+                                                userId:
+                                                    widget.topic.topic.userId,
+                                                randomTerms: randomOp,
+                                                autoPlayAudio: audioPlay,
+                                                answerType: nextAnswerType);
+                                            TypeSettingsDao()
+                                                .addTypeSettings(tSettings!);
+                                          } else {
+                                            tSettings!.answerType = nextAnswerType;
+                                            TypeSettingsDao()
+                                                .updateTypeSettings(tSettings!);
+                                          }
+                                          }
+                                        },
+                                      ),
                                       const SizedBox(
                                         height: 10,
                                       ),
@@ -470,7 +558,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                                                 // audioPlay = false;
                                                 // randomOp = false;
                                               });
-                                              // fSettings!.cardOrientation =
+                                              // tSettings!.cardOrientation =
                                               //     cardOrientation;
                                               // fSettings!.autoPlayAudio =
                                               //     audioPlay;
@@ -480,7 +568,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                                               //         fSettings!);
                                             },
                                             child: const Text(
-                                              "Refresh flashcard",
+                                              "Refresh type",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.lightGreen,
@@ -504,46 +592,131 @@ class _TypingPracticeState extends State<TypingPractice> {
             )
           ],
         ),
-        body: Column(
-          children: <Widget>[
-            LinearProgressIndicator(
-              backgroundColor: Colors.white,
-              valueColor: const AlwaysStoppedAnimation(Colors.lightGreen),
-              minHeight: 5,
-              value: 5,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 150.0, 16.0, 16.0),
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    '${_isEnglishDisplayed ? 'English' : 'Vietnamese'}: ${_vocabList[_currentIndex][_isEnglishDisplayed ? 'english' : 'vietnamese']}',
-                    style: TextStyle(fontSize: 24, color: Colors.green),
-                  ),
-                  TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    decoration: InputDecoration(
-                      labelText:
-                          'Type the ${_isEnglishDisplayed ? 'Vietnamese' : 'English'} meaning',
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.arrow_upward_rounded),
-                        onPressed: _checkAnswer,
-                      ),
+        body: SafeArea(
+          child: SizedBox(
+            height: double.infinity,
+            child: Column(
+              children: <Widget>[
+                LinearProgressIndicator(
+                  backgroundColor: Colors.white,
+                  valueColor: const AlwaysStoppedAnimation(Colors.lightGreen),
+                  minHeight: 5,
+                  value: _initial,
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        textToSpeech();
+                      },
+                      icon: const Icon(Icons.volume_up),
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '${_vocabList[_currentIndex][(answerType == "Definition") ? 'term' : 'definition']}',
+                          style: TextStyle(fontSize: 24, color: Colors.green),
+                        ),
+                        // Text(
+                        //   _feedback,
+                        //   style: TextStyle(
+                        //     fontSize: 24,
+                        //     color: _feedback == 'Correct!' ? Colors.green : Colors.red,
+                        //   ),
+                        // ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 20),
-                  // Text(
-                  //   _feedback,
-                  //   style: TextStyle(
-                  //     fontSize: 24,
-                  //     color: _feedback == 'Correct!' ? Colors.green : Colors.red,
-                  //   ),
-                  // ),
-                ],
-              ),
-            )
-          ],
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        TextField(
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText:
+                                'Type the ${(answerType == "Definition") ? 'definition' : 'term'} meaning',
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.arrow_upward_rounded),
+                              onPressed: _checkAnswer,
+                            ),
+                          ),
+                          // onSubmitted: (value) => _checkAnswer(),
+                        ),
+
+                        // Text(
+                        //   _feedback,
+                        //   style: TextStyle(
+                        //     fontSize: 24,
+                        //     color: _feedback == 'Correct!' ? Colors.green : Colors.red,
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ));
+  }
+
+  void updateToNext() {
+    if(nextAnswerType!=answerType){
+      setState(() {
+        answerType = nextAnswerType;
+      });
+    }
+    setState(() {
+      _initial = _initial + 1 / _vocabList.length;
+      _currentIndex++;
+      if (_initial > 1.0) {
+        _initial = 1 / _vocabList.length;
+      }
+    });
+    if(audioPlay){
+      textToSpeech();
+    }
+  }
+
+  void textToSpeech(){
+    print(widget.topic.topic.termLanguage);
+    print(answerType);
+    if (widget.topic.topic.termLanguage == "English" &&
+                            answerType == "Definition") {
+      textToSpeechEn(
+          _vocabList[_currentIndex]["term"].toString());
+    } else if (widget.topic.topic.termLanguage ==
+            "English" &&
+        answerType == "Term") {
+      textToSpeechVi(_vocabList[_currentIndex]["definition"]
+          .toString());
+    }
+    else if (widget.topic.topic.termLanguage == "Vietnamese" &&
+        answerType == "Term") {
+      textToSpeechVi(
+          _vocabList[_currentIndex]["term"].toString());
+    } else if (widget.topic.topic.termLanguage ==
+            "Vietnamese" &&
+        answerType == "Definition") {
+      textToSpeechEn(
+          _vocabList[_currentIndex]["term"].toString());
+    } else {
+      textToSpeechEn(
+          _vocabList[_currentIndex]["term"].toString());
+    }
   }
 }

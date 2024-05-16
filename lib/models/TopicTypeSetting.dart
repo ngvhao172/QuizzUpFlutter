@@ -4,7 +4,7 @@ class TopicTypeSettings {
   String? id;
   String userId;
   bool randomTerms;
-  String typeLanguage;
+  String answerType;
   bool autoPlayAudio;
 
   DateTime? createdAt = DateTime.now();
@@ -18,7 +18,7 @@ class TopicTypeSettings {
     required this.userId,
     required this.randomTerms,
     required this.autoPlayAudio,
-    required this.typeLanguage,
+    required this.answerType,
   }) : this.createdAt = createdAt ?? DateTime.now(), this.updatedAt = updatedAt ?? DateTime.now();
 
   factory TopicTypeSettings.fromJson(Map<String, dynamic> json) {
@@ -26,7 +26,7 @@ class TopicTypeSettings {
       id: json['id'],
       randomTerms: json['randomTerms'],
       autoPlayAudio: json['autoPlayAudio'],
-      typeLanguage: json['typeLanguage'],
+      answerType: json['answerType'],
       userId: json['userId'],
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       updatedAt: (json['updatedAt'] as Timestamp).toDate());
@@ -37,7 +37,7 @@ class TopicTypeSettings {
       'id': id,
       'randomTerms': randomTerms,
       'autoPlayAudio': autoPlayAudio,
-      'typeLanguage': typeLanguage,
+      'answerType': answerType,
       'userId': userId,
       'createdAt': createdAt,
       'updatedAt': updatedAt,

@@ -6,14 +6,20 @@ import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
+import 'package:final_quizlet_english/models/TopicPlayedNumber.dart';
+import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
+import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/models/VocabFavourite.dart';
 import 'package:final_quizlet_english/models/Vocabulary.dart';
 import 'package:final_quizlet_english/screens/FolderList.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
+import 'package:final_quizlet_english/services/TopicPlayedNumberDao.dart';
+import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
 import 'package:final_quizlet_english/widgets/Notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,20 +87,22 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.speak(text);
   }
 
-  // late UserModel _user;
+  UserModel? _user;
   @override
   void initState() {
     // topicData = TopicDao().getTopicInfoDTOByTopicIdRealtime(widget.topicId);
     super.initState();
 
-    // AuthService().getCurrentUser().then((user) {
-    //   print(user?.id);
-    //   _user = user!;
+    AuthService().getCurrentUser().then((user) {
+      print(user?.id);
+      setState(() {
+        _user = user!;
 
-    // });
-    context
+        context
         .read<TopicDetailBloc>()
-        .add(LoadTopic(widget.topicId, widget.userId));
+        .add(LoadTopic(widget.topicId, _user!.id!));
+      });
+    });
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -171,7 +179,8 @@ class _TDetailPageState extends State<TDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (_user!=null) ?
+    Scaffold(
       appBar: AppBar(
         leading: const BackButton(
           color: Colors.grey,
@@ -189,6 +198,7 @@ class _TDetailPageState extends State<TDetailPage>
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
+                      (widget.userId == _user!.id!)?
                       ListTile(
                         leading: const Icon(Icons.edit),
                         title: const Text('Edit Topic'),
@@ -203,7 +213,8 @@ class _TDetailPageState extends State<TDetailPage>
                                     )),
                           );
                         },
-                      ),
+                      ) : Container(),
+                      (widget.userId == _user!.id!)?
                       ListTile(
                         leading: const Icon(Icons.delete),
                         title: const Text('Delete Topic'),
@@ -225,7 +236,7 @@ class _TDetailPageState extends State<TDetailPage>
                           }, "Delete", "Cancel");
                           // context.read<TopicBloc>().add(RemoveTopic(widget.topicId));
                         },
-                      ),
+                      ) : Container(),
                       ListTile(
                         leading: const Icon(Icons.folder_open),
                         title: const Text('Add to folder'),
@@ -255,7 +266,7 @@ class _TDetailPageState extends State<TDetailPage>
               );
             },
           )
-        ],
+        ]
       ),
       body: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -282,10 +293,12 @@ class _TDetailPageState extends State<TDetailPage>
                     mastered.add(element.vocab);
                   }
                 }
-                TopicModel topicLastAccessed = state.topic.topic;
-                topicLastAccessed.lastAccessed = DateTime.now();
-                TopicDao().updateTopic(topicLastAccessed);
-                context.read<TopicBloc>().add(LoadTopics(widget.userId));
+                if(widget.userId == _user!.id!){
+                  TopicModel topicLastAccessed = state.topic.topic;
+                  topicLastAccessed.lastAccessed = DateTime.now();
+                  TopicDao().updateTopic(topicLastAccessed);
+                  context.read<TopicBloc>().add(LoadTopics(widget.userId));
+                }
                 _vocabsFav = state.vocabsFav;
                 print(_topicInfoDTO.topic.private);
                 return Column(
@@ -398,22 +411,41 @@ class _TDetailPageState extends State<TDetailPage>
                     //Flashcard
                     ElevatedButton(
                       onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_user!.id!, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          topicPlay.times = topicPlay.times + 1;//ngao'
+                          print(topicPlay.times);
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _user!.id!, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
                         var result = await FlashCardSettingsDao()
                             .getFlashCardSettingsByUserId(
-                                _topicInfoDTO.topic.userId);
+                                _user!.id!);
+                        print(result);
                         if (result["status"]) {
-                          FlashCardSettings fSettings =
-                              FlashCardSettings.fromJson(result["data"]);
+                          FlashCardSettings fSettings = FlashCardSettings.fromJson(result["data"]);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => TFlashcardPage(
-                                    topic: _topicInfoDTO, settings: fSettings)),
+                                    topic: _topicInfoDTO, settings: fSettings, userId: _user!.id!,)),
                           );
                         } else {
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  TFlashcardPage(topic: _topicInfoDTO));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TFlashcardPage(
+                                    topic: _topicInfoDTO, userId: _user!.id!)));
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -450,12 +482,30 @@ class _TDetailPageState extends State<TDetailPage>
                     ),
                     //Điền từ
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_user!.id!, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          var timesAdd = topicPlay.times + 1;
+                          topicPlay.times = timesAdd;
+        
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _user!.id!, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => TQuizPage(
-                                    topic: _topicInfoDTO,
+                                    topicDTO: _topicInfoDTO, userId: _user!.id!,
                                   )),
                         );
                       },
@@ -493,8 +543,34 @@ class _TDetailPageState extends State<TDetailPage>
                     ),
                     //Làm trắc nghiệm
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice()));
+                      onPressed: () async {
+                        //tạo topicplaycount nếu chưa tồn tại
+                        //
+                        var topicPlayCount = await TopicPlayedNumberDao().getTopicPlayedNumberByUserIdAndTopicId(_user!.id!, _topicInfoDTO.topic.id!);
+                        if(topicPlayCount["status"]){
+                          //nếu tồn tại + 1 lần chơi
+                          TopicPlayedNumber topicPlay = topicPlayCount["data"];
+                          topicPlay.times = topicPlay.times + 1;
+                          print(topicPlay.times);
+                          var res = await TopicPlayedNumberDao().updateTopicPlayedNumber(topicPlay);
+                          print(res);
+                        }
+                        else{
+                          //tạo mới
+                          TopicPlayedNumber topicPlayedNumber = TopicPlayedNumber(topicId: _topicInfoDTO.topic.id!, userId: _user!.id!, times: 1);
+                          var res = await TopicPlayedNumberDao().addTopicPlayedNumber(topicPlayedNumber);
+                          print(res);
+                        }
+                        var result = await TypeSettingsDao()
+                            .getTypeSettingsByUserId(
+                                _topicInfoDTO.topic.userId);
+                        if (result["status"]) {
+                          TopicTypeSettings tSettings = TopicTypeSettings.fromJson(result["data"]);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: _topicInfoDTO, tSettings: tSettings)));
+                        }
+                        else{
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: _topicInfoDTO)));
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange[50],
@@ -616,7 +692,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                         index + 1,
                                                         vocab.term,
                                                         vocab.definition,
-                                                        widget.userId,
+                                                        _user!.id!,
                                                         vocab.id!,
                                                         isFav,
                                                         _topicInfoDTO
@@ -663,7 +739,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                         index + 1,
                                                         vocab.term,
                                                         vocab.definition,
-                                                        widget.userId,
+                                                        _user!.id!,
                                                         vocab.id!,
                                                         isFav,
                                                         _topicInfoDTO
@@ -710,7 +786,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                         index + 1,
                                                         vocab.term,
                                                         vocab.definition,
-                                                        widget.userId,
+                                                        _user!.id!,
                                                         vocab.id!,
                                                         isFav,
                                                         _topicInfoDTO
@@ -757,7 +833,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                         index + 1,
                                                         vocab.term,
                                                         vocab.definition,
-                                                        widget.userId,
+                                                        _user!.id!,
                                                         vocab.id!,
                                                         isFav,
                                                         _topicInfoDTO
@@ -784,7 +860,7 @@ class _TDetailPageState extends State<TDetailPage>
                                         index + 1,
                                         vocab.term,
                                         vocab.definition,
-                                        widget.userId,
+                                        _user!.id!,
                                         vocab.id!,
                                         true,
                                         _topicInfoDTO.topic.termLanguage,
@@ -831,7 +907,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                     index + 1,
                                                     vocab.term,
                                                     vocab.definition,
-                                                    widget.userId,
+                                                    _user!.id!,
                                                     vocab.id!,
                                                     isFav,
                                                     _topicInfoDTO
@@ -878,7 +954,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                     index + 1,
                                                     vocab.term,
                                                     vocab.definition,
-                                                    widget.userId,
+                                                    _user!.id!,
                                                     vocab.id!,
                                                     isFav,
                                                     _topicInfoDTO
@@ -925,7 +1001,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                         index + 1,
                                                         vocab.term,
                                                         vocab.definition,
-                                                        widget.userId,
+                                                        _user!.id!,
                                                         vocab.id!,
                                                         isFav,
                                                         _topicInfoDTO
@@ -972,7 +1048,7 @@ class _TDetailPageState extends State<TDetailPage>
                                                     index + 1,
                                                     vocab.term,
                                                     vocab.definition,
-                                                    widget.userId,
+                                                    _user!.id!,
                                                     vocab.id!,
                                                     isFav,
                                                     _topicInfoDTO
@@ -1232,7 +1308,7 @@ class _TDetailPageState extends State<TDetailPage>
               }
             },
           )),
-    );
+    ) : const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.lightGreen,)),);
   }
 
   Widget buildCard(

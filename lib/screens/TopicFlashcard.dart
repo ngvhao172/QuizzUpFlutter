@@ -14,10 +14,12 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TFlashcardPage extends StatefulWidget {
-  const TFlashcardPage({super.key, required this.topic, this.settings});
+  const TFlashcardPage({super.key, required this.topic, required this.userId, this.settings});
 
   final TopicInfoDTO topic;
   final FlashCardSettings? settings;
+
+  final String userId;
 
   @override
   State<TFlashcardPage> createState() => _TFlashcardPageState();
@@ -71,7 +73,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
     languages.add(widget.topic.topic.termLanguage);
     languages.add(widget.topic.topic.definitionLanguage);
 
-    cardOrientation = widget.topic.topic.definitionLanguage;
+    cardOrientation = widget.topic.topic.termLanguage;
     for (var vocab in widget.topic.vocabs!) {
       termCard.add(Flashcard(
           vocabStatus: vocab.vocabStatus,
@@ -91,6 +93,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
 
     _initial = 1 / termCard.length;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    flipKey.currentState?.dispose();
+    super.dispose();
   }
 
   void textToSpeechEn(String text) async {
@@ -156,10 +165,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                   return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                       return SizedBox(
-                        height: MediaQuery.of(context).size.height * 11 / 24,
+                        height: MediaQuery.of(context).size.height * 1 / 2,
                         width: MediaQuery.of(context).size.width,
                         child: Column(
                           children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -220,7 +232,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             if (fSettings == null) {
                                               fSettings = FlashCardSettings(
                                                   userId:
-                                                      widget.topic.topic.userId,
+                                                     widget.userId,
                                                   randomTerms: value,
                                                   autoPlayAudio: audioPlay,
                                                   cardOrientation:
@@ -273,7 +285,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                             if (fSettings == null) {
                                               fSettings = FlashCardSettings(
                                                   userId:
-                                                      widget.topic.topic.userId,
+                                                      widget.userId,
                                                   randomTerms: value,
                                                   autoPlayAudio: audioPlay,
                                                   cardOrientation:
@@ -334,7 +346,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                         }
                                         if (fSettings == null) {
                                           fSettings = FlashCardSettings(
-                                              userId: widget.topic.topic.userId,
+                                              userId: widget.userId,
                                               randomTerms: randomOp,
                                               autoPlayAudio: audioPlay,
                                               cardOrientation: cardOrientation);
@@ -373,7 +385,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
                                                     fSettings!);
                                           },
                                           child: const Text(
-                                            "Refresh flashcard",
+                                            "Restart flashcard",
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.lightGreen,
@@ -737,12 +749,16 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
       });
       if (autoFlip) {
         await Future.delayed(const Duration(seconds: 2), () async {
-          flipKey.currentState!.toggleCard();
+          if(flipKey.currentState!=null){
+            flipKey.currentState!.toggleCard();
+          }
           await Future.delayed(const Duration(seconds: 1), () {
             showNextCard();
             updateToNext();
             updateLearn();
-            flipKey.currentState!.toggleCard();
+            if(flipKey.currentState!=null){
+              flipKey.currentState!.toggleCard();
+            }
           });
         });
       }
@@ -770,7 +786,7 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
             });
           }
         } else if(value == "to-quiz"){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topic: widget.topic)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic, userId: widget.userId,)));
         }
         else {
           Navigator.pop(context);

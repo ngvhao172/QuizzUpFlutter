@@ -3,6 +3,8 @@ import 'HomePage.dart' as _homeTab;
 import 'Report.dart' as _reportTab;
 import 'Library.dart' as _libraryTab;
 import 'Profile.dart' as _profileTab;
+import 'SearchPage.dart' as _searchPageTab;
+
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/FolderCreate.dart';
 import 'package:final_quizlet_english/screens/FolderDetail.dart';
@@ -30,6 +32,7 @@ class _MainPageState extends State<MainPage> {
       body: SafeArea(
         child: PageView(
           controller: navPage,
+          physics: NeverScrollableScrollPhysics(),
           onPageChanged: (int index) {
             setState(() {
               _currentIndex = index;

@@ -92,7 +92,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                             mainAxisSize: MainAxisSize.min,
                                             children: <Widget>[
                                               ListTile(
-                                                leading: const Icon(Icons.edit),
+                                                leading: const Icon(Icons.camera),
                                                 title: const Text('Camera'),
                                                 onTap: () async {
                                                   Navigator.pop(context);
@@ -102,7 +102,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                               ),
                                               ListTile(
                                                 leading:
-                                                    const Icon(Icons.delete),
+                                                    const Icon(Icons.browse_gallery),
                                                 title: const Text('Galery'),
                                                 onTap: () async {
                                                   Navigator.pop(context);
@@ -283,9 +283,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                               .showSnackBar(SnackBar(
                                                   content:
                                                       Text(error["message"])));
-                                        setState(() {
-                                          isLoading = false;
-                                        });
+                                          setState(() {
+                                            isLoading = false;
+                                          });
                                         });
                                       } else {
                                         // var result = await AuthService()
