@@ -1,3 +1,4 @@
+import 'package:final_quizlet_english/screens/SummaryType.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -11,12 +12,12 @@ class TypingPractice extends StatefulWidget {
   @override
   _TypingPracticeState createState() => _TypingPracticeState();
 }
-class TypingPractise {
-  final String term;
-  final String definition;
-
-  TypingPractise({required this.term, required this.definition});
-}
+// class TypingPractise {
+//   final String term;
+//   final String definition;
+//
+//   TypingPractise({required this.term, required this.definition});
+// }
 
 class _TypingPracticeState extends State<TypingPractice> {
   final TextEditingController _controller = TextEditingController();
@@ -52,7 +53,6 @@ class _TypingPracticeState extends State<TypingPractice> {
   void initState() {
     // languages.add(widget.topic.topic.termLanguage);
     // languages.add(widget.topic.topic.definitionLanguage);
-
 
     super.initState();
     _focusNode = FocusNode();
@@ -91,27 +91,27 @@ class _TypingPracticeState extends State<TypingPractice> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0), // Set the border radius
+            borderRadius: BorderRadius.circular(10.0),
           ),
           child: Column(
             mainAxisSize:
-                MainAxisSize.min, // To make the dialog itself non-expanded
+                MainAxisSize.min,
             children: <Widget>[
               Container(
                 decoration: BoxDecoration(
                   color: isCorrect
                       ? Colors.green
                       : Colors
-                          .red, // Set the background color based on the answer
+                          .red,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(
-                        10.0), // Set the border radius for the top left corner
+                        10.0), 
                     topRight: Radius.circular(
-                        10.0), // Set the border radius for the top right corner
+                        10.0),
                   ),
                 ),
                 width: double
-                    .infinity, // Make the container take up the full width
+                    .infinity, 
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
@@ -120,13 +120,13 @@ class _TypingPracticeState extends State<TypingPractice> {
                         isCorrect
                             ? Icons.tag_faces_sharp
                             : Icons
-                                .sentiment_dissatisfied_outlined, // Choose the icon based on the answer
+                                .sentiment_dissatisfied_outlined, 
                         color: Colors.yellow,
                         size: 35,
                       ),
                       SizedBox(
                           width:
-                              10), // Add some spacing between the icon and the text
+                              10), 
                       Text(
                         // isCorrect ? 'Correct!' : 'Incorrect',
                         '${_feedback}',
@@ -185,10 +185,10 @@ class _TypingPracticeState extends State<TypingPractice> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(
-                          255, 42, 117, 179), // This is the color of the button
+                          255, 42, 117, 179), 
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(10.0), // Add border radius
+                            BorderRadius.circular(10.0), 
                       ),
                       padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
                     ),
@@ -203,30 +203,9 @@ class _TypingPracticeState extends State<TypingPractice> {
                           _speak(_vocabList[_currentIndex]['english']!);
                         }
                       } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Summary'),
-                              content: Text('Correct answers: $_correctCount\n'
-                                  'Incorrect answers: $_incorrectCount'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('Retry'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    setState(() {
-                                      _currentIndex =
-                                          0; // Reset to the first word after the last word
-                                      _correctCount = 0;
-                                      _incorrectCount = 0;
-                                      _controller.clear();
-                                    });
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SummaryType()),
                         );
                       }
                       _feedback = '';
@@ -374,8 +353,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                                           Switch(
                                             value: false,
                                             onChanged: (bool value) {
-                                              setState(() {
-                                              });
+                                              setState(() {});
                                             },
                                           ),
                                         ],
@@ -410,8 +388,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                                             // value: audioPlay,
                                             value: false,
                                             onChanged: (bool value) {
-                                              setState(() {
-                                              });
+                                              setState(() {});
                                             },
                                           ),
                                         ],
@@ -554,7 +531,6 @@ class _TypingPracticeState extends State<TypingPractice> {
                         onPressed: _checkAnswer,
                       ),
                     ),
-                    // onSubmitted: (value) => _checkAnswer(),
                   ),
                   SizedBox(height: 20),
                   // Text(
