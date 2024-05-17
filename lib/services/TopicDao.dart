@@ -115,6 +115,29 @@ class TopicDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getTotalTopicsByUserId(String userId) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await topicCollection.where('userId', isEqualTo: userId).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Map<String, dynamic>> topicsData = querySnapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+        for (var i = 0; i < topicsData.length; i++) {
+          if (topicsData[i]["id"] == null) {
+            topicsData[i]["id"] = querySnapshot.docs[i].id;
+            updateTopic(TopicModel.fromJson(topicsData[i]));
+          }
+        }
+        return {"status": true, "data": topicsData.length};
+      } else {
+        return {"status": true, "data": 0};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
   Future<Map<String, dynamic>> getPublicTopicsByTopicName(String topicName) async {
     try {
       QuerySnapshot querySnapshot =

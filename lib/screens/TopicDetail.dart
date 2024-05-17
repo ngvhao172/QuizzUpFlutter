@@ -6,6 +6,7 @@ import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/FlashCardSettings.dart';
+import 'package:final_quizlet_english/models/QuizSettings.dart';
 import 'package:final_quizlet_english/models/Topic.dart';
 import 'package:final_quizlet_english/models/TopicPlayedNumber.dart';
 import 'package:final_quizlet_english/models/TopicRecentlyAccessed.dart';
@@ -19,6 +20,7 @@ import 'package:final_quizlet_english/screens/TopicType.dart';
 import 'package:final_quizlet_english/screens/TopicUpdate.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
+import 'package:final_quizlet_english/services/QuizSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
 import 'package:final_quizlet_english/services/TopicPlayedNumberDao.dart';
 import 'package:final_quizlet_english/services/TopicRecentlyAccessedDao.dart';
@@ -109,7 +111,7 @@ class _TDetailPageState extends State<TDetailPage>
         TopicRecentlyAccessedDao().getTopicRecentlyAccessedByUserId(_user!.id!).then((value) {
           print(value);
           if(value["status"]){
-            TopicRecentlyAccessed topicAcccessed = TopicRecentlyAccessed.fromJson(value["data"]);
+            TopicRecentlyAccessed topicAcccessed = value["data"];
             for (var element in topicAcccessed.topicIds) {
               if(widget.topicId == element){
                 topicAcccessed.topicIds.remove(element);
@@ -525,6 +527,7 @@ class _TDetailPageState extends State<TDetailPage>
                               if (result["status"]) {
                                 FlashCardSettings fSettings =
                                     FlashCardSettings.fromJson(result["data"]);
+                                     // ignore: use_build_context_synchronously
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -535,6 +538,7 @@ class _TDetailPageState extends State<TDetailPage>
                                           )),
                                 );
                               } else {
+                                 // ignore: use_build_context_synchronously
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -590,38 +594,58 @@ class _TDetailPageState extends State<TDetailPage>
                               if(_topicInfoDTO.vocabs!.length>=4){
                                 //tạo topicplaycount nếu chưa tồn tại
                               //
-                              var topicPlayCount = await TopicPlayedNumberDao()
-                                  .getTopicPlayedNumberByUserIdAndTopicId(
-                                      _user!.id!, _topicInfoDTO.topic.id!);
-                              if (topicPlayCount["status"]) {
-                                //nếu tồn tại + 1 lần chơi
-                                TopicPlayedNumber topicPlay =
-                                    topicPlayCount["data"];
-                                var timesAdd = topicPlay.times + 1;
-                                topicPlay.times = timesAdd;
+                                var topicPlayCount = await TopicPlayedNumberDao()
+                                    .getTopicPlayedNumberByUserIdAndTopicId(
+                                        _user!.id!, _topicInfoDTO.topic.id!);
+                                if (topicPlayCount["status"]) {
+                                  //nếu tồn tại + 1 lần chơi
+                                  TopicPlayedNumber topicPlay =
+                                      topicPlayCount["data"];
+                                  var timesAdd = topicPlay.times + 1;
+                                  topicPlay.times = timesAdd;
 
-                                var res = await TopicPlayedNumberDao()
-                                    .updateTopicPlayedNumber(topicPlay);
-                                print(res);
-                              } else {
-                                //tạo mới
-                                TopicPlayedNumber topicPlayedNumber =
-                                    TopicPlayedNumber(
-                                        topicId: _topicInfoDTO.topic.id!,
-                                        userId: _user!.id!,
-                                        times: 1);
-                                var res = await TopicPlayedNumberDao()
-                                    .addTopicPlayedNumber(topicPlayedNumber);
-                                print(res);
-                              }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => TQuizPage(
-                                          topicDTO: _topicInfoDTO,
+                                  var res = await TopicPlayedNumberDao()
+                                      .updateTopicPlayedNumber(topicPlay);
+                                  print(res);
+                                } else {
+                                  //tạo mới
+                                  TopicPlayedNumber topicPlayedNumber =
+                                      TopicPlayedNumber(
+                                          topicId: _topicInfoDTO.topic.id!,
                                           userId: _user!.id!,
-                                        )),
-                              );
+                                          times: 1);
+                                  var res = await TopicPlayedNumberDao()
+                                      .addTopicPlayedNumber(topicPlayedNumber);
+                                  print(res);
+                                }
+                                var result = await QuizSettingsDao()
+                                    .getQuizSettingsByUserId(_user!.id!);
+                                print(result);
+                                if (result["status"]) {
+                                  QuizSettings qSettings =
+                                      QuizSettings.fromJson(result["data"]);
+                                       // ignore: use_build_context_synchronously
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TQuizPage(
+                                                  topicDTO: _topicInfoDTO,
+                                                  userId: _user!.id!,
+                                                  qSettings: qSettings,
+                                                )),
+                                      );
+                                }
+                                else{
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TQuizPage(
+                                                  topicDTO: _topicInfoDTO,
+                                                  userId: _user!.id!,
+                                                )),
+                                      );
+                                }
                               }
                               else{
                                 showScaffoldMessage(context, "Quiz requires at least 4 terms to play.");

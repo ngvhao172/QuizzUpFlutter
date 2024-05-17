@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/services/FolderDao.dart';
+import 'package:final_quizlet_english/services/TopicDao.dart';
+import 'package:final_quizlet_english/services/TopicPlayedNumberDao.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -85,6 +88,30 @@ class UserDao {
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
       return {"status": true, "data": downloadUrl};
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> getStatistic(String userId) async {
+    try {
+      int totalTopic = 0;
+      int totalFolder = 0;
+      int totalTimes = 0;
+      var resTopics = await TopicDao().getTotalTopicsByUserId(userId);
+      if(resTopics["status"]){
+        totalTopic = resTopics["data"];
+      }
+      var resFolders = await FolderDao().getTotalFoldersByUserId(userId);
+      if(resFolders["status"]){
+        totalFolder = resFolders["data"];
+      }
+      var resTotalTimes = await TopicPlayedNumberDao().getTotalTopicPlayedNumberByUserId(userId);
+      if(resTotalTimes["status"]){
+        totalTimes = resTotalTimes["data"];
+      }
+      Map<String, int> res = {"totalTopics" : totalTopic, "totalFolders" : totalFolder, "totalAttempts" : totalTimes};
+      return {"status": true, "data": res};
     } catch (e) {
       return {"status": false, "message": e.toString()};
     }

@@ -104,6 +104,29 @@ class FolderDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getTotalFoldersByUserId(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await folderCollection
+          .where('userId', isEqualTo: userId)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<Map<String, dynamic>> foldersData = querySnapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+        for (var i = 0; i < foldersData.length; i++) {
+          if (foldersData[i]["id"] == null) {
+            foldersData[i]["id"] = querySnapshot.docs[i].id;
+            updateFolder(FolderModel.fromJson(foldersData[i]));
+          }
+        }
+        return {"status": true, "data": foldersData.length};
+      } else {
+        return {"status": true, "data": 0};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
 
   // Future<Map<String, dynamic>> getFoldersInfoDTOByUserId(String userId) async {
   //   try {

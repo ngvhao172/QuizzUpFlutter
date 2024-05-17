@@ -5,11 +5,13 @@ import 'package:final_quizlet_english/blocs/community/TopicRankingBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
+import 'package:final_quizlet_english/models/QuizSettings.dart';
 import 'package:final_quizlet_english/models/TopicResultRecord.dart';
 import 'package:final_quizlet_english/models/TopicTypeSetting.dart';
 import 'package:final_quizlet_english/models/VocabStatus.dart';
 import 'package:final_quizlet_english/screens/ResultScreen.dart';
 import 'package:final_quizlet_english/screens/TopicType.dart';
+import 'package:final_quizlet_english/services/QuizSettingsDao.dart';
 import 'package:final_quizlet_english/services/TopicResultRecordDao.dart';
 import 'package:final_quizlet_english/services/TypeSettingsDao.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +20,12 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class TQuizPage extends StatefulWidget {
-  const TQuizPage({super.key, required this.topicDTO, required this.userId});
+  const TQuizPage({super.key, required this.topicDTO, required this.userId, this.qSettings});
 
   final TopicInfoDTO topicDTO;
   final String userId;
+  final QuizSettings? qSettings;
+
   // final QuizSettings? settings;
 
   @override
@@ -32,78 +36,11 @@ class QuestionModel {
   VocabularyStatus vocabStatus;
   String? question;
   List<Map<String, bool>>? answers;
-  QuestionModel(this.question, this.answers, this.vocabStatus);
+  QuestionModel({required this.question,required this.answers, required this.vocabStatus});
 }
 
 class _TQuizPageState extends State<TQuizPage> {
   List<QuestionModel> questions = [
-    // QuestionModel(
-    //   "Quynh",
-    //   {
-    //     "Xinh": false,
-    //     "Qua xinh": false,
-    //     "Xinh qua": true,
-    //     "Xinh xinhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaa": false,
-    //   },
-    // ),
-    // QuestionModel("When does a cat purr ?", {
-    //   "When it cares for its kittens": false,
-    //   "When it needs confort": false,
-    //   "When it feels content": false,
-    //   "All of the above": true,
-    // }),
-    // QuestionModel("What is the averge nulber of kittens in a litter ?", {
-    //   "1 to 2": false,
-    //   "3 to 5": true,
-    //   "8 to 10": false,
-    //   "12 to 14": false,
-    // }),
-    // QuestionModel("How many moons does Mars have ?", {
-    //   "1": false,
-    //   "2": false,
-    //   "4": true,
-    //   "8": false,
-    // }),
-    // QuestionModel("What is Mars's nickname ?", {
-    //   "The red planet": true,
-    //   "The dusty planet": false,
-    //   "The hot planet": false,
-    //   "The smelly planet": false,
-    // }),
-    // QuestionModel("About How long would it take to travel to Mars ?", {
-    //   "Three days": false,
-    //   "A month": false,
-    //   "Eight months": true,
-    //   "Two years": false,
-    // }),
-    // QuestionModel(
-    //     "Mars is Named after the Roman god Mars. What is he the god of ?", {
-    //   "Fire": false,
-    //   "Love": false,
-    //   "Agriculture": false,
-    //   "War": true,
-    // }),
-    // QuestionModel("Mars Is the ___ planet from the sun ?", {
-    //   "Second": false,
-    //   "Third": false,
-    //   "Fourth": true,
-    //   "Sixth": false,
-    // }),
-    // QuestionModel(
-    //     "Where did Orville and Wilbur Wright build their first flying airplane ?",
-    //     {
-    //       "Paris, France": false,
-    //       "Boston, Massachusetts": false,
-    //       "Kitty Hawk, North Carolina": true,
-    //       "Tokyou, Japan": false,
-    //     }),
-    // QuestionModel(
-    //     "The First astronuts to travel to space came from which country ?", {
-    //   "United States": false,
-    //   "Soviet Union (now Russia)": true,
-    //   "China": false,
-    //   "Rocketonia": false,
-    // }),
   ];
   List<QuestionModel> reLearnQuestions = [];
   int learning = 0;
@@ -121,8 +58,67 @@ class _TQuizPageState extends State<TQuizPage> {
 
   bool randomOp = false;
   bool audioPlay = false;
-  bool isVietnameseSelected = true;
+  String answerType = "English";
   bool autoFlip = false;
+  String nextAnswerType = "English";
+  
+  QuizSettings? qSettings;
+  int _currentIndex = 0;
+  List<String> languages = [];
+  @override
+  void initState() {
+    _startTimer();
+    languages.add(widget.topicDTO.topic.termLanguage);
+    languages.add(widget.topicDTO.topic.definitionLanguage);
+    // t = Timer.periodic(Duration(seconds: 1), (timer) {
+    //   setState(() {});
+    // });
+      if (widget.qSettings != null) {
+      qSettings = widget.qSettings;
+      randomOp = qSettings!.randomTerms;
+      audioPlay = qSettings!.autoPlayAudio;
+      answerType = qSettings!.answerType;
+      nextAnswerType = qSettings!.answerType;
+      print("SHUFFLE" + randomOp.toString());
+    }
+    var answers = [];
+    for (var element in widget.topicDTO.vocabs!) {
+      answers.add(element.vocab.definition);
+    }
+    for (var vocabDTO in widget.topicDTO.vocabs!) {
+      var otherAnswer = List.from(answers);
+      var vocab = vocabDTO.vocab;
+      int index =
+          otherAnswer.indexWhere((element) => element == vocab.definition);
+      if (index != -1) {
+        otherAnswer.removeAt(index);
+      }
+      // print(otherAnswer);
+
+      otherAnswer.shuffle();
+      var answer = [
+        {"${otherAnswer[0]}": false},
+        {"${otherAnswer[1]}": false},
+        {"${otherAnswer[2]}": false},
+        {vocab.definition: true},
+      ];
+      // print(answer);
+      answer.shuffle();
+      // print(answer);
+      // questions.add(QuestionModel({"${vocab.term} ?", answer, vocabDTO.vocabStatus}));
+      questions.add(QuestionModel(question: "${vocab.term} ?", answers: answer, vocabStatus: vocabDTO.vocabStatus));
+    }
+    if (randomOp) {
+      questions.shuffle();
+    }
+    if(audioPlay){
+      textToSpeech();
+    }
+    _initial = 1 / questions.length;
+    super.initState();
+
+    originalLength = questions.length;
+  }
   void textToSpeechEn(String text) async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
@@ -162,7 +158,7 @@ class _TQuizPageState extends State<TQuizPage> {
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-        setState(() {});
+        
       });
     }
   }
@@ -177,49 +173,6 @@ class _TQuizPageState extends State<TQuizPage> {
   void _resetTimer() {
     _stopwatch.reset();
     setState(() {});
-  }
-
-  @override
-  void initState() {
-    _startTimer();
-
-    // t = Timer.periodic(Duration(seconds: 1), (timer) {
-    //   setState(() {});
-    // });
-    var answers = [];
-    for (var element in widget.topicDTO.vocabs!) {
-      answers.add(element.vocab.definition);
-    }
-    for (var vocabDTO in widget.topicDTO.vocabs!) {
-      var otherAnswer = List.from(answers);
-      var vocab = vocabDTO.vocab;
-      int index =
-          otherAnswer.indexWhere((element) => element == vocab.definition);
-      if (index != -1) {
-        otherAnswer.removeAt(index);
-      }
-      // print(otherAnswer);
-
-      otherAnswer.shuffle();
-      var answer = [
-        {"${otherAnswer[0]}": false},
-        {"${otherAnswer[1]}": false},
-        {"${otherAnswer[2]}": false},
-        {vocab.definition: true},
-      ];
-      // print(answer);
-      answer.shuffle();
-      // print(answer);
-      questions
-          .add(QuestionModel("${vocab.term} ?", answer, vocabDTO.vocabStatus));
-    }
-    _initial = 1 / questions.length;
-    super.initState();
-
-    // for (var i = 0; i < questions.length; i++) {
-    //   print(questions[i].answers);
-    // }
-    originalLength = questions.length;
   }
 
   @override
@@ -366,6 +319,23 @@ class _TQuizPageState extends State<TQuizPage> {
                                               setState(() {
                                                 randomOp = value;
                                               });
+                                              if (qSettings == null) {
+                                              qSettings = QuizSettings(
+                                                  userId:
+                                                     widget.userId,
+                                                  randomTerms: value,
+                                                  autoPlayAudio: audioPlay,
+                                                  answerType:
+                                                      answerType);
+                                              QuizSettingsDao()
+                                                  .addQuizSettings(
+                                                      qSettings!);
+                                            } else {
+                                              qSettings!.randomTerms = value;
+                                              QuizSettingsDao()
+                                                  .updateQuizSettings(
+                                                      qSettings!);
+                                            }
                                             },
                                           ),
                                         ],
@@ -402,6 +372,23 @@ class _TQuizPageState extends State<TQuizPage> {
                                               setState(() {
                                                 audioPlay = value;
                                               });
+                                              if (qSettings == null) {
+                                              qSettings = QuizSettings(
+                                                  userId:
+                                                     widget.userId,
+                                                  randomTerms: value,
+                                                  autoPlayAudio: audioPlay,
+                                                  answerType:
+                                                      answerType);
+                                              QuizSettingsDao()
+                                                  .addQuizSettings(
+                                                      qSettings!);
+                                            } else {
+                                              qSettings!.autoPlayAudio = value;
+                                              QuizSettingsDao()
+                                                  .updateQuizSettings(
+                                                      qSettings!);
+                                            }
                                             },
                                           ),
                                         ],
@@ -409,56 +396,83 @@ class _TQuizPageState extends State<TQuizPage> {
                                       const SizedBox(
                                         height: 20,
                                       ),
-                                      Text(
-                                        "Answer with",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
+                                      // Text(
+                                      //   "Answer with",
+                                      //   style: TextStyle(
+                                      //     fontSize: 16,
+                                      //     fontWeight: FontWeight.bold,
+                                      //     color: Colors.grey[700],
+                                      //   ),
+                                      // ),
+                                      // const SizedBox(
+                                      //   height: 10,
+                                      // ),
+                                      // ToggleSwitch(
+                                      //   minWidth:
+                                      //       MediaQuery.of(context).size.width,
+                                      //   minHeight: 35,
+                                      //   initialLabelIndex: (answerType == languages[0])
+                                      //         ? 0
+                                      //         : 1,
+                                      //   activeBgColor: const [
+                                      //     Colors.lightGreen
+                                      //   ],
+                                      //   activeFgColor: Colors.white,
+                                      //   inactiveBgColor: Colors.white,
+                                      //   inactiveFgColor: Colors.grey[900],
+                                      //   borderColor: const [Colors.green],
+                                      //   borderWidth: 1.5,
+                                      //   totalSwitches: 2,
+                                      //   labels: languages,
+                                      //   onToggle: (index) {
+                                      //       if (index == 0) {
+                                      //     setState(() {
+                                      //       answerType = languages[0];
+                                      //     });
+                                      //   } else {
+                                      //     setState(() {
+                                      //       answerType = languages[1];
+                                      //     });
+                                      //   }
+                                      //     print('switched to: $index');
+                                      //     if (qSettings == null) {
+                                      //         qSettings = QuizSettings(
+                                      //             userId:
+                                      //                widget.userId,
+                                      //             randomTerms: randomOp,
+                                      //             autoPlayAudio: audioPlay,
+                                      //             answerType:
+                                      //                 answerType);
+                                      //         QuizSettingsDao()
+                                      //             .addQuizSettings(
+                                      //                 qSettings!);
+                                      //       } else {
+                                      //         qSettings!.answerType = answerType;
+                                      //         QuizSettingsDao()
+                                      //             .updateQuizSettings(
+                                      //                 qSettings!);
+                                      //       }
+                                      //   },
+                                      // ),
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      ToggleSwitch(
-                                        minWidth:
-                                            MediaQuery.of(context).size.width,
-                                        minHeight: 35,
-                                        initialLabelIndex: 1,
-                                        activeBgColor: const [
-                                          Colors.lightGreen
-                                        ],
-                                        activeFgColor: Colors.white,
-                                        inactiveBgColor: Colors.white,
-                                        inactiveFgColor: Colors.grey[900],
-                                        borderColor: const [Colors.green],
-                                        borderWidth: 1.5,
-                                        totalSwitches: 2,
-                                        labels: const ['English', 'Vietnamese'],
-                                        onToggle: (index) {
-                                          //code sử lý gì á
-                                          print('switched to: $index');
-                                        },
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          TextButton(
-                                            onPressed: () {},
-                                            child: const Text(
-                                              "Restart Quiz",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.lightGreen,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      // Row(
+                                      //   mainAxisAlignment:
+                                      //       MainAxisAlignment.center,
+                                      //   children: [
+                                      //     TextButton(
+                                      //       onPressed: () {},
+                                      //       child: const Text(
+                                      //         "Restart Quiz",
+                                      //         style: TextStyle(
+                                      //           fontSize: 16,
+                                      //           color: Colors.lightGreen,
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -489,6 +503,11 @@ class _TQuizPageState extends State<TQuizPage> {
                   itemCount: questions.length,
                   controller: _controller,
                   onPageChanged: (page) {
+                    _currentIndex = page;
+                    if (audioPlay) {
+                                // await Future.delayed(Duration(seconds: 2));
+                      textToSpeech();
+                    }
                     if (page == questions.length - 1) {
                       setState(() {
                         btnText = "See Results";
@@ -705,7 +724,6 @@ class _TQuizPageState extends State<TQuizPage> {
                             if (!answered) {
                               skipQuestions.add(_controller.page!.toInt());
                             }
-
                             if (_controller.page?.toInt() ==
                                 questions.length - 1) {
                               _stopTimer();
@@ -730,24 +748,25 @@ class _TQuizPageState extends State<TQuizPage> {
                                   print(resUpdate);
                                 }
                                 print(res["status"]);
-                              } else {
-                                TopicResultRecord record = TopicResultRecord(
-                                    topicId: widget.topicDTO.topic.id!,
-                                    userId: widget.userId,
-                                    completedTime: completedTime,
-                                    correctAnswers: knew,
-                                    wrongAnswers: learning,
-                                    notAnswers: skipQuestions.length);
-                                var res = await TopicResultRecordDao()
-                                    .addTopicResultRecord(record);
-                                print(res);
-                                if (res["status"]) {
-                                  setState(() {
-                                    recordDocId = res["data"];
-                                  });
+                                } else {
+                                  TopicResultRecord record = TopicResultRecord(
+                                      topicId: widget.topicDTO.topic.id!,
+                                      userId: widget.userId,
+                                      completedTime: completedTime,
+                                      correctAnswers: knew,
+                                      wrongAnswers: learning,
+                                      notAnswers: skipQuestions.length);
+                                  var res = await TopicResultRecordDao()
+                                      .addTopicResultRecord(record);
+                                  print(res);
+                                  if (res["status"]) {
+                                    setState(() {
+                                      recordDocId = res["data"];
+                                    });
+                                  }
                                 }
                               }
-                              }
+                              // ignore: use_build_context_synchronously
                               Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -809,6 +828,7 @@ class _TQuizPageState extends State<TQuizPage> {
                                     TopicTypeSettings tSettings =
                                         TopicTypeSettings.fromJson(
                                             result["data"]);
+                                    // ignore: use_build_context_synchronously
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -817,6 +837,7 @@ class _TQuizPageState extends State<TQuizPage> {
                                                     topic: widget.topicDTO,
                                                     tSettings: tSettings)));
                                   } else {
+                                    // ignore: use_build_context_synchronously
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -833,6 +854,7 @@ class _TQuizPageState extends State<TQuizPage> {
                               _controller.nextPage(
                                   duration: const Duration(milliseconds: 250),
                                   curve: Curves.easeInExpo);
+                          
                               // if(!answered){
                               //   skipQuestions.add(_controller.page!.toInt());
                               // }
@@ -860,5 +882,32 @@ class _TQuizPageState extends State<TQuizPage> {
         _initial = 1 / questions.length;
       }
     });
+  }
+  void textToSpeech(){
+    print(widget.topicDTO.topic.termLanguage);
+    print(answerType);
+    if (widget.topicDTO.topic.termLanguage == "English" &&
+                            answerType == "Definition") {
+      textToSpeechEn(
+          questions[_currentIndex].question.toString());
+    } else if (widget.topicDTO.topic.termLanguage ==
+            "English" &&
+        answerType == "Term") {
+      textToSpeechVi(questions[_currentIndex].question
+          .toString());
+    }
+    else if (widget.topicDTO.topic.termLanguage == "Vietnamese" &&
+        answerType == "Term") {
+      textToSpeechVi(
+          questions[_currentIndex].question.toString());
+    } else if (widget.topicDTO.topic.termLanguage ==
+            "Vietnamese" &&
+        answerType == "Definition") {
+      textToSpeechEn(
+          questions[_currentIndex].question.toString());
+    } else {
+      textToSpeechEn(
+          questions[_currentIndex].question.toString());
+    }
   }
 }

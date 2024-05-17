@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/MainPage.dart';
 import 'package:final_quizlet_english/screens/Library.dart';
@@ -27,11 +29,14 @@ class _SignInPageState extends State<SignInPage> {
   var _formKey = GlobalKey<FormState>();
   var _formKeyForgot = GlobalKey<FormState>();
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   bool isLoading = false;
 
   bool isLoadingResend = false;
 
   var obscurePassword = true;
+
 
   @override
   void dispose() {
@@ -45,6 +50,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -127,7 +133,7 @@ class _SignInPageState extends State<SignInPage> {
                                                         Colors.grey.shade200))),
                                         child: TextFormField(
                                           controller: _emailController,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                               hintText: "Email",
                                               hintStyle:
                                                   TextStyle(color: Colors.grey),
@@ -224,10 +230,17 @@ class _SignInPageState extends State<SignInPage> {
                                         builder: (context) => MainPage()),
                                   );
                                 }
+                                else{
+                                  // showScaffoldMessage(context, result["message"]);
+                                  print(result["message"]);
+                                  ScaffoldMessenger.of(this.context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(result["message"])));
+                                }
                                 if (result["status"] == "not-verified") {
                                   getNotVerifiedDialog();
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  ScaffoldMessenger.of(this.context).showSnackBar(
                                       SnackBar(
                                           content: Text(result["message"])));
                                 }
@@ -338,7 +351,7 @@ class _SignInPageState extends State<SignInPage> {
                                         .then((result) {
                                       if (result["status"]) {
                                         showScaffoldMessage(
-                                            context, result["message"]);
+                                            this.context, result["message"]);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -346,11 +359,11 @@ class _SignInPageState extends State<SignInPage> {
                                         );
                                       } else {
                                         showScaffoldMessage(
-                                            context, result["message"]);
+                                            this.context, result["message"]);
                                       }
                                     }).catchError((error) {
                                       showScaffoldMessage(
-                                          context, error.toString());
+                                          this.context, error.toString());
                                     });
                                   },
                                   height: 50,

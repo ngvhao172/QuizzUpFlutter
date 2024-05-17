@@ -1,10 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 
 class SummaryType extends StatefulWidget {
-  const SummaryType({super.key});
+  const SummaryType(
+      {super.key, required this.correctAnswer, required this.inCorrectAnswer});
+
+  final int correctAnswer;
+  final int inCorrectAnswer;
 
   @override
   State<SummaryType> createState() => _SummaryTypeState();
@@ -18,7 +19,7 @@ class _SummaryTypeState extends State<SummaryType> {
             leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         )),
         body: Column(
@@ -32,7 +33,7 @@ class _SummaryTypeState extends State<SummaryType> {
                     child: Padding(
                         padding: EdgeInsets.only(left: 20, right: 20),
                         child: Text(
-                          'Chúc mừng bạn đã hoàn thành, hãy cố gắng tiếp tục luyện tập nhiều hơn',
+                          'Congratulations! You have reviewed all the terms',
                           style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -47,7 +48,7 @@ class _SummaryTypeState extends State<SummaryType> {
                 Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Text(
-                    'Hoàn thành',
+                    'Finished',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -63,7 +64,7 @@ class _SummaryTypeState extends State<SummaryType> {
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 10),
                   child: Text(
-                    '2/2 - Thuật ngữ',
+                    '${widget.correctAnswer}/${widget.correctAnswer+widget.inCorrectAnswer} - Terms',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -79,10 +80,35 @@ class _SummaryTypeState extends State<SummaryType> {
                       border: Border.all(color: Colors.green, width: 1),
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    child: LinearProgressIndicator(
-                      value: 1,
-                      backgroundColor: Colors.grey,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Stack(
+                        children: [
+                          LinearProgressIndicator(
+                            value: 1,
+                            backgroundColor: Colors.grey,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.red),
+                          ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              double correctRatio = (widget.correctAnswer /
+                                  (widget.correctAnswer +
+                                      widget
+                                          .inCorrectAnswer));
+                              return Container(
+                                width: constraints.maxWidth * correctRatio,
+                                child: LinearProgressIndicator(
+                                  value: 1,
+                                  backgroundColor: Colors.transparent,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.green),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -117,7 +143,9 @@ class _SummaryTypeState extends State<SummaryType> {
               child: Column(
                 children: [
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context, false);
+                    },
                     child: Container(
                       width: 450,
                       height: 50,
@@ -129,7 +157,7 @@ class _SummaryTypeState extends State<SummaryType> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Icon(
-                            Icons.receipt_long_sharp,
+                            Icons.restart_alt,
                             size: 35,
                             color: Colors.white,
                           ),
@@ -140,7 +168,7 @@ class _SummaryTypeState extends State<SummaryType> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Tiếp tục thực hành',
+                                  'Restart Type',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,

@@ -37,6 +37,26 @@ class TopicPlayedNumberDao {
       return {"status": false, "message": e.toString()};
     }
   }
+  Future<Map<String, dynamic>> getTotalTopicPlayedNumberByUserId(String userId) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await topicCollection.where('userId', isEqualTo: userId).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        List<TopicPlayedNumber> topicData =
+            querySnapshot.docs.map((doc) => TopicPlayedNumber.fromJson(doc.data() as Map<String, dynamic>)).toList();
+        int totalAttempts = 0;
+        for (var topic in topicData) {
+          totalAttempts += topic.times;
+        }
+        return {"status": true, "data": totalAttempts};
+      } else {
+        return {"status": true, "data": 0};
+      }
+    } catch (e) {
+      return {"status": false, "message": e.toString()};
+    }
+  }
 
   Future<Map<String, dynamic>> getTopicPlayedNumbersByTopicId(String topicId) async {
     try {

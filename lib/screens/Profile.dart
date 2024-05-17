@@ -6,6 +6,7 @@ import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
+import 'package:final_quizlet_english/services/userDao.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,10 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
   bool isPasswordProvider = false;
   @override
   bool get wantKeepAlive => true;
+
+  int? topics;
+  int? folders;
+  int? attempts;
 
   @override
   void initState() {
@@ -60,6 +65,15 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
                 UserModel user = snapshot.data as UserModel;
+                UserDao().getStatistic(user.id!).then((value) {
+                  if(value["status"]){
+                    setState(() {
+                      topics = value["data"]["totalTopics"];
+                    folders = value["data"]["totalFolders"];
+                    attempts = value["data"]["totalAttempts"];
+                    });
+                  }
+                });
                 print(user);
                 for (var userInfo in user.userInfos!) {
                   if (userInfo.providerId == "password") {
@@ -275,12 +289,13 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange.shade700),
                                 ),
+                                (topics!=null) ?
                                 Text(
-                                  "520",
+                                  topics.toString(),
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: Colors.orange.shade700),
-                                )
+                                ) : const Center(child: CircularProgressIndicator(color: Colors.lightGreen),)
                               ],
                             ),
                             Column(
@@ -291,12 +306,13 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange.shade700),
                                 ),
+                                (folders!=null)?
                                 Text(
-                                  "520",
+                                  folders.toString(),
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: Colors.orange.shade700),
-                                )
+                                ) : const Center(child: CircularProgressIndicator(color: Colors.lightGreen),)
                               ],
                             ),
                             Column(
@@ -307,12 +323,13 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange.shade700),
                                 ),
+                                (attempts!=null) ?
                                 Text(
-                                  "520",
+                                  attempts.toString(),
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: Colors.orange.shade700),
-                                )
+                                ) : const Center(child: CircularProgressIndicator(color: Colors.lightGreen),)
                               ],
                             ),
                           ],
