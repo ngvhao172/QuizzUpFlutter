@@ -7,6 +7,7 @@ import 'package:final_quizlet_english/screens/ResultFlashcard.dart';
 import 'package:final_quizlet_english/screens/TopicQuiz.dart';
 import 'package:final_quizlet_english/services/FlashCardSettingsDao.dart';
 import 'package:final_quizlet_english/services/VocabStatusDao.dart';
+import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -786,7 +787,13 @@ class _TFlashcardPageState extends State<TFlashcardPage> {
             });
           }
         } else if(value == "to-quiz"){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic, userId: widget.userId,)));
+          if(widget.topic.vocabs!.length>=4){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TQuizPage(topicDTO: widget.topic, userId: widget.userId,)));
+          }
+          else{
+            Navigator.pop(context);
+            showScaffoldMessage(context, "Quiz requires at least 4 terms to play.");
+          }
         }
         else {
           Navigator.pop(context);

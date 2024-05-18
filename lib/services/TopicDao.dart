@@ -266,6 +266,7 @@ class TopicDao {
           }
           print(result);
         }
+        topicsInfo =  topicsInfo.reversed.toList();
         // for (var element in topicsInfo) {
         //   print(element.vocabs);
         // }
@@ -275,14 +276,15 @@ class TopicDao {
         //get top 5 public topic hien len
         var top5Topic = await getTop5PublicTopicInfoDTOs(userId);
         if(top5Topic["status"]){
-          List<TopicPlayedNumber> top5Topics = top5Topic["data"];
-          for (var topic in top5Topics) {
-            var result = await getTopicInfoDTOByTopicIdAndUserId(topic.topicId, userId);
-            if (result["status"]) {
-              topicsInfo.add(result["data"]);
-            }
-            print(result);
-            }
+          topicsInfo = top5Topic["data"];
+          // List<TopicPlayedNumber> top5Topics = top5Topic["data"];
+          // for (var topic in top5Topics) {
+          //   var result = await getTopicInfoDTOByTopicIdAndUserId(topic.topicId, userId);
+          //   if (result["status"]) {
+          //     topicsInfo.add(result["data"]);
+          //   }
+          //   print(result);
+          //   }
         }
         return {"status": true, "data": topicsInfo};
         

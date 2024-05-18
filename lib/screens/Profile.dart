@@ -69,8 +69,8 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                   if(value["status"]){
                     setState(() {
                       topics = value["data"]["totalTopics"];
-                    folders = value["data"]["totalFolders"];
-                    attempts = value["data"]["totalAttempts"];
+                      folders = value["data"]["totalFolders"];
+                      attempts = value["data"]["totalAttempts"];
                     });
                   }
                 });

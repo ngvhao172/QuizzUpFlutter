@@ -32,15 +32,6 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-// class _MyAppState extends State<MyApp> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: HomePage(),
-//     );
-//   }
-// }
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
@@ -84,7 +75,6 @@ class HomeController extends StatefulWidget {
 class _HomeControllerState extends State<HomeController> {
   @override
   Widget build(BuildContext context) {
-    // final AuthService auth = AuthenticateProvider.of(context)!.auth;
     return StreamBuilder(
       stream: AuthService().onAuthStateChanged,
       builder: (context, snapshot) {

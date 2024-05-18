@@ -53,13 +53,21 @@ class _HomePageState extends State<HomePage>
       FolderDao().getFoldersByUserId(_user!.id!).then((value) {
         print(value);
         if (value["status"]) {
-          List<FolderModel> folders = [];
-          for (var folder in value["data"]) {
-            folders.add(folder);
-          }
           setState(() {
-            folderDTOs = folders;
+            if(value["data"].isNotEmpty){
+              folderDTOs = value["data"];
+            }
+            else{
+               folderDTOs = [];
+            }
           });
+          // List<FolderModel> folders = [];
+          // for (var folder in value["data"]) {
+          //   folders.add(folder);
+          // }
+          // setState(() {
+          //   folderDTOs = folders;
+          // });
         }
       });
     });
@@ -288,49 +296,58 @@ class _HomePageState extends State<HomePage>
                                     )
                                   ],
                                 ),
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: (topicDTOs != null)
-                                      ? Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            // ListView.builder(
-                                            //     reverse: true,
-                                            //     scrollDirection: Axis.horizontal,
-                                            //     itemCount: topicDTOs!.length,
-                                            //     itemBuilder: (context, index) {
-                                            //       return topicOption(
-                                            //         color: Colors.orange[50]!,
-                                            //         title: topicDTOs![index].topic.name,
-                                            //         subtitle: topicDTOs![index].authorName,
-                                            //         image: topicDTOs![index].userAvatar,
-                                            //         term: topicDTOs![index].termNumbers.toString());
-                                            //   },),
-                                            for (int index = 0;
-                                                index < topicDTOs!.length;
-                                                index++)
-                                              topicOption(
-                                                  topicId: topicDTOs![index]
-                                                      .topic
-                                                      .id!,
-                                                  color: Colors.orange[50]!,
-                                                  title: topicDTOs![index]
-                                                      .topic
-                                                      .name,
-                                                  subtitle: topicDTOs![index]
-                                                      .authorName,
-                                                  image: topicDTOs![index]
-                                                      .userAvatar,
-                                                  term: topicDTOs![index]
-                                                      .termNumbers
-                                                      .toString())
-                                          ],
-                                        )
-                                      : const Center(
-                                          child: CircularProgressIndicator(
-                                          color: Colors.lightGreen,
-                                        )),
+                                Row(
+                                  mainAxisAlignment: (topicDTOs != null)? MainAxisAlignment.start : MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: (topicDTOs != null)
+                                            ? Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  // ListView.builder(
+                                                  //     reverse: true,
+                                                  //     scrollDirection: Axis.horizontal,
+                                                  //     itemCount: topicDTOs!.length,
+                                                  //     itemBuilder: (context, index) {
+                                                  //       return topicOption(
+                                                  //         color: Colors.orange[50]!,
+                                                  //         title: topicDTOs![index].topic.name,
+                                                  //         subtitle: topicDTOs![index].authorName,
+                                                  //         image: topicDTOs![index].userAvatar,
+                                                  //         term: topicDTOs![index].termNumbers.toString());
+                                                  //   },),
+                                                  for (int index = 0;
+                                                      index < topicDTOs!.length;
+                                                      index++)
+                                                    topicOption(
+                                                        topicId: topicDTOs![index]
+                                                            .topic
+                                                            .id!,
+                                                        color: Colors.orange[50]!,
+                                                        title: topicDTOs![index]
+                                                            .topic
+                                                            .name,
+                                                        subtitle: topicDTOs![index]
+                                                            .authorName,
+                                                        image: topicDTOs![index]
+                                                            .userAvatar,
+                                                        term: topicDTOs![index]
+                                                            .termNumbers
+                                                            .toString(),
+                                                        userId  : topicDTOs![index].topic.userId
+                                                        )
+                                                ],
+                                              )
+                                            : const Center(
+                                                child: CircularProgressIndicator(
+                                                color: Colors.lightGreen,
+                                              )),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 20),
                                 Row(
@@ -370,38 +387,44 @@ class _HomePageState extends State<HomePage>
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: (folderDTOs != null)
-                                          ? Row(
-                                              children: [
-                                                for (int index = 0;
-                                                    index < folderDTOs!.length;
-                                                    index++)
-                                                  folderOption(
-                                                      folderId:
-                                                          folderDTOs![index]
-                                                              .id!,
-                                                      color: Colors.orange[50]!,
-                                                      title: folderDTOs![index]
-                                                          .name,
-                                                      subtitle:
-                                                          _user!.displayName,
-                                                      image: _user!.photoURL,
-                                                      topic: (folderDTOs![index]
-                                                                  .topicIds !=
-                                                              null)
-                                                          ? folderDTOs![index]
-                                                              .topicIds!
-                                                              .length
-                                                              .toString()
-                                                          : "0"),
-                                              ],
-                                            )
-                                          : const Center(
-                                              child: CircularProgressIndicator(
-                                              color: Colors.lightGreen,
-                                            )),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: (folderDTOs != null)
+                                            ? (folderDTOs!.isNotEmpty) 
+                                                ? Row(
+                                                children: [
+                                                  for (int index = 0;
+                                                      index < folderDTOs!.length;
+                                                      index++)
+                                                    folderOption(
+                                                        folderId:
+                                                            folderDTOs![index]
+                                                                .id!,
+                                                        color: Colors.orange[50]!,
+                                                        title: folderDTOs![index]
+                                                            .name,
+                                                        subtitle:
+                                                            _user!.displayName,
+                                                        image: _user!.photoURL,
+                                                        topic: (folderDTOs![index]
+                                                                    .topicIds !=
+                                                                null)
+                                                            ? folderDTOs![index]
+                                                                .topicIds!
+                                                                .length
+                                                                .toString()
+                                                            : "0",
+                                                        userId: folderDTOs![index].userId),
+                                                ],
+                                              )
+                                             : const Center(
+                                                child: Text("No folder created yet"))
+                                              : const Center(
+                                                child: CircularProgressIndicator(
+                                                color: Colors.lightGreen,
+                                              )),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -410,7 +433,7 @@ class _HomePageState extends State<HomePage>
                           );
                         }
                       }
-                      return Center(
+                      return const Center(
                           child: CircularProgressIndicator(
                         color: Colors.lightGreen,
                       ));
@@ -433,6 +456,7 @@ class _HomePageState extends State<HomePage>
     String? image,
     required String term,
     required String topicId,
+    required String userId
   }) {
     return GestureDetector(
       onTap: () {
@@ -441,7 +465,7 @@ class _HomePageState extends State<HomePage>
             MaterialPageRoute(
                 builder: (context) => TDetailPage(
                       topicId: topicId,
-                      userId: _user!.id!,
+                      userId: userId,
                     )));
       },
       child: Container(
@@ -506,6 +530,7 @@ class _HomePageState extends State<HomePage>
     required String title,
     required String subtitle,
     required String folderId,
+    required String userId,
     String? image,
     required String topic,
   }) {
@@ -516,6 +541,7 @@ class _HomePageState extends State<HomePage>
             MaterialPageRoute(
                 builder: (context) => FolderDetail(
                       folderId: folderId,
+                      userId: userId,
                     )));
       },
       child: Container(

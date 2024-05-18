@@ -64,6 +64,8 @@ class _TDetailPageState extends State<TDetailPage>
 
   bool isFavChosed = false;
 
+  bool isMyTopic = false;
+
   // List<Map<String, String>> notLearned = [];
 
   // List<Map<String, String>> studying = [];
@@ -93,6 +95,7 @@ class _TDetailPageState extends State<TDetailPage>
     await flutterTts.setPitch(1.0);
     await flutterTts.speak(text);
   }
+
   UserModel? _user;
   @override
   void initState() {
@@ -104,29 +107,40 @@ class _TDetailPageState extends State<TDetailPage>
       setState(() {
         _user = user!;
 
+        if (_user!.id! == widget.userId) {
+          isMyTopic = true;
+        }
+
         context
             .read<TopicDetailBloc>()
             .add(LoadTopic(widget.topicId, _user!.id!));
         //Cap nhat last accessed
-        TopicRecentlyAccessedDao().getTopicRecentlyAccessedByUserId(_user!.id!).then((value) {
+        TopicRecentlyAccessedDao()
+            .getTopicRecentlyAccessedByUserId(_user!.id!)
+            .then((value) {
           print(value);
-          if(value["status"]){
+          if (value["status"]) {
             TopicRecentlyAccessed topicAcccessed = value["data"];
             for (var element in topicAcccessed.topicIds) {
-              if(widget.topicId == element){
+              if (widget.topicId == element) {
                 topicAcccessed.topicIds.remove(element);
                 break;
               }
             }
             topicAcccessed.topicIds.add(widget.topicId);
-            TopicRecentlyAccessedDao().updatetopicAccessed(topicAcccessed).then((value){
+            TopicRecentlyAccessedDao()
+                .updatetopicAccessed(topicAcccessed)
+                .then((value) {
               print(value);
             });
-          }else{
+          } else {
             List<String> topicIds = [];
             topicIds.add(widget.topicId);
-            TopicRecentlyAccessed topicRecentlyAccessed = TopicRecentlyAccessed(userId: _user!.id!, topicIds: topicIds);
-            TopicRecentlyAccessedDao().addTopicRecentlyAccessed(topicRecentlyAccessed).then((value) {
+            TopicRecentlyAccessed topicRecentlyAccessed =
+                TopicRecentlyAccessed(userId: _user!.id!, topicIds: topicIds);
+            TopicRecentlyAccessedDao()
+                .addTopicRecentlyAccessed(topicRecentlyAccessed)
+                .then((value) {
               print(value);
             });
           }
@@ -135,6 +149,7 @@ class _TDetailPageState extends State<TDetailPage>
     });
     _tabController = TabController(length: 2, vsync: this);
   }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -203,9 +218,9 @@ class _TDetailPageState extends State<TDetailPage>
     } else if (Platform.isWindows) {
       directory = await getDownloadsDirectory();
 
-      file = File('$directory\topic_${DateTime.now().toString()}.csv');
+      file = File('$directory\\topic_${DateTime.now().toString()}.csv');
     }
-    if(!await directory!.exists()){
+    if (!await directory!.exists()) {
       await directory.create(recursive: true);
     }
 
@@ -214,22 +229,21 @@ class _TDetailPageState extends State<TDetailPage>
       return;
     }
     print(directory.path);
-    if(await directory.exists()){
+    if (await directory.exists()) {
       try {
-      await file.writeAsString(csv);
-      print("File exported successfully!");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("File exported successfully!: " + directory.path)));
-    } catch (e) {
-      print("Failed to export file: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
-    }
-    }
-    else{
+        await file.writeAsString(csv);
+        print("File exported successfully!");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("File exported successfully!: " + directory.path)));
+      } catch (e) {
+        print("Failed to export file: $e");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Failed to export file: $e")));
+      }
+    } else {
       print("Cant create directory");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Failed to export: cant create directory")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to export: cant create directory")));
     }
   }
 
@@ -254,7 +268,7 @@ class _TDetailPageState extends State<TDetailPage>
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              (widget.userId == _user!.id!)
+                              isMyTopic
                                   ? ListTile(
                                       leading: const Icon(Icons.edit),
                                       title: const Text('Edit Topic'),
@@ -271,7 +285,7 @@ class _TDetailPageState extends State<TDetailPage>
                                       },
                                     )
                                   : Container(),
-                              (widget.userId == _user!.id!)
+                              isMyTopic
                                   ? ListTile(
                                       leading: const Icon(Icons.delete),
                                       title: const Text('Delete Topic'),
@@ -361,10 +375,12 @@ class _TDetailPageState extends State<TDetailPage>
                       List<VocabInfoDTO> favoriteVocabs = [];
                       List<VocabInfoDTO> vocabsTemp = [];
                       _vocabsFav = state.vocabsFav;
-                      if(_topicInfoDTO.vocabs!=null){
+                      if (_topicInfoDTO.vocabs != null) {
                         for (var vocabDTO in _topicInfoDTO.vocabs!) {
                           vocabsTemp.add(vocabDTO);
-                          if(_vocabsFav.indexWhere((element) => element.id! == vocabDTO.vocab.id!)!=-1){
+                          if (_vocabsFav.indexWhere((element) =>
+                                  element.id! == vocabDTO.vocab.id!) !=
+                              -1) {
                             favoriteVocabs.add(vocabDTO);
                           }
                         }
@@ -488,12 +504,13 @@ class _TDetailPageState extends State<TDetailPage>
                             onPressed: () async {
                               //
                               int index = _tabController.index;
-                              if(index == 1){//favorite mode
-                                if(_vocabsFav.length != _topicInfoDTO.termNumbers){
+                              if (index == 1) {
+                                //favorite mode
+                                if (_vocabsFav.length !=
+                                    _topicInfoDTO.termNumbers) {
                                   _topicInfoDTO.vocabs = favoriteVocabs;
                                 }
-                              }
-                              else{
+                              } else {
                                 _topicInfoDTO.vocabs = vocabsTemp;
                               }
                               //tạo topicplaycount nếu chưa tồn tại
@@ -527,7 +544,7 @@ class _TDetailPageState extends State<TDetailPage>
                               if (result["status"]) {
                                 FlashCardSettings fSettings =
                                     FlashCardSettings.fromJson(result["data"]);
-                                     // ignore: use_build_context_synchronously
+                                // ignore: use_build_context_synchronously
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -536,15 +553,24 @@ class _TDetailPageState extends State<TDetailPage>
                                             settings: fSettings,
                                             userId: _user!.id!,
                                           )),
-                                );
+                                ).then((value) {
+                                  setState(() {
+                                    _topicInfoDTO.vocabs = vocabsTemp;
+                                  });
+                                });
                               } else {
-                                 // ignore: use_build_context_synchronously
+                                // ignore: use_build_context_synchronously
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => TFlashcardPage(
                                             topic: _topicInfoDTO,
-                                            userId: _user!.id!)));
+                                            userId: _user!.id!))).then((value) {
+                                  setState(() {
+                                    _topicInfoDTO.vocabs = vocabsTemp;
+                                  });
+                                });
+                                ;
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -583,20 +609,23 @@ class _TDetailPageState extends State<TDetailPage>
                           ElevatedButton(
                             onPressed: () async {
                               int index = _tabController.index;
-                              if(index == 1){//favorite mode
-                                if(_vocabsFav.length != _topicInfoDTO.termNumbers){
+                              if (index == 1) {
+                                //favorite mode
+                                if (_vocabsFav.length !=
+                                    _topicInfoDTO.termNumbers) {
                                   _topicInfoDTO.vocabs = favoriteVocabs;
                                 }
-                              }
-                              else{
+                              } else {
                                 _topicInfoDTO.vocabs = vocabsTemp;
                               }
-                              if(_topicInfoDTO.vocabs!.length>=4){
+                              if (_topicInfoDTO.vocabs!.length >= 4) {
                                 //tạo topicplaycount nếu chưa tồn tại
-                              //
-                                var topicPlayCount = await TopicPlayedNumberDao()
-                                    .getTopicPlayedNumberByUserIdAndTopicId(
-                                        _user!.id!, _topicInfoDTO.topic.id!);
+                                //
+                                var topicPlayCount =
+                                    await TopicPlayedNumberDao()
+                                        .getTopicPlayedNumberByUserIdAndTopicId(
+                                            _user!.id!,
+                                            _topicInfoDTO.topic.id!);
                                 if (topicPlayCount["status"]) {
                                   //nếu tồn tại + 1 lần chơi
                                   TopicPlayedNumber topicPlay =
@@ -624,31 +653,40 @@ class _TDetailPageState extends State<TDetailPage>
                                 if (result["status"]) {
                                   QuizSettings qSettings =
                                       QuizSettings.fromJson(result["data"]);
-                                       // ignore: use_build_context_synchronously
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => TQuizPage(
-                                                  topicDTO: _topicInfoDTO,
-                                                  userId: _user!.id!,
-                                                  qSettings: qSettings,
-                                                )),
-                                      );
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => TQuizPage(
+                                              topicDTO: _topicInfoDTO,
+                                              userId: _user!.id!,
+                                              qSettings: qSettings,
+                                            )),
+                                  ).then((value) {
+                                    setState(() {
+                                      _topicInfoDTO.vocabs = vocabsTemp;
+                                    });
+                                  });
+                                  ;
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => TQuizPage(
+                                              topicDTO: _topicInfoDTO,
+                                              userId: _user!.id!,
+                                            )),
+                                  ).then((value) {
+                                    setState(() {
+                                      _topicInfoDTO.vocabs = vocabsTemp;
+                                    });
+                                  });
+                                  ;
                                 }
-                                else{
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => TQuizPage(
-                                                  topicDTO: _topicInfoDTO,
-                                                  userId: _user!.id!,
-                                                )),
-                                      );
-                                }
-                              }
-                              else{
-                                showScaffoldMessage(context, "Quiz requires at least 4 terms to play.");
+                              } else {
+                                showScaffoldMessage(context,
+                                    "Quiz requires at least 4 terms to play.");
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -687,12 +725,13 @@ class _TDetailPageState extends State<TDetailPage>
                           ElevatedButton(
                             onPressed: () async {
                               int index = _tabController.index;
-                              if(index == 1){//favorite mode
-                                if(_vocabsFav.length != _topicInfoDTO.termNumbers){
+                              if (index == 1) {
+                                //favorite mode
+                                if (_vocabsFav.length !=
+                                    _topicInfoDTO.termNumbers) {
                                   _topicInfoDTO.vocabs = favoriteVocabs;
                                 }
-                              }
-                              else{
+                              } else {
                                 _topicInfoDTO.vocabs = vocabsTemp;
                               }
                               //tạo topicplaycount nếu chưa tồn tại
@@ -726,18 +765,30 @@ class _TDetailPageState extends State<TDetailPage>
                               if (result["status"]) {
                                 TopicTypeSettings tSettings =
                                     TopicTypeSettings.fromJson(result["data"]);
+                                // ignore: use_build_context_synchronously
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => TypingPractice(
                                             topic: _topicInfoDTO,
-                                            tSettings: tSettings)));
+                                            tSettings: tSettings))).then(
+                                    (value) {
+                                  setState(() {
+                                    _topicInfoDTO.vocabs = vocabsTemp;
+                                  });
+                                });
                               } else {
+                                // ignore: use_build_context_synchronously
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => TypingPractice(
-                                            topic: _topicInfoDTO)));
+                                            topic: _topicInfoDTO))).then(
+                                    (value) {
+                                  setState(() {
+                                    _topicInfoDTO.vocabs = vocabsTemp;
+                                  });
+                                });
                               }
                             },
                             style: ElevatedButton.styleFrom(

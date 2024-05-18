@@ -127,7 +127,8 @@ class _FolderListAddState extends State<FolderListAdd> {
                                   return FolderInfo(
                                       folder: FolderModel(name: "", userId: ""),
                                       userName: "123",
-                                      userAvatar: null);
+                                      userAvatar: null,
+                                      userId: "",);
                                 },
                               ),
                             ),

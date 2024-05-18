@@ -266,6 +266,7 @@ class _TypingPracticeState extends State<TypingPractice> {
                         //   _speak(_vocabList[_currentIndex]['english']!);
                         // }
                       } else {
+                        FocusScope.of(context).requestFocus(FocusNode());
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -280,6 +281,9 @@ class _TypingPracticeState extends State<TypingPractice> {
                             FocusScope.of(context).requestFocus(FocusNode());
                             Navigator.of(context).pop();
                           } else {
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              _focusNode.requestFocus();
+                            });
                             setState(() {
                               _initial = 1 / _vocabList.length;
                               _incorrectCount = 0;

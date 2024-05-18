@@ -224,7 +224,7 @@ class _SignInPageState extends State<SignInPage> {
                                   isLoading = false;
                                 });
                                 if (result["status"] == true) {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => MainPage()),
@@ -278,7 +278,7 @@ class _SignInPageState extends State<SignInPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
@@ -352,12 +352,13 @@ class _SignInPageState extends State<SignInPage> {
                                       if (result["status"]) {
                                         showScaffoldMessage(
                                             this.context, result["message"]);
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => const MainPage()),
                                         );
                                       } else {
+                                        print(result["message"]);
                                         showScaffoldMessage(
                                             this.context, result["message"]);
                                       }

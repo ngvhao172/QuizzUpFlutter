@@ -77,14 +77,14 @@ class _SearchPageState extends State<SearchPage>
     });
   }
 
-  void _filterUsers(String query) {
-    setState(() {
-      query = query.toLowerCase();
-      _filteredUsers = _users
-          .where((user) => user['title'].toLowerCase().contains(query))
-          .toList();
-    });
-  }
+  // void _filterUsers(String query) {
+  //   setState(() {
+  //     query = query.toLowerCase();
+  //     _filteredUsers = _users
+  //         .where((user) => user['title'].toLowerCase().contains(query))
+  //         .toList();
+  //   });
+  // }
 
   getData(String value) async{
     setState(() {
@@ -188,31 +188,29 @@ class _SearchPageState extends State<SearchPage>
             },
           ),
         ),
-        bottom: (isLoaded)
-            ? TabBar(
-                controller: _tabController,
-                labelColor: Colors.lightGreen,
-                indicatorColor: Colors.lightGreen,
-                tabs: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: Tab(text: 'Topics'),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: Tab(text: 'Users'),
-                  ),
-                ],
-              )
-            : null,
+        // bottom: (isLoaded)
+        //     ? TabBar(
+        //         controller: _tabController,
+        //         labelColor: Colors.lightGreen,
+        //         indicatorColor: Colors.lightGreen,
+        //         tabs: [
+        //           SizedBox(
+        //             width: MediaQuery.of(context).size.width / 2,
+        //             child: Tab(text: 'Topics'),
+        //           ),
+        //           SizedBox(
+        //             width: MediaQuery.of(context).size.width / 2,
+        //             child: Tab(text: 'Users'),
+        //           ),
+        //         ],
+        //       )
+        //     : null,
       ),
       body: (_user != null)
       ?(!isSearching)
           ? (isLoaded)
-              ? TabBarView(
-                  controller: _tabController,
-                  children: [
-                    (_topics.isNotEmpty) ?
+              ? 
+                (_topics.isNotEmpty) ?
                     ListView.builder(
                       itemCount: _topics.length,
                       itemBuilder: (context, index) {
@@ -229,24 +227,9 @@ class _SearchPageState extends State<SearchPage>
                           ),
                         );
                       },
-                    ): const Center(child: Text("Cant found any topic"),),
-                    ListView.builder(
-                      itemCount: _filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        return SizedBox(
-                          width: double.infinity,
-                          child: userOption(
-                            color: Colors.orange[50]!,
-                            title: _filteredUsers[index]['title'],
-                            image: _filteredUsers[index]['image'],
-                            topic: _filteredUsers[index]['topic'],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                )
-              : Container(
+                    ): const Center(child: Text("Cant found any topic"),)
+                  
+             : Container(
                   padding: EdgeInsets.all(20),
                   child: Column(
                     children: [

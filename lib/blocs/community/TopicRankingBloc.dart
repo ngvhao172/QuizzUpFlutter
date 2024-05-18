@@ -14,6 +14,7 @@ class TopicRankingBloc extends Bloc<TopicRankingEvent, TopicRankingState> {
       emit(TopicRankingLoading());
       var result = await topicDao.getTopicRankingInfoDTOsByUserId(event.userId);
       print(result);
+      currentTopicRankings = [];
       if(result["status"]){
         List<TopicRankingInfoDTO> data = result["data"];
         if(data.isNotEmpty){

@@ -835,7 +835,9 @@ class _TQuizPageState extends State<TQuizPage> {
                                             builder: (context) =>
                                                 TypingPractice(
                                                     topic: widget.topicDTO,
-                                                    tSettings: tSettings)));
+                                                    tSettings: tSettings))).then((value) {
+                                                      Navigator.pop(context);
+                                                    });
                                   } else {
                                     // ignore: use_build_context_synchronously
                                     Navigator.push(
@@ -843,7 +845,9 @@ class _TQuizPageState extends State<TQuizPage> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 TypingPractice(
-                                                    topic: widget.topicDTO)));
+                                                    topic: widget.topicDTO))).then((value) {
+                                                      Navigator.pop(context);
+                                                    });
                                   }
                                   // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TypingPractice(topic: widget.topicDTO,)));
                                 } else {

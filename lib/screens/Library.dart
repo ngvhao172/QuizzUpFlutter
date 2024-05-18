@@ -7,6 +7,7 @@ import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
+import 'package:final_quizlet_english/dtos/FolderInfo.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
@@ -39,6 +40,8 @@ class _LibraryPageState extends State<LibraryPage>
   int percentage = 40;
 
   final ScrollController _scrollController = ScrollController();
+
+  bool isSearching = false;
 
   Widget _buildCarousel() {
     return AppBar(
@@ -73,7 +76,22 @@ class _LibraryPageState extends State<LibraryPage>
                               color: Colors.grey,
                             ),
                           ),
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            if(value.isNotEmpty){
+                              _filterTopics(value);
+                              _filterFolders(value);
+                              setState(() {
+                                isSearching = true;
+                              });
+                              print("SEARCHING: " + isSearching.toString());
+                              print(_filteredTopics.length);
+                            }
+                            else{
+                              setState(() {
+                                isSearching = false;
+                              });
+                            }
+                          },
                         ),
                       ),
                       IconButton(
@@ -94,6 +112,7 @@ class _LibraryPageState extends State<LibraryPage>
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: searchController,
                           focusNode: focusNode,
                           decoration: const InputDecoration(
                             hintText: 'Search...',
@@ -130,9 +149,12 @@ class _LibraryPageState extends State<LibraryPage>
   var items = [
     'All',
     'Created',
-    'Studied',
-    'Liked',
   ];
+  List<FolderModel> _filteredFolders = [];
+  List<TopicInfoDTO> _filteredTopics = [];
+
+  late List<TopicInfoDTO> topicDTOs;
+  late List<FolderModel> folderDTOs;
 
   @override
   bool get wantKeepAlive => true;
@@ -163,14 +185,43 @@ class _LibraryPageState extends State<LibraryPage>
     focusNode.dispose();
   }
 
+  TextEditingController searchController = TextEditingController();
+
   void _toggleSearch() {
     setState(() {
       if (isSearchExpanded) {
+        searchController.text = "";
+        isSearching = false;
         focusNode.unfocus();
       } else {
         focusNode.requestFocus();
       }
       isSearchExpanded = !isSearchExpanded;
+    });
+  }
+
+  void _filterTopics(String query) {
+    setState(() {
+      query = query.toLowerCase();
+      print("TOPIC LENGTH:" + _filteredTopics.length.toString());
+      _filteredTopics = topicDTOs
+          .where((topicDTO) =>
+              topicDTO.topic.name.toLowerCase().contains(query) ||
+              topicDTO.authorName.toLowerCase().contains(query))
+          .toList();
+      print(_filteredTopics.length);
+    });
+  }
+
+  void _filterFolders(String query) {
+    setState(() {
+      query = query.toLowerCase();
+      print("Folder LENGTH:" + _filteredFolders.length.toString());
+      _filteredFolders = folderDTOs
+          .where((folderDTO) =>
+              folderDTO.name.toLowerCase().contains(query))
+          .toList();
+      print(_filteredTopics.length);
     });
   }
 
@@ -189,6 +240,7 @@ class _LibraryPageState extends State<LibraryPage>
       List<List<dynamic>> parsedCSV =
           const CsvToListConverter().convert(csvString);
 
+      // ignore: use_build_context_synchronously
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -265,6 +317,11 @@ class _LibraryPageState extends State<LibraryPage>
                                             print("created load");
                                             context.read<TopicBloc>().add(
                                                 LoadTopicsByCreatedDay(
+                                                    _user!.id!));
+                                          }
+                                          else{
+                                            context.read<TopicBloc>().add(
+                                                LoadTopics(
                                                     _user!.id!));
                                           }
                                         });
@@ -364,6 +421,15 @@ class _LibraryPageState extends State<LibraryPage>
                                       );
                                     } else if (state is TopicLoaded) {
                                       List<TopicInfoDTO> data = state.topics;
+                                      
+                                      topicDTOs = state.topics;
+                                      
+                                      if(isSearching){
+                                        data = _filteredTopics;
+                                      }
+                                      else{
+                                        data = state.topics;
+                                      }
                                       print(data);
                                       DateTime today = DateTime.now();
                                       DateTime yesterday =
@@ -763,16 +829,26 @@ class _LibraryPageState extends State<LibraryPage>
                                               folder: FolderModel(
                                                   name: "", userId: ""),
                                               userName: "123",
-                                              userAvatar: null);
+                                              userAvatar: null,
+                                              userId: "",);
                                         },
                                       ),
                                     );
                                   } else if (state is FolderLoaded) {
                                     List<FolderModel> data = state.folders;
+
+                                    folderDTOs = state.folders;
+                                      
+                                    if(isSearching){
+                                      data = _filteredFolders;
+                                    }
+                                    else{
+                                      data = state.folders;
+                                    }
                                     if (data.isEmpty) {
                                       return const Center(
                                         child: Text(
-                                            "Chưa có folder nào được thêm"),
+                                            "No topic created yet"),
                                       );
                                     } else {
                                       return ListView.builder(
@@ -782,7 +858,8 @@ class _LibraryPageState extends State<LibraryPage>
                                           return FolderInfo(
                                               folder: data[index],
                                               userName: _user!.displayName,
-                                              userAvatar: _user!.photoURL);
+                                              userAvatar: _user!.photoURL,
+                                              userId: data[index].userId,);
                                         },
                                       );
                                     }
@@ -810,12 +887,15 @@ class FolderInfo extends StatelessWidget {
       {super.key,
       required this.folder,
       this.userAvatar,
+      required this.userId,
       required this.userName});
   final FolderModel folder;
 
   final String? userAvatar;
 
   final String userName;
+
+  final String userId;
 
   @override
   Widget build(BuildContext context) {
@@ -824,7 +904,7 @@ class FolderInfo extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => FolderDetail(folderId: folder.id!)));
+                builder: (context) => FolderDetail(folderId: folder.id!, userId: userId,)));
       },
       child: Card(
         child: Padding(

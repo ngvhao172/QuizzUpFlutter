@@ -20,6 +20,7 @@ class TopicBloc extends Bloc<TopicEvent, TopicState> {
   TopicBloc(this.topicDao) : super(TopicLoading()) {
     on<LoadTopics>((event, emit) async {
       emit(TopicLoading());
+      currentTopics = [];
       final topics = await topicDao.getTopicInfoDTOByUserId(event.userId);
       print("So LUONG:" + topics["data"].length.toString());
       currentTopics = topics["data"];

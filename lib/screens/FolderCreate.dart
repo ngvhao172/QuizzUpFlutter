@@ -88,7 +88,7 @@ class _FolderCreatePageState extends State<FolderCreatePage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                FolderDetail(folderId: folderId)));
+                                FolderDetail(folderId: folderId, userId: user.id!,)));
                   } catch (e) {
                     showScaffoldMessage(context, e.toString());
                   }

@@ -228,7 +228,7 @@ class FolderDao {
             foldersData.map((e) => FolderModel.fromJson(e)).toList();
         return {"status": true, "data": foldersDataObj};
       } else {
-        return {"status": false, "message": "Không tìm thấy folder nào."};
+        return {"status": true, "data": []};
       }
     } catch (e) {
       return {"status": false, "message": e.toString()};

@@ -14,9 +14,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class FolderDetail extends StatefulWidget {
-  const FolderDetail({super.key, required this.folderId});
+  const FolderDetail({super.key, required this.folderId, required this.userId});
 
   final String folderId;
+
+  final String userId;
 
 
   @override
@@ -29,6 +31,8 @@ class _FolderDetailState extends State<FolderDetail>  {
 
   UserModel? _user;
 
+  bool isMyFolder = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +41,9 @@ class _FolderDetailState extends State<FolderDetail>  {
     AuthService().getCurrentUser().then((value){
       setState(() {
         _user = value!;
+        if(_user!.id! == widget.userId){
+          isMyFolder = true;
+        }
 
         context.read<FolderDetailBloc>().add(LoadFolder(widget.folderId, _user!.id!));
       });
@@ -57,7 +64,8 @@ class _FolderDetailState extends State<FolderDetail>  {
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        ListTile(
+                        isMyFolder
+                                  ? ListTile(
                           leading: const Icon(Icons.edit),
                           title: const Text('Edit Folder'),
                           onTap: () {
@@ -68,8 +76,9 @@ class _FolderDetailState extends State<FolderDetail>  {
                                     builder: (context) =>
                                         FolderUpdatePage(folder: lateFolder)));
                           },
-                        ),
-                        ListTile(
+                        ) : Container(),
+                        isMyFolder
+                                  ? ListTile(
                           leading: const Icon(Icons.delete),
                           title: const Text('Delete Folder'),
                           onTap: () {
@@ -100,7 +109,7 @@ class _FolderDetailState extends State<FolderDetail>  {
 
                             // context.read<TopicBloc>().add(RemoveTopic(widget.topicId));
                           },
-                        ),
+                        ) : Container(),
                         ListTile(
                           leading: const Icon(Icons.folder_open),
                           title: const Text('Add Topic'),
@@ -199,7 +208,7 @@ class _FolderDetailState extends State<FolderDetail>  {
                     },
                   ),
                 )
-                : Expanded(child: const Center(child: Text("Chưa có topic nào được thêm trong folder này"),))
+                : Expanded(child: const Center(child: Text("No topic added yet."),))
               ],
             );
           } else {

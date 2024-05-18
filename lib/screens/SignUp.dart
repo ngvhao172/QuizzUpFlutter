@@ -1,7 +1,9 @@
 import 'package:final_quizlet_english/models/User.dart';
+import 'package:final_quizlet_english/screens/MainPage.dart';
 import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:final_quizlet_english/services/UserDao.dart';
+import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -385,7 +387,26 @@ class _SignUpPageState extends State<SignUpPage> {
                               duration: const Duration(milliseconds: 1900),
                               child: MaterialButton(
                                 onPressed: () {
-                                  AuthService().signInWithGoogle();
+                                  AuthService()
+                                        .signInWithGoogle()
+                                        .then((result) {
+                                      if (result["status"]) {
+                                        showScaffoldMessage(
+                                            this.context, result["message"]);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => const MainPage()),
+                                        );
+                                      } else {
+                                        print(result["message"]);
+                                        showScaffoldMessage(
+                                            this.context, result["message"]);
+                                      }
+                                    }).catchError((error) {
+                                      showScaffoldMessage(
+                                          this.context, error.toString());
+                                    });
                                 },
                                 height: 50,
                                 shape: RoundedRectangleBorder(

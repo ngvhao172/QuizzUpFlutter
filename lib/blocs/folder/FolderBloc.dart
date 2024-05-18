@@ -12,10 +12,16 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
   FolderBloc(this.folderDao) : super(FolderLoading()) {
     on<LoadFolders>((event, emit) async {
       emit(FolderLoading());
+      currentFolders = [];
       var result = await folderDao.getFoldersByUserId(event.userId);
       print(result);
       if(result["status"]){
-        currentFolders = result["data"];
+        if(result["data"].isNotEmpty){
+          currentFolders = result["data"]; 
+        }
+        else{
+          currentFolders = [];
+        }
       }
       emit(FolderLoaded(currentFolders));
     });
@@ -50,7 +56,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
       currentFolders.removeWhere((FolderToDelete) => FolderToDelete.id == event.Folder.id);
       final newFolderAdded = await folderDao.getFolderById(event.Folder.id!);
       if(newFolderAdded["status"]){
-        currentFolders.add(newFolderAdded["data"]);
+        currentFolders.add(FolderModel.fromJson(newFolderAdded["data"]));
       }
       emit(FolderLoaded(currentFolders));
     });
