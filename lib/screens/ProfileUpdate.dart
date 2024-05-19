@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
-import 'package:final_quizlet_english/services/userDao.dart';
+import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

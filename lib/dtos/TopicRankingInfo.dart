@@ -1,7 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_quizlet_english/dtos/TopicInfo.dart';
-import 'package:final_quizlet_english/models/Folder.dart';
-
 class TopicRankingInfoDTO {
   final String topicId;
   final String topicName;

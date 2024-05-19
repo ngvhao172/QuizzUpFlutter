@@ -213,7 +213,7 @@ class _TUpdatePageState extends State<TUpdatePage> {
                           .add(LoadTopic(updateTopic.id!, user.id!));
                       print('All vocabularies added successfully to the topic');
                       showScaffoldMessage(context,
-                          "All vocabularies added successfully to the topic");
+                          "Update topic successfully");
                       //pop showdialog
                       Navigator.pop(context);
                       //pop screen
@@ -290,21 +290,21 @@ class _TUpdatePageState extends State<TUpdatePage> {
                             const SizedBox(
                               height: 10,
                             ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Row(
-                                children: [
-                                  Icon(
-                                    Icons.document_scanner_outlined,
-                                    color: Colors.lightGreen,
-                                  ),
-                                  Text(
-                                    "Scan document",
-                                    style: TextStyle(color: Colors.lightGreen),
-                                  )
-                                ],
-                              ),
-                            ),
+                            // TextButton(
+                            //   onPressed: () {},
+                            //   child: const Row(
+                            //     children: [
+                            //       Icon(
+                            //         Icons.document_scanner_outlined,
+                            //         color: Colors.lightGreen,
+                            //       ),
+                            //       Text(
+                            //         "Scan document",
+                            //         style: TextStyle(color: Colors.lightGreen),
+                            //       )
+                            //     ],
+                            //   ),
+                            // ),
                             const SizedBox(height: 10),
                             Column(
                               children: terms.asMap().entries.map(

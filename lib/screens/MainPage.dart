@@ -9,7 +9,6 @@ import 'SearchPage.dart' as _searchPageTab;
 
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/FolderCreate.dart';
-import 'package:final_quizlet_english/screens/FolderDetail.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {

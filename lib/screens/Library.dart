@@ -7,14 +7,12 @@ import 'package:final_quizlet_english/blocs/topic/Topic.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/Folder.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
-import 'package:final_quizlet_english/dtos/FolderInfo.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/dtos/VocabInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/FolderCreate.dart';
 import 'package:final_quizlet_english/screens/FolderDetail.dart';
-import 'package:final_quizlet_english/screens/Profile.dart';
 import 'package:final_quizlet_english/screens/TopicCreate.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
@@ -253,6 +251,7 @@ class _LibraryPageState extends State<LibraryPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
         body: (_user == null)
             ? Center(
@@ -848,7 +847,7 @@ class _LibraryPageState extends State<LibraryPage>
                                     if (data.isEmpty) {
                                       return const Center(
                                         child: Text(
-                                            "No topic created yet"),
+                                            "No folder created yet"),
                                       );
                                     } else {
                                       return ListView.builder(

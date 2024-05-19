@@ -2,7 +2,6 @@ import 'package:final_quizlet_english/blocs/community/TopicRankingBloc.dart';
 import 'package:final_quizlet_english/blocs/community/TopicRankingDetailBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderBloc.dart';
 import 'package:final_quizlet_english/blocs/folder/FolderDetailBloc.dart';
-import 'package:final_quizlet_english/screens/HomePage.dart';
 import 'package:final_quizlet_english/screens/Splash.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicBloc.dart';
 import 'package:final_quizlet_english/blocs/topic/TopicDetailBloc.dart';

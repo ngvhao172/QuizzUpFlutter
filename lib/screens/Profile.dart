@@ -6,11 +6,13 @@ import 'package:final_quizlet_english/screens/ProfileUpdate.dart';
 import 'package:final_quizlet_english/screens/SignIn.dart';
 import 'package:final_quizlet_english/services/AuthProvider.dart';
 import 'package:final_quizlet_english/services/Auth.dart';
-import 'package:final_quizlet_english/services/userDao.dart';
+import 'package:final_quizlet_english/services/PageChangeNotifier.dart';
+import 'package:final_quizlet_english/services/UserDao.dart';
 import 'package:final_quizlet_english/widgets/notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -67,11 +69,13 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                 UserModel user = snapshot.data as UserModel;
                 UserDao().getStatistic(user.id!).then((value) {
                   if(value["status"]){
-                    setState(() {
-                      topics = value["data"]["totalTopics"];
-                      folders = value["data"]["totalFolders"];
-                      attempts = value["data"]["totalAttempts"];
+                    if(mounted){
+                      setState(() {
+                        topics = value["data"]["totalTopics"];
+                        folders = value["data"]["totalFolders"];
+                        attempts = value["data"]["totalAttempts"];
                     });
+                    }
                   }
                 });
                 print(user);
@@ -255,6 +259,9 @@ class _ProfilePageState extends State<ProfilePage> with AutomaticKeepAliveClient
                             color: Colors.white,
                           ),
                           onPressed: () {
+                              PageProvider dataProvider =
+                                            context.read<PageProvider>();
+                                        dataProvider.updateData(0);
                             authProvider.auth.signOut();
                             Navigator.pushReplacement(
                                 context,

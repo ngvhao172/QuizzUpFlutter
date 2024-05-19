@@ -76,8 +76,7 @@ class TopicPlayedNumberDao {
   }
   Future<Map<String, dynamic>> getTop5PublicTopicPlayedNumbers() async {
     try {
-      QuerySnapshot querySnapshot =
-          await topicCollection.get();
+      QuerySnapshot querySnapshot = await topicCollection.get();
 
       if (querySnapshot.docs.isNotEmpty) {
           List<TopicPlayedNumber> topicData =

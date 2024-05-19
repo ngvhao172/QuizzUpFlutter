@@ -119,9 +119,7 @@ class AuthService {
     try {
       User? user = auth.currentUser;
 
-      if (user != null &&
-          user.providerData
-              .any((userInfo) => userInfo.providerId == 'google.com')) {
+      if (user != null) {
         AuthCredential credential = EmailAuthProvider.credential(
           email: user.email!.trim().toString(),
           password: oldPassword.trim(),

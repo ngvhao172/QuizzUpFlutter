@@ -278,12 +278,16 @@ class _SignInPageState extends State<SignInPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pushReplacement(
+                                  Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             const SignUpPage()),
-                                  ).then((value) => {getNotVerifiedDialog()});
+                                  ).then((value)  {
+                                    if(value){
+                                      getNotVerifiedDialog();
+                                    }
+                                  });
                                 },
                                 child: Text(
                                   "Sign Up",

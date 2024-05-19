@@ -268,7 +268,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     isLoading = false;
                                   });
                                   if (result["status"]) {
-                                    Navigator.pop(context);
+                                    Navigator.pop(context, true);
                                   }
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -319,12 +319,13 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SignInPage()),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //       builder: (context) =>
+                                  //           const SignInPage()),
+                                  // );
+                                  Navigator.pop(context, false);
                                 },
                                 child: Text(
                                   "Sign In",

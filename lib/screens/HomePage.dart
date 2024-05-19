@@ -1,18 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:final_quizlet_english/dtos/FolderInfo.dart';
 import 'package:final_quizlet_english/dtos/TopicInfo.dart';
 import 'package:final_quizlet_english/models/Folder.dart';
 import 'package:final_quizlet_english/models/User.dart';
 import 'package:final_quizlet_english/screens/FolderDetail.dart';
-import 'package:final_quizlet_english/screens/Report.dart';
 import 'package:final_quizlet_english/screens/TopicDetail.dart';
 import 'package:final_quizlet_english/screens/searchPage.dart';
 import 'package:final_quizlet_english/services/FolderDao.dart';
 import 'package:final_quizlet_english/services/PageChangeNotifier.dart';
 import 'package:final_quizlet_english/services/TopicDao.dart';
-import 'package:final_quizlet_english/services/auth.dart';
+import 'package:final_quizlet_english/services/Auth.dart';
 import 'package:flutter/material.dart';
-import 'package:final_quizlet_english/screens/Library.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -45,9 +42,11 @@ class _HomePageState extends State<HomePage>
           .then((value) {
         print(value);
         if (value["status"]) {
-          setState(() {
-            topicDTOs = value["data"];
-          });
+          if (mounted){
+            setState(() {
+              topicDTOs = value["data"];
+            });
+          }
         }
       });
       FolderDao().getFoldersByUserId(_user!.id!).then((value) {
@@ -272,11 +271,9 @@ class _HomePageState extends State<HomePage>
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    LibraryPage()));
+                                        PageProvider dataProvider =
+                                            context.read<PageProvider>();
+                                        dataProvider.updateData(2);
                                       },
                                       child: const Row(
                                         children: [

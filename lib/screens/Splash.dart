@@ -21,7 +21,8 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.of(context).pushReplacement(
+      if(mounted){
+        Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) {
             if(widget.signedIn){
@@ -31,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen>
           } 
         ),
       );
+      }
     });
   }
 

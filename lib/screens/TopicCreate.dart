@@ -236,21 +236,21 @@ class _TCreatePageState extends State<TCreatePage> {
                             const SizedBox(
                               height: 10,
                             ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Row(
-                                children: [
-                                  Icon(
-                                    Icons.document_scanner_outlined,
-                                    color: Colors.lightGreen,
-                                  ),
-                                  Text(
-                                    "Scan document",
-                                    style: TextStyle(color: Colors.lightGreen),
-                                  )
-                                ],
-                              ),
-                            ),
+                            // TextButton(
+                            //   onPressed: () {},
+                            //   child: const Row(
+                            //     children: [
+                            //       Icon(
+                            //         Icons.document_scanner_outlined,
+                            //         color: Colors.lightGreen,
+                            //       ),
+                            //       Text(
+                            //         "Scan document",
+                            //         style: TextStyle(color: Colors.lightGreen),
+                            //       )
+                            //     ],
+                            //   ),
+                            // ),
                             const SizedBox(height: 10),
                             Column(
                               children: terms.asMap().entries.map(

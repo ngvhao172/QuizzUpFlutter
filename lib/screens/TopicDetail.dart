@@ -349,6 +349,7 @@ class _TDetailPageState extends State<TDetailPage>
                       List<VocabularyModel> studying = [];
                       List<VocabularyModel> knew = [];
                       List<VocabularyModel> mastered = [];
+                      data = [];
                       for (var element in _topicInfoDTO.vocabs!) {
                         data.add({
                           "English": element.vocab.term,
