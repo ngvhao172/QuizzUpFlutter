@@ -1,16 +1,11 @@
-# final_quizlet_english
+This project using firebase to storing data. 
 
-A new Flutter project.
+User can create topic for learning English, playing flash-card, quiz and typing while studying. 
 
-## Getting Started
+User can also play other public topics created by other people. 
 
-This project is a starting point for a Flutter application.
+User need to use real email to register new account because this app will require user to verifier their email before login. 
 
-A few resources to get you started if this is your first Flutter project:
+TEST ACCOUNT: testuserquizup@gmail.com/123456 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+demo url: https://youtu.be/oLMANoSZFRs?si=Pqs9izj2wcoGxtPY
